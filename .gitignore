@@ -1,0 +1,7 @@
+# Solution/Project Artifacts
+.vs/
+.vscode/
+.idea/
+
+# Build Artifacts
+cmake-build-*/
