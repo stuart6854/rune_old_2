@@ -1,0 +1,1 @@
+spdlog - v1.11.0 - https://github.com/gabime/spdlog/tree/v1.11.0

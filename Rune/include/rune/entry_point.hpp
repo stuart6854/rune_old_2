@@ -1,7 +1,13 @@
 #pragma once
 
-struct EngineConfig
-{
-};
+#include <string_view>
 
-extern void configure_engine(EngineConfig& config);
+namespace rune
+{
+    struct EngineConfig
+    {
+        std::string_view logDirPath;
+    };
+
+    extern void configure_engine(EngineConfig& config);
+}

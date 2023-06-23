@@ -2,7 +2,9 @@
 
 #include <iostream>
 
-void configure_engine(EngineConfig& /*config*/)
+void rune::configure_engine(rune::EngineConfig& config)
 {
     std::cout << "Engine config\n";
+
+    config.logDirPath = "./logs";
 }

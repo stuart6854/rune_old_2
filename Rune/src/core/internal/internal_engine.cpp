@@ -20,7 +20,7 @@ namespace rune::engine::internal
         RUNE_ASSERT(s_engineData == nullptr);
         s_engineData = std::make_unique<EngineData>();
 
-        // #TODO: Log initialisation
+        LOG_INFO("Rune initialising...");
     }
 
     void shutdown()
@@ -28,7 +28,7 @@ namespace rune::engine::internal
         auto& engineData = get_engine_data();
         RUNE_UNUSED(engineData);
 
-        // #TODO: Log shutdown
+        LOG_INFO("Rune shutting down...");
 
         s_engineData = nullptr;
     }

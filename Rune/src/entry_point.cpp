@@ -23,14 +23,15 @@ int main(int /*argc*/, char** /*argv*/)
 
     try
     {
+        logging::internal::initialise(config.logDirPath);
         engine::internal::initialise();
         // #TODO: Run engine
         engine::internal::shutdown();
+        logging::internal::shutdown();
     }
     catch (...)
     {
-        std::cerr << "Error: unknown exception" << std::endl;
-        // #TODO: Ensure logging code is flushed (log files written, etc.)
+        LOG_CRITICAL("critical: unknown exception");
         logging::internal::flush();
         return EXIT_FAILURE;
     }

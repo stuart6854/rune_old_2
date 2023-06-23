@@ -1,6 +1,9 @@
 #pragma once
 
 #include "core/platform_detection.hpp"
+#include "core/internal/internal_logging.hpp"
+
+#include <source_location>
 
 #if defined(RUNE_BUILD_DEBUG) || defined(RUNE_BUILD_RELEASE)
     #if defined(RUNE_PLATFORM_WINDOWS)
@@ -14,13 +17,15 @@
         #endif
     #endif
 
-    #define RUNE_ASSERT(_expr)      \
-        do                          \
-        {                           \
-            if (!(_expr))           \
-            {                       \
-                RUNE_DEBUG_BREAK(); \
-            }                       \
+    #define RUNE_ASSERT(_expr)                                                                                    \
+        do                                                                                                        \
+        {                                                                                                         \
+            if (!(_expr))                                                                                         \
+            {                                                                                                     \
+                std::source_location sourceLoc{};                                                                 \
+                LOG_ERROR("{}:{}: error: assertion failed: {}", sourceLoc.file_name(), sourceLoc.line(), #_expr); \
+                RUNE_DEBUG_BREAK();                                                                               \
+            }                                                                                                     \
         } while (false)
 
 #elif defined(RUNE_BUILD_DISTRO)
