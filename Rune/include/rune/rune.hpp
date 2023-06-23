@@ -1,6 +1,5 @@
-#ifndef RUNE_RUNE_HPP
-#define RUNE_RUNE_HPP
+#pragma once
 
-void hello();
-
-#endif  // RUNE_RUNE_HPP
+namespace rune
+{
+}

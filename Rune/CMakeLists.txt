@@ -4,6 +4,7 @@ file(GLOB_RECURSE ${TARGET_NAME}_SOURCES "src/*.cpp")
 add_library(${TARGET_NAME} STATIC ${${TARGET_NAME}_SOURCES})
 
 target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${TARGET_NAME}> $<INSTALL_INTERFACE:include/${TARGET_NAME}>)
+target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
@@ -14,4 +15,12 @@ if (MSVC)
 else ()
     # lots of warnings and all warnings as errors
     target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif ()
+
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    target_compile_definitions(${TARGET_NAME} PUBLIC RUNE_BUILD_DEBUG)
+elseif (CMAKE_BUILD_TYPE MATCHES Release)
+    target_compile_definitions(${TARGET_NAME} PUBLIC RUNE_BUILD_RELEASE)
+elseif (CMAKE_BUILD_TYPE MATCHES Distro)
+    target_compile_definitions(${TARGET_NAME} PUBLIC RUNE_BUILD_DISTRO)
 endif ()
