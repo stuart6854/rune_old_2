@@ -3,6 +3,7 @@
 
 #include "core/config_internal.hpp"
 #include "core/config.hpp"
+#include "platform/platform.hpp"
 
 #include <memory>
 
@@ -29,6 +30,7 @@ namespace rune::engine::internal
 
         LOG_INFO("Rune initialising...");
         config::internal::load_config(engineData.config.configFilename);
+        platform::initialise();
     }
 
     void shutdown()
@@ -37,7 +39,7 @@ namespace rune::engine::internal
         RUNE_UNUSED(engineData);
 
         LOG_INFO("Rune shutting down...");
-
+        platform::shutdown();
         config::internal::write_config(engineData.config.configFilename);
 
         s_engineData = nullptr;

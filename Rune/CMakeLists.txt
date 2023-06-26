@@ -10,7 +10,7 @@ target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRE
 target_link_directories(${TARGET_NAME} PUBLIC "libs/lib")
 target_include_directories(${TARGET_NAME} PRIVATE "libs/include")
 
-target_link_libraries(${TARGET_NAME} PUBLIC spdlog)
+target_link_libraries(${TARGET_NAME} PUBLIC spdlog glfw3)
 
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 
