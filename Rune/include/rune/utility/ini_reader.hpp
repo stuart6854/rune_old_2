@@ -22,7 +22,6 @@ namespace rune::utility
         auto get_value(std::string_view section, std::string_view key) -> std::optional<std::string_view>;
 
     private:
-        auto read_file(std::string_view filename) -> std::string;
         void parse_content(std::string_view content);
 
     private:

@@ -1,10 +1,10 @@
 #include "utility/ini_reader.hpp"
 
 #include "common.hpp"
+#include "utility/io.hpp"
 #include "utility/strings.hpp"
 
 #include <format>
-#include <fstream>
 #include <sstream>
 
 namespace rune::utility
@@ -14,7 +14,14 @@ namespace rune::utility
         m_sectionMap.clear();
         m_errors.clear();
 
-        auto content = read_file(filename);
+        auto contentResult = io::read_string(filename);
+        if (!contentResult)
+        {
+            m_errors = std::format("Failed to read INI file: {}", filename);
+            return;
+        }
+        const auto& content = contentResult.value();
+
         parse_content(content);
     }
 
@@ -68,20 +75,6 @@ namespace rune::utility
         }
         const auto& value = valueIt->second;
         return value;
-    }
-
-    auto INIReader::read_file(std::string_view filename) -> std::string
-    {
-        auto file = std::ifstream(filename.data(), std::ios::in);
-        if (!file)
-        {
-            m_errors = std::string("Failed to read file: ") + filename.data() + "\n";
-            return "";
-        }
-
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        return buffer.str();
     }
 
     void INIReader::parse_content(std::string_view content)
