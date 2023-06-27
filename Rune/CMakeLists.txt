@@ -1,3 +1,5 @@
+add_subdirectory(libs/submodules)
+
 set(TARGET_NAME rune)
 
 file(GLOB_RECURSE ${TARGET_NAME}_SOURCES "src/*.cpp")
@@ -10,7 +12,7 @@ target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRE
 target_link_directories(${TARGET_NAME} PUBLIC "libs/lib")
 target_include_directories(${TARGET_NAME} SYSTEM PRIVATE "libs/include")
 
-target_link_libraries(${TARGET_NAME} PUBLIC spdlog glfw3 OpenAL32)
+target_link_libraries(${TARGET_NAME} PUBLIC spdlog glfw3 OpenAL32 gfx)
 
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 
