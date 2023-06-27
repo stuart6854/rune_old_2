@@ -12,6 +12,8 @@ namespace rune::platform
     void initialise();
     void shutdown();
 
+    void update();
+
 #pragma region Time
 
     auto get_time() -> double;
@@ -24,6 +26,8 @@ namespace rune::platform
 
     auto create_window(std::int32_t width, std::int32_t height, std::string_view title) -> WindowHandle;
     void destroy_window(WindowHandle window);
+
+    bool has_window_requested_close(WindowHandle window);
 
     void show_window(WindowHandle window);
     void hide_window(WindowHandle window);

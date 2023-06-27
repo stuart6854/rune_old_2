@@ -44,6 +44,12 @@ namespace rune::platform
 
         g_glfwInitialised = false;
     }
+
+    void update()
+    {
+        glfwPollEvents();
+    }
+
     #pragma region Time
 
     auto get_time() -> double
@@ -72,6 +78,13 @@ namespace rune::platform
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         glfwDestroyWindow(glfwWindow);
+    }
+
+    bool has_window_requested_close(WindowHandle window)
+    {
+        auto* glfwWindow = static_cast<GLFWwindow*>(window);
+        bool closeRequested = glfwWindowShouldClose(glfwWindow);
+        return closeRequested;
     }
 
     void show_window(WindowHandle window)
