@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "internal_common.hpp"
+
 #include <cstdint>
 #include <string_view>
 
@@ -14,21 +16,21 @@ namespace rune::audio
     void shutdown();
     void update();
 
-    using AudioId = std::uint32_t;
+    using AudioId = u32;
     auto create_audio(std::string_view filename) -> AudioId;
     void destroy_audio(AudioId audio);
 
-    using SourceId = std::uint32_t;
+    using SourceId = u32;
     auto create_source() -> SourceId;
     void destroy_source(SourceId source);
 
     void set_source_loop(SourceId source, bool loop);
-    void set_source_pitch(SourceId source, float pitch);
-    void set_source_volume(SourceId source, float volume);
-    void set_source_position(SourceId source, float x, float y, float z);
-    void set_source_velocity(SourceId source, float x, float y, float z);
+    void set_source_pitch(SourceId source, f32 pitch);
+    void set_source_volume(SourceId source, f32 volume);
+    void set_source_position(SourceId source, f32 x, f32 y, f32 z);
+    void set_source_velocity(SourceId source, f32 x, f32 y, f32 z);
 
-    enum class SourceState : std::uint8_t
+    enum class SourceState : u8
     {
         Initial,
         Playing,
@@ -42,6 +44,6 @@ namespace rune::audio
     void source_play(SourceId source);
     void source_pause(SourceId source);
 
-    void set_listener_position(float x, float y, float z);
+    void set_listener_position(f32 x, f32 y, float z);
 
 }

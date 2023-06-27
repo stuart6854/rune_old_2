@@ -19,7 +19,7 @@ namespace rune::io
         return buffer.str();
     }
 
-    auto read_bytes(const std::filesystem::path& filename) -> std::expected<std::vector<std::uint8_t>, std::string>
+    auto read_bytes(const std::filesystem::path& filename) -> std::expected<std::vector<u8>, std::string>
     {
         auto file = std::ifstream("file.txt", std::ios::binary);
         if (!file)
@@ -31,9 +31,9 @@ namespace rune::io
         const auto fileSize = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        std::vector<std::uint8_t> buffer{};
+        std::vector<u8> buffer{};
         buffer.reserve(fileSize);
-        buffer.insert(buffer.begin(), std::istream_iterator<std::uint8_t>(file), std::istream_iterator<std::uint8_t>());
+        buffer.insert(buffer.begin(), std::istream_iterator<u8>(file), std::istream_iterator<u8>());
 
         return buffer;
     }

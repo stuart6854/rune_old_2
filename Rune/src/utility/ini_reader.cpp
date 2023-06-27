@@ -79,7 +79,7 @@ namespace rune::utility
 
     void INIReader::parse_content(std::string_view content)
     {
-        std::uint32_t lineIndex{};
+        u32 lineIndex{};
         std::string section;
 
         std::stringstream ss(content.data());

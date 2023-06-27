@@ -18,8 +18,8 @@ namespace rune::platform
         struct WindowData
         {
             GLFWwindow* handle{ nullptr };
-            std::pair<std::int32_t, std::int32_t> windowedSize{};
-            std::pair<std::int32_t, std::int32_t> windowedPosition{};
+            std::pair<i32, i32> windowedSize{};
+            std::pair<i32, i32> windowedPosition{};
         };
         std::unordered_map<WindowHandle, WindowData> g_windowData{};  // NOLINT
     }
@@ -52,7 +52,7 @@ namespace rune::platform
 
     #pragma region Time
 
-    auto get_time() -> double
+    auto get_time() -> f64
     {
         return glfwGetTime();
     }
@@ -61,7 +61,7 @@ namespace rune::platform
 
     #pragma region Windows
 
-    auto create_window(std::int32_t width, std::int32_t height, std::string_view title) -> WindowHandle
+    auto create_window(i32 width, i32 height, std::string_view title) -> WindowHandle
     {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -99,13 +99,13 @@ namespace rune::platform
         glfwHideWindow(glfwWindow);
     }
 
-    void set_window_size(WindowHandle window, std::int32_t width, std::int32_t height)
+    void set_window_size(WindowHandle window, i32 width, i32 height)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         glfwSetWindowSize(glfwWindow, width, height);
     }
 
-    void set_window_position(WindowHandle window, std::int32_t x, std::int32_t y)
+    void set_window_position(WindowHandle window, i32 x, i32 y)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         glfwSetWindowPos(glfwWindow, x, y);
@@ -146,7 +146,7 @@ namespace rune::platform
 
     auto get_key_name(Key key) -> std::string_view
     {
-        auto glfwKey = static_cast<std::uint16_t>(key);
+        auto glfwKey = static_cast<u16>(key);
 
         const auto* keyName = glfwGetKeyName(glfwKey, 0);
         return keyName;
@@ -155,18 +155,18 @@ namespace rune::platform
     bool is_key_down(WindowHandle window, Key key)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
-        auto glfwKey = static_cast<std::uint16_t>(key);
+        auto glfwKey = static_cast<u16>(key);
 
         auto state = glfwGetKey(glfwWindow, glfwKey);
         return state != GLFW_RELEASE;
     }
 
-    auto get_cursor_position(WindowHandle window) -> std::pair<double, double>
+    auto get_cursor_position(WindowHandle window) -> std::pair<f64, f64>
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
 
-        double x{ 0.0f };
-        double y{ 0.0f };
+        f64 x{ 0.0f };
+        f64 y{ 0.0f };
         glfwGetCursorPos(glfwWindow, &x, &y);
         return { x, y };
     }
@@ -174,7 +174,7 @@ namespace rune::platform
     bool is_mouse_button_down(WindowHandle window, Button button)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
-        auto glfwButton = static_cast<std::uint8_t>(button);
+        auto glfwButton = static_cast<u8>(button);
 
         auto state = glfwGetMouseButton(glfwWindow, glfwButton);
         return state != GLFW_RELEASE;
@@ -182,31 +182,31 @@ namespace rune::platform
 
     bool is_gamepad_present(Gamepad gamepad)
     {
-        auto glfwGamepad = static_cast<std::uint8_t>(gamepad);
+        auto glfwGamepad = static_cast<u8>(gamepad);
         return glfwJoystickIsGamepad(glfwGamepad);
     }
 
     auto get_gamepad_name(Gamepad gamepad) -> std::string_view
     {
-        auto glfwGamepad = static_cast<std::uint8_t>(gamepad);
+        auto glfwGamepad = static_cast<u8>(gamepad);
         const auto* gamepadName = glfwGetGamepadName(glfwGamepad);
         return gamepadName;
     }
 
     bool is_gamepad_button_down(Gamepad gamepad, GamepadButton button)
     {
-        auto glfwGamepad = static_cast<std::uint8_t>(gamepad);
-        auto glfwButton = static_cast<std::uint8_t>(button);
+        auto glfwGamepad = static_cast<u8>(gamepad);
+        auto glfwButton = static_cast<u8>(button);
 
         GLFWgamepadstate state{};
         glfwGetGamepadState(glfwGamepad, &state);
         return state.buttons[glfwButton] != GLFW_RELEASE;  // NOLINT
     }
 
-    auto get_gamepad_axis_state(Gamepad gamepad, GamepadAxis axis) -> float
+    auto get_gamepad_axis_state(Gamepad gamepad, GamepadAxis axis) -> f32
     {
-        auto glfwGamepad = static_cast<std::uint8_t>(gamepad);
-        auto glfwAxis = static_cast<std::uint8_t>(axis);
+        auto glfwGamepad = static_cast<u8>(gamepad);
+        auto glfwAxis = static_cast<u8>(axis);
 
         GLFWgamepadstate state{};
         glfwGetGamepadState(glfwGamepad, &state);

@@ -57,14 +57,14 @@ namespace rune::config
         return std::stoi(stringValue);
     }
 
-    auto get_int(const std::string& key, int defaultValue) -> std::int32_t
+    auto get_int(const std::string& key, int defaultValue) -> i32
     {
         auto defaultValueStr = std::to_string(defaultValue);
         const auto& stringValue = get_string(key, defaultValueStr);
         return std::stoi(stringValue);
     }
 
-    auto get_float(const std::string& key, float defaultValue) -> float
+    auto get_float(const std::string& key, f32 defaultValue) -> f32
     {
         auto defaultValueStr = std::to_string(defaultValue);
         const auto& stringValue = get_string(key, defaultValueStr);

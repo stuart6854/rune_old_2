@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "internal_common.hpp"
+
 #include <cstdint>
 #include <string_view>
 
@@ -16,7 +18,7 @@ namespace rune::platform
 
 #pragma region Time
 
-    auto get_time() -> double;
+    auto get_time() -> f64;
 
 #pragma endregion
 
@@ -24,7 +26,7 @@ namespace rune::platform
 
     using WindowHandle = void*;
 
-    auto create_window(std::int32_t width, std::int32_t height, std::string_view title) -> WindowHandle;
+    auto create_window(i32 width, i32 height, std::string_view title) -> WindowHandle;
     void destroy_window(WindowHandle window);
 
     bool has_window_requested_close(WindowHandle window);
@@ -32,8 +34,8 @@ namespace rune::platform
     void show_window(WindowHandle window);
     void hide_window(WindowHandle window);
 
-    void set_window_size(WindowHandle window, std::int32_t width, std::int32_t height);
-    void set_window_position(WindowHandle window, std::int32_t x, std::int32_t y);
+    void set_window_size(WindowHandle window, i32 width, i32 height);
+    void set_window_position(WindowHandle window, i32 x, i32 y);
     void set_window_title(WindowHandle window, std::string_view title);
 
     void set_window_windowed(WindowHandle window);
@@ -44,7 +46,7 @@ namespace rune::platform
 #pragma region Input
 
     /* Mimics GLFW keyboard keys - https://www.glfw.org/docs/latest/group__keys.html */
-    enum class Key : std::uint16_t
+    enum class Key : u16
     {
         Space = 32,
         Apostrophe = 39, /* ' */
@@ -176,10 +178,10 @@ namespace rune::platform
 
     bool is_key_down(WindowHandle window, Key key);
 
-    auto get_cursor_position(WindowHandle window) -> std::pair<double, double>;
+    auto get_cursor_position(WindowHandle window) -> std::pair<f64, f64>;
 
     /* Mimics GLFW mouse buttons - https://www.glfw.org/docs/latest/group__buttons.html */
-    enum class Button : std::uint8_t
+    enum class Button : u8
     {
         One = 0,
         Two = 1,
@@ -196,7 +198,7 @@ namespace rune::platform
     };
     bool is_mouse_button_down(WindowHandle window, Button button);
 
-    enum class Gamepad : std::uint8_t
+    enum class Gamepad : u8
     {
         One = 0,
         Two = 1,
@@ -219,7 +221,7 @@ namespace rune::platform
     bool is_gamepad_present(Gamepad gamepad);
     auto get_gamepad_name(Gamepad gamepad) -> std::string_view;
 
-    enum class GamepadButton : std::uint8_t
+    enum class GamepadButton : u8
     {
         A = 0,
         B = 1,
@@ -245,7 +247,7 @@ namespace rune::platform
     };
     bool is_gamepad_button_down(Gamepad gamepad, GamepadButton button);
 
-    enum class GamepadAxis : std::uint8_t
+    enum class GamepadAxis : u8
     {
         LeftX = 0,
         LeftY = 1,
@@ -255,7 +257,7 @@ namespace rune::platform
         RightTrigger = 5,
         Last = RightTrigger,
     };
-    auto get_gamepad_axis_state(Gamepad gamepad, GamepadAxis axis) -> float;
+    auto get_gamepad_axis_state(Gamepad gamepad, GamepadAxis axis) -> f32;
 
 #pragma endregion
 

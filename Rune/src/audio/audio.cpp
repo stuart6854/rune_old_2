@@ -20,12 +20,12 @@ namespace rune::audio
         SourceId sourceId{};
         bool isPlaying{ false };
 
-        std::uint32_t sampleRate{};
+        u32 sampleRate{};
         ALenum format{};
-        std::vector<std::uint8_t> audioData{};
+        std::vector<u8> audioData{};
 
         bool isStreamed{ false };
-        std::uint64_t streamCursor{ 0 };
+        u64 streamCursor{ 0 };
 
         std::vector<ALuint> buffers{};
     };
@@ -39,7 +39,7 @@ namespace rune::audio
         std::unordered_set<AudioId> g_audios{};                   // NOLINT
 
         void update_stream(
-            ALuint source, ALenum format, std::uint32_t sampleRate, const std::vector<std::uint8_t>& audioData, std::uint64_t& streamCursor)
+            ALuint source, ALenum format, u32 sampleRate, const std::vector<u8>& audioData, u64& streamCursor)
         {
             ALint buffersProcessed{ 0 };
             alCall(alGetSourcei, source, AL_BUFFERS_PROCESSED, &buffersProcessed);
@@ -146,7 +146,7 @@ namespace rune::audio
 
     auto create_audio(std::string_view filename) -> AudioId
     {
-        AudioFile<float> audioFile{};
+        AudioFile<f32> audioFile{};
         if (!audioFile.load(filename.data()))
         {
             LOG_ERROR("audio : Failed to load audio file!");
@@ -225,17 +225,17 @@ namespace rune::audio
         alCall(alSourcei, source, AL_LOOPING, loop);
     }
 
-    void set_source_volume(SourceId source, float volume)
+    void set_source_volume(SourceId source, f32 volume)
     {
         alCall(alSourcef, source, AL_GAIN, volume);
     }
 
-    void set_source_pitch(SourceId source, float pitch)
+    void set_source_pitch(SourceId source, f32 pitch)
     {
         alCall(alSourcef, source, AL_PITCH, pitch);
     }
 
-    void set_source_position(SourceId source, float x, float y, float z)
+    void set_source_position(SourceId source, f32 x, f32 y, float z)
     {
         alCall(alSource3f, source, AL_POSITION, x, y, z);
     }

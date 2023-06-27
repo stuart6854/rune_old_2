@@ -14,7 +14,7 @@ namespace rune::audio
 {
 #pragma region Errors
 
-    void check_al_errors(std::string_view filename, const std::uint32_t line)
+    void check_al_errors(std::string_view filename, const u32 line)
     {
         ALCenum error = alGetError();
         if (error != AL_NO_ERROR)
@@ -34,7 +34,7 @@ namespace rune::audio
         }
     }
 
-    void check_alc_errors(std::string_view filename, const std::uint32_t line, ALCdevice* device)
+    void check_alc_errors(std::string_view filename, const u32 line, ALCdevice* device)
     {
         ALCenum error = alcGetError(device);
         if (error != ALC_NO_ERROR)
@@ -53,7 +53,7 @@ namespace rune::audio
     }
 
     template <typename alFunction, typename... Params>
-    auto alCallImpl(std::string_view filename, const std::uint32_t line, alFunction function, Params... params) ->
+    auto alCallImpl(std::string_view filename, const u32 line, alFunction function, Params... params) ->
         typename std::enable_if<std::is_same<void, decltype(function(params...))>::value, decltype(function(params...))>::type
     {
         function(std::forward<Params>(params)...);
@@ -61,7 +61,7 @@ namespace rune::audio
     }
 
     template <typename alFunction, typename... Params>
-    auto alCallImpl(std::string_view filename, const std::uint32_t line, alFunction function, Params... params) ->
+    auto alCallImpl(std::string_view filename, const u32 line, alFunction function, Params... params) ->
         typename std::enable_if<!std::is_same<void, decltype(function(params...))>::value, decltype(function(params...))>::type
     {
         auto ret = function(std::forward<Params>(params)...);
@@ -70,7 +70,7 @@ namespace rune::audio
     }
 
     template <typename alcFunction, typename... Params>
-    auto alcCallImpl(std::string_view filename, const std::uint32_t line, alcFunction function, ALCdevice* device, Params... params) ->
+    auto alcCallImpl(std::string_view filename, const u32 line, alcFunction function, ALCdevice* device, Params... params) ->
         typename std::enable_if<std::is_same<void, decltype(function(params...))>::value, decltype(function(params...))>::type
     {
         function(std::forward<Params>(params)...);
@@ -78,7 +78,7 @@ namespace rune::audio
     }
 
     template <typename alcFunction, typename... Params>
-    auto alcCallImpl(std::string_view filename, const std::uint32_t line, alcFunction function, ALCdevice* device, Params... params) ->
+    auto alcCallImpl(std::string_view filename, const u32 line, alcFunction function, ALCdevice* device, Params... params) ->
         typename std::enable_if<!std::is_same<void, decltype(function(params...))>::value, decltype(function(params...))>::type
     {
         auto ret = function(std::forward<Params>(params)...);
