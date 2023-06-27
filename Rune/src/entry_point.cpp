@@ -25,7 +25,7 @@ int main(int /*argc*/, char** /*argv*/)
     {
         logging::internal::initialise(config.logDirPath);
         engine::internal::initialise(config);
-        // #TODO: Run engine
+        engine::internal::run();
         engine::internal::shutdown();
         logging::internal::shutdown();
     }

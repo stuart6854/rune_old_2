@@ -16,4 +16,6 @@ namespace rune::engine::internal
     void initialise(const EngineConfig& config);
     void shutdown();
 
+    void run();
+
 }

@@ -7,6 +7,7 @@
 #include "audio/audio.hpp"
 
 #include <memory>
+#include <chrono>
 
 namespace rune::engine::internal
 {
@@ -46,6 +47,28 @@ namespace rune::engine::internal
         config::internal::write_config(engineData.config.configFilename);
 
         s_engineData = nullptr;
+    }
+
+    void run()
+    {
+        auto* primaryWindow = platform::create_window(800, 600, "Primary Window");
+        platform::show_window(primaryWindow);
+
+        auto lastTime = platform::get_time();
+        while (!platform::has_window_requested_close(primaryWindow))
+        {
+            auto time = platform::get_time();
+            const auto deltaTime = time - lastTime;
+            lastTime = time;
+
+            platform::update();
+
+            platform::set_window_title(primaryWindow, std::format("Primary Window - {:.2f}ms", deltaTime));
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        }
+
+        platform::destroy_window(primaryWindow);
     }
 
 }
