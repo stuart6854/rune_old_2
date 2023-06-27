@@ -1,17 +1,18 @@
 # TODO
 
 - Low-Level
-  - Messaging System
+  - Messaging system
     - Id - StringId = SID("SomeMessageId") == 723647823647
     - Payload - https://khuttun.github.io/2015/06/01/polymorphic-message-queue-in-c++11.html
     - Support immediate & queued messages
     - Listeners register themselves
+  - IO layer
   - Graphics layer - Vulkan wrapper
-  - Network Layer??
+  - Network layer??
 - High-Level
-  - Scene/World System
-  - Scene Rendering
-  - Resource Manager
+  - Scene/World system
+  - Scene rendering
+  - Resource manager
   - Scripting - C#
 - Misc
   - Utility
