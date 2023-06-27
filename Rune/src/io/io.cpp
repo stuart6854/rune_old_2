@@ -1,10 +1,10 @@
-#include "utility/io.hpp"
+#include "io/io.hpp"
 
 #include <fstream>
 #include <istream>
 #include <sstream>
 
-namespace rune::utility::io
+namespace rune::io
 {
     auto read_string(const std::filesystem::path& filename) -> std::expected<std::string, std::string>
     {
