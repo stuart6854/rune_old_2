@@ -1,6 +1,6 @@
 #include "platform/platform.hpp"
 
-#include "common.hpp"
+#include "internal_common.hpp"
 
 #if defined(RUNE_PLATFORM_WINDOWS) || defined(RUNE_PLATFORM_LINUX)
 
@@ -41,9 +41,9 @@ namespace rune::platform
     void shutdown()
     {
         glfwTerminate();
+
         g_glfwInitialised = false;
     }
-
     #pragma region Time
 
     auto get_time() -> double

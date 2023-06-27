@@ -1,6 +1,6 @@
 #include "audio/audio.hpp"
 
-#include "common.hpp"
+#include "internal_common.hpp"
 #include "al_common.hpp"
 
 #include <AL/alc.h>

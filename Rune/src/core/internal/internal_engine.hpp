@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.hpp"
+#include "internal_common.hpp"
 #include "entry_point.hpp"
 
 namespace rune::engine::internal

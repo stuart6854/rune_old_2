@@ -1,7 +1,5 @@
 #include "utility/strings.hpp"
 
-#include <ranges>
-
 namespace rune::utility::strings
 {
     void left_trim(std::string& str)

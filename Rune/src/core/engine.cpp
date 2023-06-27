@@ -1,6 +1,6 @@
 #include "core/engine.hpp"
 
-#include "common.hpp"
+#include "internal_common.hpp"
 #include "internal/internal_engine.hpp"
 
 namespace rune::engine

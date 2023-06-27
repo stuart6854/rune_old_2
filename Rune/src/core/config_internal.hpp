@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.hpp"
+#include "internal_common.hpp"
 
 #include <string_view>
 

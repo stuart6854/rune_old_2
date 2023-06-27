@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.hpp"
 #include "core/platform_detection.hpp"
 #include "core/internal/internal_logging.hpp"
 
@@ -36,6 +37,9 @@
 #endif
 
 #define RUNE_UNUSED(_x) (void)(_x)
+
+#define COMBINE1(_x, _y) _x##_y  // Helper macros
+#define COMBINE(_x, _y) COMBINE1(_x, _y)
 
 namespace rune
 {
