@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 #define GLM_FORCE_XYZW_ONLY
@@ -18,4 +19,5 @@ namespace rune
     using u16 = std::uint16_t;
     using u32 = std::uint32_t;
     using u64 = std::uint64_t;
+    using sizet = std::size_t;
 }

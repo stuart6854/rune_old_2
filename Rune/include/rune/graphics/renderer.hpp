@@ -48,6 +48,7 @@ namespace rune::graphics
         void shutdown();
 
         void render_camera(const RenderCamera& camera);
+        void render_static_mesh(/*StaticMesh* mesh, */ const glm::mat4& transform = glm::mat4{ 1.0f });
 
         void flush_renders();
 
@@ -63,12 +64,19 @@ namespace rune::graphics
     private:
         void flush_camera(const RenderCamera& camera);
 
+        void geometry_pass(gfx::CommandListHandle cmdList);
+
     private:
         std::unordered_map<platform::WindowHandle, gfx::SwapChainHandle> m_swapchainMap{};
 
         std::vector<RenderCamera> m_camerasToRender{};
+        std::vector<DrawCall> m_drawCalls{};
 
+        std::vector<glm::mat4> m_instances{};
+
+        gfx::BufferHandle m_cameraBuffer{};
         gfx::PipelineHandle m_pipeline{};
+        gfx::DescriptorSetHandle m_set{};
 
         struct FrameData
         {

@@ -15,12 +15,22 @@ namespace rune::graphics
         gfx::GraphicsPipelineInfo pipelineInfo{
             .vertexCode = vertShaderBinary,
             .fragmentCode = fragShaderBinary,
-            .descriptorSets = {},
+            .descriptorSets = { {
+                .bindings = {
+                    { gfx::DescriptorType::eUniformBuffer, 1, gfx::ShaderStageFlags_Vertex },
+                },
+            } },
+            .constantBlock = { sizeof(glm::mat4), gfx::ShaderStageFlags_Vertex },
         };
         if (!gfx::create_graphics_pipeline(m_pipeline, device, pipelineInfo))
         {
             RUNE_THROW_EX("Failed to create GFX graphics pipeline!");
         }
+
+        gfx::create_buffer(m_cameraBuffer, device, { gfx::BufferType::eUniform, sizeof(glm::mat4) * 2 });
+
+        gfx::create_descriptor_set_from_pipeline(m_set, m_pipeline, 0);
+        gfx::bind_buffer_to_descriptor_set(m_set, 0, m_cameraBuffer);
     }
 
     void Renderer::shutdown()
@@ -51,6 +61,15 @@ namespace rune::graphics
         m_camerasToRender.emplace_back(camera);
     }
 
+    void Renderer::render_static_mesh(const glm::mat4& transform)
+    {
+        m_instances.push_back(transform);
+        auto instance = static_cast<u32>(m_instances.size() - 1);
+
+        auto& drawCall = m_drawCalls.emplace_back();
+        drawCall.instance = instance;
+    }
+
     void Renderer::flush_renders()
     {
         // #TODO: Setup global uniform data
@@ -78,6 +97,8 @@ namespace rune::graphics
             flush_camera(camera);
         }
         m_camerasToRender.clear();
+        m_drawCalls.clear();
+        m_instances.clear();
     }
 
     void Renderer::flush_camera(const RenderCamera& camera)
@@ -86,6 +107,13 @@ namespace rune::graphics
 
         auto swapchainHandle = m_swapchainMap.at(camera.targetWindow);
         auto& frameData = m_frames.at(m_frameIndex);
+
+        glm::mat4 cameraData[] = { camera.projMatrix, camera.viewMatrix };
+
+        void* dataPtr{ nullptr };
+        gfx::map_buffer(m_cameraBuffer, dataPtr);
+        std::memcpy(dataPtr, &cameraData[0], sizeof(cameraData));
+        gfx::unmap_buffer(m_cameraBuffer);
 
         gfx::CommandListHandle cmdList{};
         if (!gfx::create_command_list(cmdList, graphics::get_device(), 0))
@@ -114,8 +142,7 @@ namespace rune::graphics
             gfx::set_viewport(cmdList, 0, 0, f32(camera.targetWindowSize.x), f32(camera.targetWindowSize.y));
             gfx::set_scissor(cmdList, 0, 0, camera.targetWindowSize.x, camera.targetWindowSize.y);
 
-            gfx::bind_pipeline(cmdList, m_pipeline);
-            gfx::draw(cmdList, 3, 1, 0, 0);
+            geometry_pass(cmdList);
         }
         gfx::end_render_pass(cmdList);
 
@@ -133,6 +160,18 @@ namespace rune::graphics
         frameData.commandLists.push_back(cmdList);
 
         gfx::present_swap_chain(swapchainHandle, 0, &semaphoreHandle);
+    }
+
+    void Renderer::geometry_pass(gfx::CommandListHandle cmdList)
+    {
+        gfx::bind_pipeline(cmdList, m_pipeline);
+        gfx::bind_descriptor_set(cmdList, m_set);
+        for (const auto& drawCall : m_drawCalls)
+        {
+            const auto& instance = m_instances.at(drawCall.instance);
+            gfx::set_constants(cmdList, gfx::ShaderStageFlags_Vertex, 0, sizeof(instance), &instance);
+            gfx::draw(cmdList, 3, 1, 0, 0);
+        }
     }
 
 }
