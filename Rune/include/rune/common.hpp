@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#define GLM_FORCE_XYZW_ONLY
+
 namespace rune
 {
     using f32 = float;
