@@ -19,7 +19,7 @@ namespace rune::graphics
         };
         if (!gfx::create_graphics_pipeline(m_pipeline, device, pipelineInfo))
         {
-            throw std::runtime_error("Failed to create GFX graphics pipeline!");
+            RUNE_THROW_EX("Failed to create GFX graphics pipeline!");
         }
     }
 
@@ -90,7 +90,7 @@ namespace rune::graphics
         gfx::CommandListHandle cmdList{};
         if (!gfx::create_command_list(cmdList, graphics::get_device(), 0))
         {
-            throw std::runtime_error("graphics - renderer - Failed to create command list!");
+            RUNE_THROW_EX("graphics - renderer - Failed to create command list!");
         }
 
         // #TODO: Setup camera uniform data
@@ -99,7 +99,7 @@ namespace rune::graphics
         gfx::TextureHandle swapChainImageHandle{};
         if (!gfx::get_swap_chain_image(swapChainImageHandle, swapchainHandle))
         {
-            throw std::runtime_error("Failed to get SwapChain image handle!");
+            RUNE_THROW_EX("Failed to get SwapChain image handle!");
         }
 
         gfx::transition_texture(cmdList, swapChainImageHandle, gfx::TextureState::eUndefined, gfx::TextureState::eRenderTarget);

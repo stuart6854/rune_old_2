@@ -39,7 +39,7 @@ namespace rune::platform
         g_glfwInitialised = glfwInit();
         if (!g_glfwInitialised)
         {
-            throw std::runtime_error("Failed to initialise GLFW platform!");
+            RUNE_THROW_EX("Failed to initialise GLFW platform!");
         }
     }
 

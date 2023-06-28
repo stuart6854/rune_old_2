@@ -19,7 +19,7 @@ namespace rune::graphics
         };
         if (!gfx::initialise(appInfo))
         {
-            throw std::runtime_error("graphics - Failed to initialise graphics layer!");
+            RUNE_THROW_EX("graphics - Failed to initialise graphics layer!");
         }
 
         gfx::DeviceInfo deviceInfo{
@@ -29,7 +29,7 @@ namespace rune::graphics
 
         if (!gfx::create_device(g_device, deviceInfo))
         {
-            throw std::runtime_error("graphics - Failed to create device!");
+            RUNE_THROW_EX("graphics - Failed to create device!");
         }
     }
 
