@@ -87,10 +87,10 @@ namespace rune::engine::internal
 
             platform::set_window_title(engineData.primaryWindow, std::format("Primary Window - {:.2f}ms", deltaTime));
 
-            renderer.render_camera({ engineData.primaryWindow });
+            renderer.render_camera({ engineData.primaryWindow, platform::get_window_size_pixels(engineData.primaryWindow) });
             for (auto* window : engineData.windows)
             {
-                renderer.render_camera({ window });
+                renderer.render_camera({ window, platform::get_window_size_pixels(window) });
             }
 
             renderer.flush_renders();

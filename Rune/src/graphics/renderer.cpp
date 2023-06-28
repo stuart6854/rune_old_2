@@ -111,8 +111,8 @@ namespace rune::graphics
         };
         gfx::begin_render_pass(cmdList, renderPassInfo);
         {
-            gfx::set_viewport(cmdList, 0, 0, 800, 600);
-            gfx::set_scissor(cmdList, 0, 0, 800, 600);
+            gfx::set_viewport(cmdList, 0, 0, f32(camera.targetWindowSize.x), f32(camera.targetWindowSize.y));
+            gfx::set_scissor(cmdList, 0, 0, camera.targetWindowSize.x, camera.targetWindowSize.y);
 
             gfx::bind_pipeline(cmdList, m_pipeline);
             gfx::draw(cmdList, 3, 1, 0, 0);
@@ -134,4 +134,5 @@ namespace rune::graphics
 
         gfx::present_swap_chain(swapchainHandle, 0, &semaphoreHandle);
     }
+
 }

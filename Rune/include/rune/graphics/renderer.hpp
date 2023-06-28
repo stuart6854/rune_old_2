@@ -33,6 +33,7 @@ namespace rune::graphics
     struct RenderCamera
     {
         platform::WindowHandle targetWindow{};
+        glm::u32vec2 targetWindowSize{};
         glm::mat4 projMatrix{ 1.0f };
         glm::mat4 viewMatrix{ 1.0f };
     };
