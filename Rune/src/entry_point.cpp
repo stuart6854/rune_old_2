@@ -21,7 +21,7 @@ int main(int /*argc*/, char** /*argv*/)
     EngineConfig config{};
     configure_engine(config);
 
-    try
+    //    try
     {
         logging::internal::initialise(config.logDirPath);
         engine::internal::initialise(config);
@@ -29,12 +29,20 @@ int main(int /*argc*/, char** /*argv*/)
         engine::internal::shutdown();
         logging::internal::shutdown();
     }
-    catch (...)
-    {
-        LOG_CRITICAL("critical: unknown exception");
-        logging::internal::flush();
-        return EXIT_FAILURE;
-    }
+    //    catch (std::exception& ex)
+    //    {
+    //        LOG_CRITICAL("critical: runtime exception: {}", ex.what());
+    //        logging::internal::flush();
+    //        RUNE_DEBUG_BREAK();
+    //        return EXIT_FAILURE;
+    //    }
+    //    catch (...)
+    //    {
+    //        LOG_CRITICAL("critical: unknown exception");
+    //        logging::internal::flush();
+    //        RUNE_DEBUG_BREAK();
+    //        return EXIT_FAILURE;
+    //    }
 
     return 0;
 }
