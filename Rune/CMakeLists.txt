@@ -1,4 +1,4 @@
-add_subdirectory(libs/submodules)
+add_subdirectory(libs)
 
 set(TARGET_NAME rune)
 
@@ -8,9 +8,6 @@ add_library(${TARGET_NAME} STATIC ${${TARGET_NAME}_SOURCES})
 target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${TARGET_NAME}> $<INSTALL_INTERFACE:include/${TARGET_NAME}>)
 target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
-
-target_link_directories(${TARGET_NAME} PUBLIC "libs/lib")
-target_include_directories(${TARGET_NAME} SYSTEM PRIVATE "libs/include")
 
 target_link_libraries(${TARGET_NAME} PUBLIC spdlog glfw3 OpenAL32 gfx)
 

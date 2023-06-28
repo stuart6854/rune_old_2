@@ -17,10 +17,8 @@ endif ()
 
 target_link_libraries(${TARGET_NAME} PRIVATE rune)
 
-
-file(GLOB RUNTIME_DLLS ${CMAKE_SOURCE_DIR}/Rune/libs/bin/*.dll)
-message(STATUS "${RUNTIME_DLLS}")
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${RUNTIME_DLLS} $<TARGET_FILE_DIR:${TARGET_NAME}>
+        #        COMMAND ${CMAKE_COMMAND} -E echo "runtime dlls = $<TARGET_RUNTIME_DLLS:${TARGET_NAME}>" # Print required runtime dlls
+        COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${TARGET_NAME}> $<TARGET_RUNTIME_DLLS:${TARGET_NAME}>
         COMMAND_EXPAND_LISTS
         )
