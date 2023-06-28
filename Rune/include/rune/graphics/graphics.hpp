@@ -10,4 +10,6 @@ namespace rune::graphics
 {
     void initialise(void* platformWindowHandle);
     void shutdown();
+
+    void render_temp();
 }
