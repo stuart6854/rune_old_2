@@ -5,6 +5,7 @@
 #include "core/config.hpp"
 #include "platform/platform.hpp"
 #include "audio/audio.hpp"
+#include "graphics/graphics.hpp"
 
 #include <memory>
 #include <chrono>
@@ -34,6 +35,10 @@ namespace rune::engine::internal
         config::internal::load_config(engineData.config.configFilename);
         platform::initialise();
         audio::initialise();
+
+        engineData.primaryWindow = platform::create_window(800, 600, "Primary Window");
+        platform::show_window(engineData.primaryWindow);
+        graphics::initialise(platform::get_window_platform_handle(engineData.primaryWindow));
     }
 
     void shutdown()
@@ -41,7 +46,10 @@ namespace rune::engine::internal
         auto& engineData = get_engine_data();
         RUNE_UNUSED(engineData);
 
+        platform::destroy_window(engineData.primaryWindow);
+
         LOG_INFO("Rune shutting down...");
+        graphics::shutdown();
         audio::shutdown();
         platform::shutdown();
         config::internal::write_config(engineData.config.configFilename);
@@ -51,11 +59,10 @@ namespace rune::engine::internal
 
     void run()
     {
-        auto* primaryWindow = platform::create_window(800, 600, "Primary Window");
-        platform::show_window(primaryWindow);
+        auto& engineData = get_engine_data();
 
         auto lastTime = platform::get_time();
-        while (!platform::has_window_requested_close(primaryWindow))
+        while (!platform::has_window_requested_close(engineData.primaryWindow))
         {
             auto time = platform::get_time();
             const auto deltaTime = time - lastTime;
@@ -63,12 +70,12 @@ namespace rune::engine::internal
 
             platform::update();
 
-            platform::set_window_title(primaryWindow, std::format("Primary Window - {:.2f}ms", deltaTime));
+            platform::set_window_title(engineData.primaryWindow, std::format("Primary Window - {:.2f}ms", deltaTime));
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+            graphics::render_temp();
+
+            //            std::this_thread::sleep_for(std::chrono::milliseconds(16));
         }
-
-        platform::destroy_window(primaryWindow);
     }
 
 }
