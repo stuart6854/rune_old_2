@@ -1,10 +1,15 @@
 #include "platform/platform.hpp"
 
-#include "internal_common.hpp"
-
 #if defined(RUNE_PLATFORM_WINDOWS) || defined(RUNE_PLATFORM_LINUX)
 
+    #include "internal_common.hpp"
+
     #include <GLFW/glfw3.h>
+    #if defined(RUNE_PLATFORM_WINDOWS)
+        #define GLFW_EXPOSE_NATIVE_WIN32
+    #endif
+    #define GLFW_NATIVE_INCLUDE_NONE
+    #include <GLFW/glfw3native.h>
 
     #include <utility>
     #include <unordered_map>
@@ -78,6 +83,16 @@ namespace rune::platform
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         glfwDestroyWindow(glfwWindow);
+    }
+
+    auto get_window_platform_handle(WindowHandle window) -> void*
+    {
+        auto* glfwWindow = static_cast<GLFWwindow*>(window);
+    #if defined(RUNE_PLATFORM_WINDOWS)
+        return glfwGetWin32Window(glfwWindow);
+    #elif defined(RUNE_PLATFORM_LINUX)
+        #error X11 or Wayland?
+    #endif
     }
 
     bool has_window_requested_close(WindowHandle window)
