@@ -66,6 +66,7 @@ namespace rune::graphics
 
     void shutdown()
     {
+        gfx::wait_for_device_idle(g_device);
         gfx::destroy_device(g_device);
         gfx::shutdown();
     }
