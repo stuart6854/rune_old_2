@@ -11,6 +11,7 @@ namespace rune::engine::internal
         EngineConfig config{};
         bool isRunning{ false };
         platform::WindowHandle primaryWindow{ nullptr };
+        std::vector<platform::WindowHandle> windows{};
     };
 
     auto get_engine_data() -> EngineData&;

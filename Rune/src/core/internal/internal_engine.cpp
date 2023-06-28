@@ -6,6 +6,7 @@
 #include "platform/platform.hpp"
 #include "audio/audio.hpp"
 #include "graphics/graphics.hpp"
+#include "graphics/renderer.hpp"
 
 #include <memory>
 #include <chrono>
@@ -36,9 +37,15 @@ namespace rune::engine::internal
         platform::initialise();
         audio::initialise();
 
+        for (auto i = 0; i < 5; ++i)
+        {
+            engineData.windows.push_back(platform::create_window(400, 400, "Window " + std::to_string(i)));
+            platform::show_window(engineData.windows.back());
+        }
         engineData.primaryWindow = platform::create_window(800, 600, "Primary Window");
         platform::show_window(engineData.primaryWindow);
-        graphics::initialise(platform::get_window_platform_handle(engineData.primaryWindow));
+
+        graphics::initialise();
     }
 
     void shutdown()
@@ -46,11 +53,16 @@ namespace rune::engine::internal
         auto& engineData = get_engine_data();
         RUNE_UNUSED(engineData);
 
-        platform::destroy_window(engineData.primaryWindow);
-
         LOG_INFO("Rune shutting down...");
         graphics::shutdown();
         audio::shutdown();
+
+        for (auto* window : engineData.windows)
+        {
+            platform::destroy_window(window);
+        }
+        platform::destroy_window(engineData.primaryWindow);
+
         platform::shutdown();
         config::internal::write_config(engineData.config.configFilename);
 
@@ -60,6 +72,9 @@ namespace rune::engine::internal
     void run()
     {
         auto& engineData = get_engine_data();
+
+        graphics::Renderer renderer{};
+        renderer.initialise();
 
         auto lastTime = platform::get_time();
         while (!platform::has_window_requested_close(engineData.primaryWindow))
@@ -72,10 +87,19 @@ namespace rune::engine::internal
 
             platform::set_window_title(engineData.primaryWindow, std::format("Primary Window - {:.2f}ms", deltaTime));
 
-            graphics::render_temp();
+            renderer.render_camera({ engineData.primaryWindow });
+            for (auto* window : engineData.windows)
+            {
+                renderer.render_camera({ window });
+            }
+
+            renderer.flush_renders();
+            //            graphics::render_temp();
 
             //            std::this_thread::sleep_for(std::chrono::milliseconds(16));
         }
+
+        renderer.shutdown();
     }
 
 }

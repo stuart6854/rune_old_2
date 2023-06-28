@@ -8,8 +8,9 @@ using namespace sm;
 
 namespace rune::graphics
 {
-    void initialise(void* platformWindowHandle);
+    void initialise();
     void shutdown();
 
+    auto get_device() -> gfx::DeviceHandle;
     void render_temp();
 }
