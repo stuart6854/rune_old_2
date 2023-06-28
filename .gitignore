@@ -5,3 +5,4 @@
 
 # Build Artifacts
 cmake-build-*/
+*.spv
