@@ -6,6 +6,8 @@
 
 #include "internal_common.hpp"
 
+#include <glm/ext/vector_int2_sized.hpp>
+
 #include <cstdint>
 #include <string_view>
 
@@ -34,6 +36,10 @@ namespace rune::platform
 
     void show_window(WindowHandle window);
     void hide_window(WindowHandle window);
+
+    auto get_window_size(WindowHandle window) -> glm::i32vec2;
+    auto get_window_size_pixels(WindowHandle window) -> glm::i32vec2;
+    auto get_window_position(WindowHandle window) -> glm::i32vec2;
 
     void set_window_size(WindowHandle window, i32 width, i32 height);
     void set_window_position(WindowHandle window, i32 x, i32 y);

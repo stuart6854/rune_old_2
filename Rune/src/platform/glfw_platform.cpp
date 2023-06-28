@@ -114,6 +114,33 @@ namespace rune::platform
         glfwHideWindow(glfwWindow);
     }
 
+    auto get_window_size(WindowHandle window) -> glm::i32vec2
+    {
+        auto* glfwWindow = static_cast<GLFWwindow*>(window);
+        int width{};
+        int height{};
+        glfwGetWindowSize(glfwWindow, &width, &height);
+        return { width, height };
+    }
+
+    auto get_window_size_pixels(WindowHandle window) -> glm::i32vec2
+    {
+        auto* glfwWindow = static_cast<GLFWwindow*>(window);
+        int width{};
+        int height{};
+        glfwGetFramebufferSize(glfwWindow, &width, &height);
+        return { width, height };
+    }
+
+    auto get_window_position(WindowHandle window) -> glm::i32vec2
+    {
+        auto* glfwWindow = static_cast<GLFWwindow*>(window);
+        int x{};
+        int y{};
+        glfwGetWindowPos(glfwWindow, &x, &y);
+        return { x, y };
+    }
+
     void set_window_size(WindowHandle window, i32 width, i32 height)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
