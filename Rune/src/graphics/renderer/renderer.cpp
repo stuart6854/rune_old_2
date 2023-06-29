@@ -1,11 +1,11 @@
-#include "graphics/renderer.hpp"
+#include "graphics/renderer/renderer.hpp"
 
 #include "internal_common.hpp"
 #include "graphics/graphics.hpp"
 #include "platform/platform.hpp"
 #include "io/io.hpp"
 
-#include <gfx/gfx.hpp>
+#include "gfx/gfx.hpp"
 
 #include <array>
 #include <memory>
@@ -24,6 +24,7 @@ namespace rune::graphics::renderer
         std::vector<DrawCall> drawCalls{};
 
         std::vector<glm::mat4> instances{};
+        std::vector<std::shared_ptr<StaticMesh>> meshes{};  // TODO: Make Static/Skeletal agnostic
 
         gfx::BufferHandle cameraBuffer{};
         gfx::PipelineHandle pipeline{};
@@ -107,16 +108,20 @@ namespace rune::graphics::renderer
         rendererData.camerasToRender.emplace_back(camera);
     }
 
-    void render_static_mesh(const glm::mat4& transform)
+    void render_static_mesh(const std::shared_ptr<StaticMesh>& mesh, const glm::mat4& transform)
     {
         RUNE_ASSERT(g_rendererData != nullptr);
         auto& rendererData = *g_rendererData;
 
         rendererData.instances.push_back(transform);
-        auto instance = static_cast<u32>(rendererData.instances.size() - 1);
+        auto instanceIdx = static_cast<u32>(rendererData.instances.size() - 1);
+
+        rendererData.meshes.push_back(mesh);
+        auto meshIdx = static_cast<u32>(rendererData.meshes.size() - 1);
 
         auto& drawCall = rendererData.drawCalls.emplace_back();
-        drawCall.instance = instance;
+        drawCall.instance = instanceIdx;
+        drawCall.mesh = meshIdx;
     }
 
     void flush_renders()
@@ -151,6 +156,11 @@ namespace rune::graphics::renderer
         rendererData.camerasToRender.clear();
         rendererData.drawCalls.clear();
         rendererData.instances.clear();
+    }
+
+    auto create_static_mesh() -> std::shared_ptr<StaticMesh>
+    {
+        return std::make_shared<StaticMesh>();
     }
 
     void flush_camera(const RenderCamera& camera)

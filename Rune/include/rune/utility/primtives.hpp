@@ -7,7 +7,7 @@
 #pragma once
 
 #include "common.hpp"
-#include "graphics/vertices.hpp"
+#include "graphics/renderer/vertices.hpp"
 
 #include <glm/ext/vector_uint2.hpp>
 

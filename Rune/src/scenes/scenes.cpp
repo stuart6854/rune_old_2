@@ -2,7 +2,7 @@
 
 #include "internal_common.hpp"
 #include "scenes/components.hpp"
-#include "graphics/renderer.hpp"
+#include "graphics/renderer/renderer.hpp"
 
 #include <entt/entity/registry.hpp>
 
@@ -42,21 +42,27 @@ namespace rune::scenes
 
         auto& registry = g_scenesData->registry;
 
-        auto view = registry.view<Transform>();
+        auto view = registry.view<Transform, StaticRenderer>();
         for (auto entity : view)
         {
             const auto& transform = view.get<Transform>(entity);
+            const auto& renderer = view.get<StaticRenderer>(entity);
 
             auto worldMatrix = glm::translate(glm::mat4(1.0f), transform.position);
             worldMatrix = glm::scale(worldMatrix, transform.scale);
 
-            graphics::renderer::render_static_mesh(worldMatrix);
+            graphics::renderer::render_static_mesh(renderer.mesh, worldMatrix);
         }
     }
 
     void new_scene()
     {
         RUNE_ASSERT(g_scenesData != nullptr);
+
+        auto mesh = graphics::renderer::create_static_mesh();
+        mesh->set_positions({});
+        mesh->set_normals({});
+        mesh->apply();
 
         auto& registry = g_scenesData->registry;
         registry = {};
@@ -65,21 +71,29 @@ namespace rune::scenes
         auto& transform = registry.emplace<Transform>(entity);
         transform.position = { 0.0f, 0.0f, 0.0f };
         transform.scale = { 0.5f, 0.5f, 0.5f };
+        auto& renderer = registry.emplace<StaticRenderer>(entity);
+        renderer.mesh = mesh;
 
         auto entity2 = registry.create();
         auto& transform2 = registry.emplace<Transform>(entity2);
         transform2.position = { 2.0f, 0.0f, 0.0f };
         transform2.scale = { 1.0f, 1.0f, 1.0f };
+        auto& renderer2 = registry.emplace<StaticRenderer>(entity);
+        renderer2.mesh = mesh;
 
         auto entity3 = registry.create();
         auto& transform3 = registry.emplace<Transform>(entity3);
         transform3.position = { 0.0f, 2.0f, 0.0f };
         transform3.scale = { 1.0f, 1.0f, 1.0f };
+        auto& renderer3 = registry.emplace<StaticRenderer>(entity);
+        renderer3.mesh = mesh;
 
         auto entity4 = registry.create();
         auto& transform4 = registry.emplace<Transform>(entity4);
         transform4.position = { 0.0f, 0.0f, 2.0f };
         transform4.scale = { 1.0f, 1.0f, 1.0f };
+        auto& renderer4 = registry.emplace<StaticRenderer>(entity);
+        renderer4.mesh = mesh;
     }
 
     void load_scene(std::string_view filename, LoadMethod loadMethod)

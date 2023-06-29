@@ -6,7 +6,7 @@
 #include "platform/platform.hpp"
 #include "audio/audio.hpp"
 #include "graphics/graphics.hpp"
-#include "graphics/renderer.hpp"
+#include "graphics/renderer/renderer.hpp"
 #include "utility/primtives.hpp"
 #include "scenes/scenes.hpp"
 

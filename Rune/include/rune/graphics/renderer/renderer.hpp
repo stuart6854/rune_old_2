@@ -1,10 +1,13 @@
 #pragma once
 
 #include "common.hpp"
+#include "static_mesh.hpp"
 #include "platform/platform.hpp"
 #include "utility/enum_class_flags.hpp"
 
-#include <glm/ext/matrix_float4x4.hpp>
+#include "glm/ext/matrix_float4x4.hpp"
+
+#include <memory>
 
 namespace rune::graphics::renderer
 {
@@ -53,13 +56,13 @@ namespace rune::graphics::renderer
     void shutdown();
 
     void render_camera(const RenderCamera& camera);
-    void render_static_mesh(/*StaticMesh* mesh, */ const glm::mat4& transform = glm::mat4{ 1.0f });
+    void render_static_mesh(const std::shared_ptr<StaticMesh>& mesh, const glm::mat4& transform = glm::mat4{ 1.0f });
 
     void flush_renders();
 
 #pragma region Resources
 
-    void create_static_mesh();
+    auto create_static_mesh() -> std::shared_ptr<StaticMesh>;
     void create_skeletal_mesh();
     void create_texture();
     void create_material();
