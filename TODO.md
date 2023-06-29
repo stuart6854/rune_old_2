@@ -18,3 +18,12 @@
   - Utility
     - Color type
     - Random
+
+# Current Plan
+
+1) Scene/World
+  1) Components - Transform, StaticRenderer, Camera, Light
+  2) Loading from disk
+2) Resource Manager
+3) Add camera controls
+4) Use Synty assets to built test scene
