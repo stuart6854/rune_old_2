@@ -7,10 +7,21 @@
 
 #include <entt/entity/registry.hpp>
 
+#include <glm/ext/vector_float3.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
 #include <memory>
+
+#define RUNE_CREATE_TEST_ENTITY(_position, _scale, _mesh)          \
+    {                                                              \
+        auto entity = registry.create();                           \
+        auto& transform = registry.emplace<Transform>(entity);     \
+        transform.position = _position;                            \
+        transform.scale = _scale;                                  \
+        auto& renderer = registry.emplace<StaticRenderer>(entity); \
+        renderer.mesh = _mesh;                                     \
+    }
 
 namespace rune::scenes
 {
@@ -60,38 +71,8 @@ namespace rune::scenes
     {
         RUNE_ASSERT(g_scenesData != nullptr);
 
-        auto mesh = utility::primitives::generate_plane({ 5, 5 }, { -2.5f, -2.5f }, { 1, 1 });
-
         auto& registry = g_scenesData->registry;
         registry = {};
-
-        auto entity = registry.create();
-        auto& transform = registry.emplace<Transform>(entity);
-        transform.position = { 0.0f, 0.0f, 0.0f };
-        transform.scale = { 0.5f, 0.5f, 0.5f };
-        auto& renderer = registry.emplace<StaticRenderer>(entity);
-        renderer.mesh = mesh;
-
-        auto entity2 = registry.create();
-        auto& transform2 = registry.emplace<Transform>(entity2);
-        transform2.position = { 2.0f, 0.0f, 0.0f };
-        transform2.scale = { 1.0f, 1.0f, 1.0f };
-        auto& renderer2 = registry.emplace<StaticRenderer>(entity);
-        renderer2.mesh = mesh;
-
-        auto entity3 = registry.create();
-        auto& transform3 = registry.emplace<Transform>(entity3);
-        transform3.position = { 0.0f, 2.0f, 0.0f };
-        transform3.scale = { 1.0f, 1.0f, 1.0f };
-        auto& renderer3 = registry.emplace<StaticRenderer>(entity);
-        renderer3.mesh = mesh;
-
-        auto entity4 = registry.create();
-        auto& transform4 = registry.emplace<Transform>(entity4);
-        transform4.position = { 0.0f, 0.0f, 2.0f };
-        transform4.scale = { 1.0f, 1.0f, 1.0f };
-        auto& renderer4 = registry.emplace<StaticRenderer>(entity);
-        renderer4.mesh = mesh;
     }
 
     void load_scene(std::string_view filename, LoadMethod loadMethod)
@@ -105,6 +86,19 @@ namespace rune::scenes
     void unload_scene()
     {
         RUNE_ASSERT(g_scenesData != nullptr);
+    }
+
+    void new_test_scene()
+    {
+        new_scene();
+        auto& registry = g_scenesData->registry;
+
+        auto mesh = utility::primitives::generate_plane({ 5, 5 }, { -2.5f, -2.5f }, { 1, 1 });
+
+        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), mesh);
+        RUNE_CREATE_TEST_ENTITY(glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), mesh);
+        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), mesh);
+        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f), mesh);
     }
 
 }

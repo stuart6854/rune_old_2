@@ -22,4 +22,9 @@ namespace rune::scenes
     void load_scene(std::string_view filename, LoadMethod loadMethod = LoadMethod::Normal);
     void unload_scene();
 
+    /**
+     * Creates a new scene and adds some test entities.
+     */
+    void new_test_scene();
+
 }

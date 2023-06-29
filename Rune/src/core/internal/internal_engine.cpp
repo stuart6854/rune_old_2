@@ -7,7 +7,6 @@
 #include "audio/audio.hpp"
 #include "graphics/graphics.hpp"
 #include "graphics/renderer/renderer.hpp"
-#include "utility/primtives.hpp"
 #include "scenes/scenes.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
@@ -56,6 +55,7 @@ namespace rune::engine::internal
         graphics::renderer::initialise();
 
         scenes::initialise();
+        scenes::new_test_scene();
     }
 
     void shutdown()
