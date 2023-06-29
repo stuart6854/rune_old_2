@@ -2,16 +2,24 @@
 
 #include "common.hpp"
 #include "platform/platform.hpp"
-
-#include <gfx/gfx.hpp>
+#include "utility/enum_class_flags.hpp"
 
 #include <glm/ext/matrix_float4x4.hpp>
 
-namespace rune::graphics
+namespace rune::graphics::renderer
 {
-    using namespace sm;
-
     constexpr auto FRAME_BUFFER_COUNT = 2;
+
+#if 0
+    enum class RenderFlags : std::uint8_t
+    {
+        eNone = 0,
+        eCastShadows = 1u << 0u,      // Drawn during depth pass
+        eReceiveLighting = 1u << 1u,  // Affected by lighting (ambient, diffuse, specular)
+        eTranslucent = 1u << 2u,      // Translucent geometry should be drawn last
+    };
+    RUNE_DEFINE_ENUM_CLASS_BITWISE_OPERATORS(RenderFlags);
+#endif
 
     struct DrawCall
     {
@@ -20,15 +28,18 @@ namespace rune::graphics
         std::uint32_t instance{};
         float distSqr{};  // Distance from camera
     };
+#if 0
+    using RenderBucket = std::vector<DrawCall>;
 
     class RenderQueue
     {
     public:
-        void add(const glm::mat4& transform = glm::mat4{ 1.0f });
+        void add(RenderFlags renderFlags, const glm::mat4& transform = glm::mat4{ 1.0f });
 
     private:
         std::vector<DrawCall> m_drawCalls{};
     };
+#endif
 
     struct RenderCamera
     {
@@ -38,53 +49,21 @@ namespace rune::graphics
         glm::mat4 viewMatrix{ 1.0f };
     };
 
-    class Renderer
-    {
-    public:
-        Renderer() = default;
-        ~Renderer() = default;
+    void initialise();
+    void shutdown();
 
-        void initialise();
-        void shutdown();
+    void render_camera(const RenderCamera& camera);
+    void render_static_mesh(/*StaticMesh* mesh, */ const glm::mat4& transform = glm::mat4{ 1.0f });
 
-        void render_camera(const RenderCamera& camera);
-        void render_static_mesh(/*StaticMesh* mesh, */ const glm::mat4& transform = glm::mat4{ 1.0f });
-
-        void flush_renders();
+    void flush_renders();
 
 #pragma region Resources
 
-        void create_static_mesh();
-        void create_skeletal_mesh();
-        void create_texture();
-        void create_material();
+    void create_static_mesh();
+    void create_skeletal_mesh();
+    void create_texture();
+    void create_material();
 
 #pragma endregion
 
-    private:
-        void flush_camera(const RenderCamera& camera);
-
-        void geometry_pass(gfx::CommandListHandle cmdList);
-
-    private:
-        std::unordered_map<platform::WindowHandle, gfx::SwapChainHandle> m_swapchainMap{};
-
-        std::vector<RenderCamera> m_camerasToRender{};
-        std::vector<DrawCall> m_drawCalls{};
-
-        std::vector<glm::mat4> m_instances{};
-
-        gfx::BufferHandle m_cameraBuffer{};
-        gfx::PipelineHandle m_pipeline{};
-        gfx::DescriptorSetHandle m_set{};
-
-        struct FrameData
-        {
-            std::vector<gfx::FenceHandle> fences{};
-            std::vector<gfx::SemaphoreHandle> semaphores{};
-            std::vector<gfx::CommandListHandle> commandLists{};
-        };
-        std::array<FrameData, FRAME_BUFFER_COUNT> m_frames{};
-        std::uint32_t m_frameIndex{};
-    };
 }

@@ -53,6 +53,7 @@ namespace rune::engine::internal
         platform::show_window(engineData.primaryWindow);
 
         graphics::initialise();
+        graphics::renderer::initialise();
 
         scenes::initialise();
     }
@@ -65,6 +66,7 @@ namespace rune::engine::internal
         LOG_INFO("Rune shutting down...");
         scenes::shutdown();
 
+        graphics::renderer::shutdown();
         graphics::shutdown();
         audio::shutdown();
 
@@ -84,9 +86,6 @@ namespace rune::engine::internal
     {
         auto& engineData = get_engine_data();
 
-        graphics::Renderer renderer{};
-        renderer.initialise();
-
         auto lastTime = platform::get_time();
         while (!platform::has_window_requested_close(engineData.primaryWindow))
         {
@@ -100,7 +99,7 @@ namespace rune::engine::internal
             scenes::update();
 
             auto windowSize = platform::get_window_size_pixels(engineData.primaryWindow);
-            renderer.render_camera({
+            graphics::renderer::render_camera({
                 engineData.primaryWindow,
                 windowSize,
                 glm::perspectiveLH_ZO(glm::radians(70.0f), f32(windowSize.x) / f32(windowSize.y), 0.1f, 100.0f),
@@ -113,18 +112,16 @@ namespace rune::engine::internal
             }
 #endif
 
-            renderer.render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)));
-            renderer.render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(2, 0, 0)));
-            renderer.render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(0, 2, 0)));
-            renderer.render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 2)));
+            graphics::renderer::render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)));
+            graphics::renderer::render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(2, 0, 0)));
+            graphics::renderer::render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(0, 2, 0)));
+            graphics::renderer::render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 2)));
 
-            renderer.flush_renders();
+            graphics::renderer::flush_renders();
             //            graphics::render_temp();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(16));
         }
-
-        renderer.shutdown();
     }
 
 }
