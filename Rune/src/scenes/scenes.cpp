@@ -3,6 +3,7 @@
 #include "internal_common.hpp"
 #include "scenes/components.hpp"
 #include "graphics/renderer/renderer.hpp"
+#include "utility/primitives.hpp"
 
 #include <entt/entity/registry.hpp>
 
@@ -59,10 +60,7 @@ namespace rune::scenes
     {
         RUNE_ASSERT(g_scenesData != nullptr);
 
-        auto mesh = graphics::renderer::create_static_mesh();
-        mesh->set_positions({});
-        mesh->set_normals({});
-        mesh->apply();
+        auto mesh = utility::primitives::generate_plane({ 5, 5 }, { -2.5f, -2.5f }, { 1, 1 });
 
         auto& registry = g_scenesData->registry;
         registry = {};

@@ -7,7 +7,7 @@
 #pragma once
 
 #include "common.hpp"
-#include "graphics/renderer/vertices.hpp"
+#include "graphics/renderer/static_mesh.hpp"
 
 #include <glm/ext/vector_uint2.hpp>
 
@@ -15,15 +15,9 @@
 
 namespace rune::utility::primitives
 {
-    struct MeshDescription
-    {
-        std::vector<graphics::StaticVertex> vertices{};
-        std::vector<std::uint32_t> triangles{};
-    };
-
     auto generate_plane(const glm::vec2& size = { 1.0f, 1.0f },
                         const glm::vec2& offset = { 0.0f, 0.0f },
-                        const glm::uvec2& resolution = { 1, 1 }) -> MeshDescription;
+                        const glm::uvec2& resolution = { 1, 1 }) -> std::shared_ptr<graphics::renderer::StaticMesh>;
 #if 0
     void generate_cube();
     void generate_uv_sphere();
