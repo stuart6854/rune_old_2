@@ -87,6 +87,15 @@ namespace rune::platform
         glfwDestroyWindow(glfwWindow);
     }
 
+    auto get_platform_display_handle() -> void*
+    {
+    #if defined(RUNE_PLATFORM_WINDOWS)
+        return GetModuleHandle(nullptr);
+    #elif defined(RUNE_PLATFORM_LINUX)
+        return glfwGetWaylandDisplay();
+    #endif
+    }
+
     auto get_window_platform_handle(WindowHandle window) -> void*
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);

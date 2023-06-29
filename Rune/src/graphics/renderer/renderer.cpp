@@ -92,6 +92,7 @@ namespace rune::graphics::renderer
         {
             auto windowSize = platform::get_window_size_pixels(camera.targetWindow);
             gfx::SwapChainInfo swapChainInfo{
+                .platformDisplayHandle = platform::get_platform_display_handle(),
                 .platformWindowHandle = platform::get_window_platform_handle(camera.targetWindow),
                 .initialWidth = windowSize.x,
                 .initialHeight = windowSize.y,

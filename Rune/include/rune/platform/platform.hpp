@@ -31,6 +31,7 @@ namespace rune::platform
     auto create_window(i32 width, i32 height, std::string_view title) -> WindowHandle;
     void destroy_window(WindowHandle window);
 
+    auto get_platform_display_handle() -> void*;
     auto get_window_platform_handle(WindowHandle window) -> void*;
     bool has_window_requested_close(WindowHandle window);
 
