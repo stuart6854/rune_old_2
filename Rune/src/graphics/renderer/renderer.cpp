@@ -104,7 +104,7 @@ namespace rune::graphics::renderer
                 return;
             }
 
-            rendererData.swapchainMap.insert({ camera.targetWindow, swapChainHandle }).first;
+            rendererData.swapchainMap.insert({ camera.targetWindow, swapChainHandle });
         }
 
         rendererData.camerasToRender.emplace_back(camera);
