@@ -1,4 +1,5 @@
-add_subdirectory(libs)
+include(Dependencies.cmake)
+add_subdirectory(libs/submodules)
 if (NOT WIN32)
     find_package(OpenAL CONFIG REQUIRED)
 endif ()
@@ -12,7 +13,7 @@ target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURR
 target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(${TARGET_NAME} PUBLIC spdlog glfw3 OpenAL::OpenAL gfx)
+target_link_libraries(${TARGET_NAME} PUBLIC spdlog glfw AudioFile OpenAL::OpenAL gfx EnTT::EnTT)
 
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 

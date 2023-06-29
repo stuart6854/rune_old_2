@@ -15,6 +15,7 @@ CPMAddPackage(
         NAME AudioFile
         GITHUB_REPOSITORY adamstark/AudioFile
         GIT_TAG 1.1.1
+        SYSTEM TRUE
         OPTIONS
         "BUILD_TESTS OFF"
         "BUILD_EXAMPLES OFF"
@@ -28,4 +29,9 @@ CPMAddPackage(
         "ALSOFT_NO_CONFIG_UTIL ON"
         "ALSOFT_EXAMPLES OFF"
         "ALSOFT_INSTALL OFF"
+)
+CPMAddPackage(
+        NAME entt
+        GITHUB_REPOSITORY skypjack/entt
+        GIT_TAG v3.12.2
 )
