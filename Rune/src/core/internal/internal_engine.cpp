@@ -7,6 +7,8 @@
 #include "audio/audio.hpp"
 #include "graphics/graphics.hpp"
 #include "graphics/renderer.hpp"
+#include "utility/primtives.hpp"
+#include "scenes/scenes.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -51,6 +53,8 @@ namespace rune::engine::internal
         platform::show_window(engineData.primaryWindow);
 
         graphics::initialise();
+
+        scenes::initialise();
     }
 
     void shutdown()
@@ -59,6 +63,8 @@ namespace rune::engine::internal
         RUNE_UNUSED(engineData);
 
         LOG_INFO("Rune shutting down...");
+        scenes::shutdown();
+
         graphics::shutdown();
         audio::shutdown();
 
@@ -89,8 +95,9 @@ namespace rune::engine::internal
             lastTime = time;
 
             platform::update();
-
             platform::set_window_title(engineData.primaryWindow, std::format("Primary Window - {:.2f}ms", deltaTime));
+
+            scenes::update();
 
             auto windowSize = platform::get_window_size_pixels(engineData.primaryWindow);
             renderer.render_camera({
