@@ -5,8 +5,9 @@
 
 #include <AL/alc.h>
 #include <AL/al.h>
-#include <AudioFile/AudioFile.h>
+#include <AudioFile.h>
 
+#include <array>
 #include <unordered_set>
 
 namespace rune::audio
@@ -38,8 +39,7 @@ namespace rune::audio
         std::unordered_map<SourceId, SourceData> g_sources{};     // NOLINT
         std::unordered_set<AudioId> g_audios{};                   // NOLINT
 
-        void update_stream(
-            ALuint source, ALenum format, u32 sampleRate, const std::vector<u8>& audioData, u64& streamCursor)
+        void update_stream(ALuint source, ALenum format, u32 sampleRate, const std::vector<u8>& audioData, u64& streamCursor)
         {
             ALint buffersProcessed{ 0 };
             alCall(alGetSourcei, source, AL_BUFFERS_PROCESSED, &buffersProcessed);
@@ -156,7 +156,7 @@ namespace rune::audio
         const auto bitDepth = audioFile.getBitDepth();
         const auto sampleRate = audioFile.getSampleRate();
         std::vector<uint8_t> data{};
-        audioFile.savePCMToBuffer(data);
+        //        audioFile.savePCMToBuffer(data); // TODO: audioFile.SavePCMToBuffer()
 
         ALuint buffer{};
         alCall(alGenBuffers, 1, &buffer);
@@ -274,7 +274,7 @@ namespace rune::audio
         const auto bitDepth = audioFile.getBitDepth();
         const auto sampleRate = audioFile.getSampleRate();
         std::vector<uint8_t> audioData{};
-        audioFile.savePCMToBuffer(audioData);
+        //        audioFile.savePCMToBuffer(data); // TODO: audioFile.SavePCMToBuffer()
 
         ALuint buffer{};
         alCall(alGenBuffers, 1, &buffer);

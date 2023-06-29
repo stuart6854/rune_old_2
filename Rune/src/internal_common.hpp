@@ -6,6 +6,14 @@
 
 #include <source_location>
 
+#define GLFW_NATIVE_INCLUDE_NONE
+#if defined(RUNE_PLATFORM_WINDOWS)
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #define NOMINMAX
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+#endif
+
 #if defined(RUNE_BUILD_DEBUG) || defined(RUNE_BUILD_RELEASE)
     #if defined(RUNE_PLATFORM_WINDOWS)
         #define RUNE_DEBUG_BREAK() __debugbreak()

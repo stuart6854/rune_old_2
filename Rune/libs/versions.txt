@@ -1,5 +1,0 @@
-spdlog - v1.11.0 - https://github.com/gabime/spdlog/tree/v1.11.0
-openal-soft - 1.23.1 - https://openal-soft.org
-AudioFile - 1.1.1 - https://github.com/adamstark/AudioFile/tree/1.1.1
-glfw - 3.3.8 - https://github.com/glfw/glfw/releases/tag/3.3.8
-glm - 5c46b9c0 - https://github.com/g-truc/glm/tree/5c46b9c07008ae65cb81ab79cd677ecc1934b903
