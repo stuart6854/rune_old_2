@@ -12,6 +12,7 @@
 #include <glm/ext/vector_uint2.hpp>
 
 #include <vector>
+#include <memory>
 
 namespace rune::utility::primitives
 {

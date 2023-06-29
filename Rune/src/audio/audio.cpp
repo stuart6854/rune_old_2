@@ -88,8 +88,8 @@ namespace rune::audio
             LOG_INFO("  {}", device);
         }
 
-        std::string_view defaultDevice = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-        LOG_INFO("Default audio device: {}", defaultDevice);
+//        std::string_view defaultDevice = alCall(alcGetString, nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
+//        LOG_INFO("Default audio device: {}", defaultDevice);
 
         g_device = alcCall(alcOpenDevice, nullptr, nullptr);
         if (!g_device)
@@ -262,7 +262,7 @@ namespace rune::audio
         return {};
     }
 
-    void audio::source_play(SourceId source, std::string_view filename)
+    void source_play(SourceId source, std::string_view filename)
     {
         AudioFile<float> audioFile{};
         if (!audioFile.load(filename.data()))

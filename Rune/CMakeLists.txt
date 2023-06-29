@@ -1,4 +1,7 @@
 add_subdirectory(libs)
+if (NOT WIN32)
+    find_package(OpenAL CONFIG REQUIRED)
+endif ()
 
 set(TARGET_NAME rune)
 
@@ -9,7 +12,7 @@ target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURR
 target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(${TARGET_NAME} PUBLIC spdlog glfw3 OpenAL32 gfx)
+target_link_libraries(${TARGET_NAME} PUBLIC spdlog glfw3 OpenAL::OpenAL gfx)
 
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 
@@ -18,7 +21,7 @@ if (MSVC)
     target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
 else ()
     # lots of warnings and all warnings as errors
-    target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-missing-field-initializers)
 endif ()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)

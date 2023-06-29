@@ -90,6 +90,8 @@ namespace rune::audio
 
     auto get_available_devices(ALCdevice* device) -> std::optional<std::vector<std::string>>
     {
+        RUNE_UNUSED(device);
+#if 0
         const ALCchar* devices = alcCall(alcGetString, device, nullptr, ALC_DEVICE_SPECIFIER);
         if (!devices)
         {
@@ -107,6 +109,8 @@ namespace rune::audio
         } while (*(ptr + 1) != '\0');               // NOLINT
 
         return deviceVector;
+#endif
+        return {};
     }
 
 }

@@ -58,7 +58,7 @@ namespace rune
             m_what = std::format("Rune exception - {}\nFile: {}\n Line: {}", msg, file, line);
         }
 
-        const char* what() const override { return m_what.c_str(); }
+        const char* what() const noexcept override { return m_what.c_str(); }
 
     private:
         std::string m_what{};

@@ -7,6 +7,8 @@
     #include <GLFW/glfw3.h>
     #if defined(RUNE_PLATFORM_WINDOWS)
         #define GLFW_EXPOSE_NATIVE_WIN32
+    #elif defined(RUNE_PLATFORM_LINUX)
+        #define GLFW_EXPOSE_NATIVE_WAYLAND
     #endif
     #define GLFW_NATIVE_INCLUDE_NONE
     #include <GLFW/glfw3native.h>
@@ -91,7 +93,7 @@ namespace rune::platform
     #if defined(RUNE_PLATFORM_WINDOWS)
         return glfwGetWin32Window(glfwWindow);
     #elif defined(RUNE_PLATFORM_LINUX)
-        #error X11 or Wayland?
+        return glfwGetWaylandWindow(glfwWindow);
     #endif
     }
 

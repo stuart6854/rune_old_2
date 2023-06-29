@@ -63,6 +63,7 @@ namespace rune::graphics::renderer
                 },
             } },
             .constantBlock = { sizeof(glm::mat4), gfx::ShaderStageFlags_Vertex },
+            .depthTest = false,
         };
         if (!gfx::create_graphics_pipeline(rendererData.pipeline, device, pipelineInfo))
         {

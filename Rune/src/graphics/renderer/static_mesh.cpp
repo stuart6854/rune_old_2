@@ -1,5 +1,7 @@
 #include "graphics/renderer/static_mesh.hpp"
 
+#include <cstring>
+
 namespace rune::graphics::renderer
 {
     void StaticMesh::set_positions(const std::vector<glm::vec3>& positions)
@@ -38,7 +40,7 @@ namespace rune::graphics::renderer
         gfx::create_buffer(m_otherAttribBuffer, graphics::get_device(), bufferInfo);
         gfx::map_buffer(m_otherAttribBuffer, mappedData);
         u8* writePtr = static_cast<u8*>(mappedData);
-        for (auto i = 0; i < m_normals.size(); ++i)
+        for (sizet i = 0; i < m_normals.size(); ++i)
         {
             auto offset = i * (sizeof(glm::vec3) + sizeof(glm::vec2));
             std::memcpy(writePtr + offset + 0, &m_normals[i], sizeof(glm::vec3));

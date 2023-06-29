@@ -1,5 +1,7 @@
 #include "utility/strings.hpp"
 
+#include <algorithm>
+
 namespace rune::utility::strings
 {
     void left_trim(std::string& str)
