@@ -2,8 +2,12 @@
 
 #include "internal_common.hpp"
 #include "scenes/components.hpp"
+#include "graphics/renderer.hpp"
 
 #include <entt/entity/registry.hpp>
+
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 #include <memory>
 
@@ -41,7 +45,12 @@ namespace rune::scenes
         auto view = registry.view<Transform>();
         for (auto entity : view)
         {
-            LOG_INFO("Entity with Transform: {}", u64(entity));
+            const auto& transform = view.get<Transform>(entity);
+
+            auto worldMatrix = glm::translate(glm::mat4(1.0f), transform.position);
+            worldMatrix = glm::scale(worldMatrix, transform.scale);
+
+            graphics::renderer::render_static_mesh(worldMatrix);
         }
     }
 
@@ -53,10 +62,24 @@ namespace rune::scenes
         registry = {};
 
         auto entity = registry.create();
-        registry.emplace<Transform>(entity);
+        auto& transform = registry.emplace<Transform>(entity);
+        transform.position = { 0.0f, 0.0f, 0.0f };
+        transform.scale = { 0.5f, 0.5f, 0.5f };
 
         auto entity2 = registry.create();
-        registry.emplace<Transform>(entity2);
+        auto& transform2 = registry.emplace<Transform>(entity2);
+        transform2.position = { 2.0f, 0.0f, 0.0f };
+        transform2.scale = { 1.0f, 1.0f, 1.0f };
+
+        auto entity3 = registry.create();
+        auto& transform3 = registry.emplace<Transform>(entity3);
+        transform3.position = { 0.0f, 2.0f, 0.0f };
+        transform3.scale = { 1.0f, 1.0f, 1.0f };
+
+        auto entity4 = registry.create();
+        auto& transform4 = registry.emplace<Transform>(entity4);
+        transform4.position = { 0.0f, 0.0f, 2.0f };
+        transform4.scale = { 1.0f, 1.0f, 1.0f };
     }
 
     void load_scene(std::string_view filename, LoadMethod loadMethod)

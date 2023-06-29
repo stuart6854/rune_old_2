@@ -112,11 +112,6 @@ namespace rune::engine::internal
             }
 #endif
 
-            graphics::renderer::render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)));
-            graphics::renderer::render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(2, 0, 0)));
-            graphics::renderer::render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(0, 2, 0)));
-            graphics::renderer::render_static_mesh(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 2)));
-
             graphics::renderer::flush_renders();
             //            graphics::render_temp();
 
