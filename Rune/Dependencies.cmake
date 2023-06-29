@@ -9,6 +9,7 @@ CPMAddPackage(
         "GLFW_BUILD_TESTS OFF"
         "GLFW_BUILD_DOCS OFF"
         "GLFW_INSTALL OFF"
+        "GLFW_USE_WAYLAND ON"
 )
 
 CPMAddPackage(
@@ -24,6 +25,7 @@ CPMAddPackage(
         NAME openal-soft
         GITHUB_REPOSITORY kcat/openal-soft
         GIT_TAG 1.23.1
+        SYSTEM TRUE
         OPTIONS
         "ALSOFT_UTILS OFF"
         "ALSOFT_NO_CONFIG_UTIL ON"
