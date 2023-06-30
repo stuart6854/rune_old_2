@@ -10,6 +10,9 @@
   - Graphics layer - Vulkan wrapper
   - Network layer??
 - High-Level
+  - Input system
+    - Action binding (keys)
+    - Axis binding (mouse, joystick)
   - Scene/World system
   - Scene rendering
   - Resource manager
