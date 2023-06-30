@@ -65,4 +65,14 @@ namespace rune::graphics::renderer
         m_triangles.clear();  // #TODO: Allow user to specify to keep vertex data
     }
 
+    auto StaticMesh::get_index_buffer() const -> gfx::BufferHandle
+    {
+        return m_indexBuffer;
+    }
+
+    auto StaticMesh::get_vertex_buffers() const -> std::vector<gfx::BufferHandle>
+    {
+        return { m_positionsBuffer, m_otherAttribBuffer };
+    }
+
 }

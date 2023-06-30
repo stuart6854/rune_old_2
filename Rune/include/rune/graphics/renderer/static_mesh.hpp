@@ -24,6 +24,9 @@ namespace rune::graphics::renderer
 
         void apply();
 
+        auto get_index_buffer() const -> gfx::BufferHandle;
+        auto get_vertex_buffers() const -> std::vector<gfx::BufferHandle>;
+
     private:
         std::vector<glm::vec3> m_positions{};
         std::vector<glm::vec3> m_normals{};
