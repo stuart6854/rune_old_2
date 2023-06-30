@@ -103,7 +103,7 @@ namespace rune::engine::internal
                 engineData.primaryWindow,
                 windowSize,
                 glm::perspectiveLH_ZO(glm::radians(70.0f), f32(windowSize.x) / f32(windowSize.y), 0.1f, 100.0f),
-                glm::lookAtLH(glm::vec3(-1.0f, 1.5f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+                glm::lookAtLH(glm::vec3(-2.0f, 1.5f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
             });
 #if 0
             for (auto* window : engineData.windows)
