@@ -19,12 +19,18 @@ namespace rune::graphics::renderer
         m_texCoords = texCoords;
     }
 
+    void StaticMesh::set_triangles(const std::vector<u32>& triangles)
+    {
+        m_triangles = triangles;
+    }
+
     void StaticMesh::apply()
     {
         void* mappedData{ nullptr };
 
         gfx::destroy_buffer(m_positionsBuffer);
         gfx::destroy_buffer(m_otherAttribBuffer);
+        gfx::destroy_buffer(m_indexBuffer);
 
         gfx::BufferInfo bufferInfo{
             .type = gfx::BufferType::eVertex,
@@ -49,6 +55,14 @@ namespace rune::graphics::renderer
         gfx::unmap_buffer(m_otherAttribBuffer);
         m_normals.clear();    // #TODO: Allow user to specify to keep vertex data
         m_texCoords.clear();  // #TODO: Allow user to specify to keep vertex data
+
+        bufferInfo.type = gfx::BufferType::eIndex;
+        bufferInfo.size = sizeof(u32) * m_triangles.size();
+        gfx::create_buffer(m_indexBuffer, graphics::get_device(), bufferInfo);
+        gfx::map_buffer(m_indexBuffer, mappedData);
+        std::memcpy(mappedData, m_triangles.data(), bufferInfo.size);
+        gfx::unmap_buffer(m_indexBuffer);
+        m_triangles.clear();  // #TODO: Allow user to specify to keep vertex data
     }
 
 }
