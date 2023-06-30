@@ -12,6 +12,8 @@ namespace rune::engine::internal
         bool isRunning{ false };
         platform::WindowHandle primaryWindow{ nullptr };
         std::vector<platform::WindowHandle> windows{};
+
+        f32 deltaTime{ 0.0f };
     };
 
     auto get_engine_data() -> EngineData&;

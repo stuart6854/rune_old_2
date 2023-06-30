@@ -1,7 +1,7 @@
 #include "entry_point.hpp"
 
 #include "core/platform_detection.hpp"
-#include "core/internal/internal_engine.hpp"
+#include "core/engine_internal.hpp"
 #include "core/internal/internal_logging.hpp"
 
 #ifdef RUNE_PLATFORM_WINDOWS
