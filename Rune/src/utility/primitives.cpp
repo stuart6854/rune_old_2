@@ -34,7 +34,7 @@ namespace rune::utility::primitives
                 position.x += posIncrement.x;
                 texCoord.x += uIncrement;
             }
-            position.x = 0.0f;
+            position.x = offset.x;
             position.z += posIncrement.y;
             texCoord.y += vIncrement;
         }
