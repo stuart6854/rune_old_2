@@ -86,15 +86,42 @@ namespace rune::engine::internal
     {
         auto& engineData = get_engine_data();
 
+        glm::vec3 camPosition{ -2.0f, 1.5f, -5.0f };
+        const f32 camSpeed = 10.0f;
+
         auto lastTime = platform::get_time();
         while (!platform::has_window_requested_close(engineData.primaryWindow))
         {
             auto time = platform::get_time();
-            const auto deltaTime = time - lastTime;
+            const auto deltaTime = f32(time - lastTime);
             lastTime = time;
 
             platform::update();
             platform::set_window_title(engineData.primaryWindow, std::format("Primary Window - {:.2f}ms", deltaTime));
+
+            // Camera Input
+            glm::vec3 camMovement{};
+            if (platform::is_key_down(engineData.primaryWindow, platform::Key::W))
+            {
+                camMovement.z += 1.0f;
+            }
+            if (platform::is_key_down(engineData.primaryWindow, platform::Key::S))
+            {
+                camMovement.z -= 1.0f;
+            }
+            if (platform::is_key_down(engineData.primaryWindow, platform::Key::D))
+            {
+                camMovement.x += 1.0f;
+            }
+            if (platform::is_key_down(engineData.primaryWindow, platform::Key::A))
+            {
+                camMovement.x -= 1.0f;
+            }
+
+            if (glm::length(camMovement) > 0.0f)
+            {
+                camPosition += glm::normalize(camMovement) * camSpeed * deltaTime;
+            }
 
             scenes::update();
 
@@ -103,7 +130,7 @@ namespace rune::engine::internal
                 engineData.primaryWindow,
                 windowSize,
                 glm::perspectiveLH_ZO(glm::radians(70.0f), f32(windowSize.x) / f32(windowSize.y), 0.1f, 100.0f),
-                glm::lookAtLH(glm::vec3(-2.0f, 1.5f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+                glm::lookAtLH(camPosition, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
             });
 #if 0
             for (auto* window : engineData.windows)
