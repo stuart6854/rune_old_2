@@ -16,6 +16,13 @@ using namespace sm;
 
 namespace rune::graphics::renderer
 {
+    struct RenderMesh
+    {
+        u32 indexCount{};
+        gfx::BufferHandle indexBuffer{};
+        std::vector<gfx::BufferHandle> vertexBuffers{};  // Position buffer should always be at index 0
+    };
+
     struct RendererData
     {
         std::unordered_map<platform::WindowHandle, gfx::SwapChainHandle> swapchainMap{};
@@ -24,7 +31,7 @@ namespace rune::graphics::renderer
         std::vector<DrawCall> drawCalls{};
 
         std::vector<glm::mat4> instances{};
-        std::vector<std::shared_ptr<StaticMesh>> meshes{};  // TODO: Make Static/Skeletal agnostic
+        std::vector<RenderMesh> meshes{};
 
         gfx::BufferHandle cameraBuffer{};
         gfx::PipelineHandle pipeline{};
@@ -56,6 +63,9 @@ namespace rune::graphics::renderer
         const auto fragShaderBinary = io::read_binary<std::uint32_t>("triangle.frag.spv").value();
         gfx::GraphicsPipelineInfo pipelineInfo{
             .vertexCode = vertShaderBinary,
+            .vertexAttributes = {
+                { "Position", gfx::Format::eRGB32 },
+            },
             .fragmentCode = fragShaderBinary,
             .descriptorSets = { {
                 .bindings = {
@@ -118,7 +128,10 @@ namespace rune::graphics::renderer
         rendererData.instances.push_back(transform);
         auto instanceIdx = static_cast<u32>(rendererData.instances.size() - 1);
 
-        rendererData.meshes.push_back(mesh);
+        auto& renderMesh = rendererData.meshes.emplace_back();
+        renderMesh.indexCount = mesh->get_index_count();
+        renderMesh.indexBuffer = mesh->get_index_buffer();
+        renderMesh.vertexBuffers = mesh->get_vertex_buffers();
         auto meshIdx = static_cast<u32>(rendererData.meshes.size() - 1);
 
         auto& drawCall = rendererData.drawCalls.emplace_back();
@@ -236,9 +249,13 @@ namespace rune::graphics::renderer
         gfx::bind_descriptor_set(cmdList, rendererData.set);
         for (const auto& drawCall : rendererData.drawCalls)
         {
+            const auto& renderMesh = rendererData.meshes.at(drawCall.mesh);
+            gfx::bind_index_buffer(cmdList, renderMesh.indexBuffer, gfx::IndexType::eUInt32);
+            gfx::bind_vertex_buffer(cmdList, renderMesh.vertexBuffers.at(0));
+
             const auto& instance = rendererData.instances.at(drawCall.instance);
             gfx::set_constants(cmdList, gfx::ShaderStageFlags_Vertex, 0, sizeof(instance), &instance);
-            gfx::draw(cmdList, 3, 1, 0, 0);
+            gfx::draw_indexed(cmdList, renderMesh.indexCount, 1, 0, 0, 0);
         }
     }
 
