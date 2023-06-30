@@ -63,15 +63,19 @@ namespace rune::graphics::renderer
         const auto fragShaderBinary = io::read_binary<std::uint32_t>("triangle.frag.spv").value();
         gfx::GraphicsPipelineInfo pipelineInfo{
             .vertexCode = vertShaderBinary,
-            .vertexAttributes = {
-                { "Position", gfx::Format::eRGB32 },
-            },
             .fragmentCode = fragShaderBinary,
+            .vertexInputBindings = {
+                gfx::VertexBinding("Positions", { gfx::VertexAttribute("Position", 0, gfx::Format::eRGB32), }),
+                gfx::VertexBinding("NormalsTexCoords", {
+                                                           gfx::VertexAttribute("Normals", 1, gfx::Format::eRGB32),
+                                                           gfx::VertexAttribute("TexCoords", 2, gfx::Format::eRG32),
+                                                       }),
+            },
             .descriptorSets = { {
-                .bindings = {
-                    { gfx::DescriptorType::eUniformBuffer, 1, gfx::ShaderStageFlags_Vertex },
-                },
-            } },
+                                    .bindings = {
+                                        { gfx::DescriptorType::eUniformBuffer, 1, gfx::ShaderStageFlags_Vertex },
+                                    },
+                                } },
             .constantBlock = { sizeof(glm::mat4), gfx::ShaderStageFlags_Vertex },
             .depthTest = false,
         };
@@ -251,7 +255,7 @@ namespace rune::graphics::renderer
         {
             const auto& renderMesh = rendererData.meshes.at(drawCall.mesh);
             gfx::bind_index_buffer(cmdList, renderMesh.indexBuffer, gfx::IndexType::eUInt32);
-            gfx::bind_vertex_buffer(cmdList, renderMesh.vertexBuffers.at(0));
+            gfx::bind_vertex_buffers(cmdList, 0, renderMesh.vertexBuffers);
 
             const auto& instance = rendererData.instances.at(drawCall.instance);
             gfx::set_constants(cmdList, gfx::ShaderStageFlags_Vertex, 0, sizeof(instance), &instance);
