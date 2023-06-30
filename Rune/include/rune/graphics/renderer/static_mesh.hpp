@@ -24,6 +24,7 @@ namespace rune::graphics::renderer
 
         void apply();
 
+        auto get_index_count() const -> u32;
         auto get_index_buffer() const -> gfx::BufferHandle;
         auto get_vertex_buffers() const -> std::vector<gfx::BufferHandle>;
 
@@ -36,5 +37,6 @@ namespace rune::graphics::renderer
         gfx::BufferHandle m_positionsBuffer{};
         gfx::BufferHandle m_otherAttribBuffer{};
         gfx::BufferHandle m_indexBuffer{};
+        u32 m_indexCount;
     };
 }

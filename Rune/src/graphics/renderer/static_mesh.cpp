@@ -62,7 +62,13 @@ namespace rune::graphics::renderer
         gfx::map_buffer(m_indexBuffer, mappedData);
         std::memcpy(mappedData, m_triangles.data(), bufferInfo.size);
         gfx::unmap_buffer(m_indexBuffer);
+        m_indexCount = u32(m_triangles.size());
         m_triangles.clear();  // #TODO: Allow user to specify to keep vertex data
+    }
+
+    auto StaticMesh::get_index_count() const -> u32
+    {
+        return m_indexCount;
     }
 
     auto StaticMesh::get_index_buffer() const -> gfx::BufferHandle
