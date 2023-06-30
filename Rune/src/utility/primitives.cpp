@@ -59,4 +59,133 @@ namespace rune::utility::primitives
         return mesh;
     }
 
+    auto generate_cube(f32 size, const glm::vec3& offset) -> std::shared_ptr<graphics::renderer::StaticMesh>
+    {
+        const auto hs = size = 0.5f;
+
+        glm::vec3 position{};
+        glm::vec3 normal{ 0, 1, 0 };
+        glm::vec2 texCoord{};
+
+        std::vector<glm::vec3> positions{
+            // Top
+            offset + glm::vec3{ 0.0f, 1.0f, 0.0f } * hs,
+            offset + glm::vec3{ 0.0f, 1.0f, 0.0f } * hs,
+            offset + glm::vec3{ 0.0f, 1.0f, 0.0f } * hs,
+            offset + glm::vec3{ 0.0f, 1.0f, 0.0f } * hs,
+            // Bottom
+            offset + glm::vec3{ 0.0f, -1.0f, 0.0f } * hs,
+            offset + glm::vec3{ 0.0f, -1.0f, 0.0f } * hs,
+            offset + glm::vec3{ 0.0f, -1.0f, 0.0f } * hs,
+            offset + glm::vec3{ 0.0f, -1.0f, 0.0f } * hs,
+            // South
+            offset + glm::vec3{ 0.0f, 0.0f, -1.0f } * hs,
+            offset + glm::vec3{ 0.0f, 0.0f, -1.0f } * hs,
+            offset + glm::vec3{ 0.0f, 0.0f, -1.0f } * hs,
+            offset + glm::vec3{ 0.0f, 0.0f, -1.0f } * hs,
+            // North
+            offset + glm::vec3{ 0.0f, 0.0f, 1.0f } * hs,
+            offset + glm::vec3{ 0.0f, 0.0f, 1.0f } * hs,
+            offset + glm::vec3{ 0.0f, 0.0f, 1.0f } * hs,
+            offset + glm::vec3{ 0.0f, 0.0f, 1.0f } * hs,
+            // East
+            offset + glm::vec3{ 1.0f, 0.0f, 0.0f } * hs,
+            offset + glm::vec3{ 1.0f, 0.0f, 0.0f } * hs,
+            offset + glm::vec3{ 1.0f, 0.0f, 0.0f } * hs,
+            offset + glm::vec3{ 1.0f, 0.0f, 0.0f } * hs,
+            // West
+            offset + glm::vec3{ -1.0f, 0.0f, 0.0f } * hs,
+            offset + glm::vec3{ -1.0f, 0.0f, 0.0f } * hs,
+            offset + glm::vec3{ -1.0f, 0.0f, 0.0f } * hs,
+            offset + glm::vec3{ -1.0f, 0.0f, 0.0f } * hs,
+        };
+        std::vector<glm::vec3> normals{
+            // Top
+            { 0.0f, 1.0f, 0.0f },
+            { 0.0f, 1.0f, 0.0f },
+            { 0.0f, 1.0f, 0.0f },
+            { 0.0f, 1.0f, 0.0f },
+            // Bottom
+            { 0.0f, -1.0f, 0.0f },
+            { 0.0f, -1.0f, 0.0f },
+            { 0.0f, -1.0f, 0.0f },
+            { 0.0f, -1.0f, 0.0f },
+            // South
+            { 0.0f, 0.0f, -1.0f },
+            { 0.0f, 0.0f, -1.0f },
+            { 0.0f, 0.0f, -1.0f },
+            { 0.0f, 0.0f, -1.0f },
+            // North
+            { 0.0f, 0.0f, 1.0f },
+            { 0.0f, 0.0f, 1.0f },
+            { 0.0f, 0.0f, 1.0f },
+            { 0.0f, 0.0f, 1.0f },
+            // East
+            { 1.0f, 0.0f, 0.0f },
+            { 1.0f, 0.0f, 0.0f },
+            { 1.0f, 0.0f, 0.0f },
+            { 1.0f, 0.0f, 0.0f },
+            // West
+            { -1.0f, 0.0f, 0.0f },
+            { -1.0f, 0.0f, 0.0f },
+            { -1.0f, 0.0f, 0.0f },
+            { -1.0f, 0.0f, 0.0f },
+        };
+        std::vector<glm::vec2> texCoords{
+            // Top
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            // Bottom
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            // South
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            // North
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            // East
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            // West
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },
+        };
+        // clang-format off
+        std::vector<u32> triangles{
+            // Top
+            0, 1, 2, 2, 3, 0,
+            // Bottom
+            4, 5, 6, 6, 7, 4,
+            // South
+            8, 9, 10, 10, 11, 8,
+            // North
+            12, 13, 14, 14, 15, 12,
+            // East
+            15, 16, 17, 17, 18, 15,
+            // West
+            18, 19, 20, 20, 21, 18,
+        };
+        // clang-format on
+
+        auto mesh = graphics::renderer::create_static_mesh();
+        mesh->set_positions(positions);
+        mesh->set_normals(normals);
+        mesh->set_tex_coords(texCoords);
+        mesh->set_triangles(triangles);
+        return mesh;
+    }
+
 }
