@@ -10,6 +10,8 @@ Checks: >
   -*-special-member-functions,
   -*-uppercase-literal-suffix,
   -*-avoid-do-while,
+  -*-pointer-arithmetic,
+  -*-union-access,
   -modernize-use-nodiscard,
   -readability-redundant-access-specifiers,
   -cppcoreguidelines-macro-usage,
