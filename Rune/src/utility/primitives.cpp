@@ -56,6 +56,8 @@ namespace rune::utility::primitives
         mesh->set_positions(positions);
         mesh->set_normals(normals);
         mesh->set_tex_coords(texCoords);
+        mesh->set_triangles(triangles);
+        mesh->apply();
         return mesh;
     }
 
@@ -185,6 +187,7 @@ namespace rune::utility::primitives
         mesh->set_normals(normals);
         mesh->set_tex_coords(texCoords);
         mesh->set_triangles(triangles);
+        mesh->apply();
         return mesh;
     }
 
