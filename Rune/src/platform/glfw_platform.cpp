@@ -72,6 +72,7 @@ namespace rune::platform
     {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         auto* glfwWindow = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
 
         auto& windowData = g_windowData[glfwWindow];
