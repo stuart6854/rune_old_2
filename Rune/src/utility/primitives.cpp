@@ -69,37 +69,38 @@ namespace rune::utility::primitives
         glm::vec3 normal{ 0, 1, 0 };
         glm::vec2 texCoord{};
 
+        // clang-format off
         std::vector<glm::vec3> positions{
             // Top
-            offset + glm::vec3{ 0.0f, 1.0f, 0.0f } * hs,
-            offset + glm::vec3{ 0.0f, 1.0f, 0.0f } * hs,
-            offset + glm::vec3{ 0.0f, 1.0f, 0.0f } * hs,
-            offset + glm::vec3{ 0.0f, 1.0f, 0.0f } * hs,
+            offset + glm::vec3{ -1.0f, 1.0f, -1.0f } * hs,
+            offset + glm::vec3{  1.0f, 1.0f, -1.0f } * hs,
+            offset + glm::vec3{  1.0f, 1.0f,  1.0f } * hs,
+            offset + glm::vec3{ -1.0f, 1.0f,  1.0f } * hs,
             // Bottom
-            offset + glm::vec3{ 0.0f, -1.0f, 0.0f } * hs,
-            offset + glm::vec3{ 0.0f, -1.0f, 0.0f } * hs,
-            offset + glm::vec3{ 0.0f, -1.0f, 0.0f } * hs,
-            offset + glm::vec3{ 0.0f, -1.0f, 0.0f } * hs,
+            offset + glm::vec3{ -1.0f, -1.0f,  1.0f } * hs,
+            offset + glm::vec3{  1.0f, -1.0f,  1.0f } * hs,
+            offset + glm::vec3{  1.0f, -1.0f, -1.0f } * hs,
+            offset + glm::vec3{ -1.0f, -1.0f, -1.0f } * hs,
             // South
-            offset + glm::vec3{ 0.0f, 0.0f, -1.0f } * hs,
-            offset + glm::vec3{ 0.0f, 0.0f, -1.0f } * hs,
-            offset + glm::vec3{ 0.0f, 0.0f, -1.0f } * hs,
-            offset + glm::vec3{ 0.0f, 0.0f, -1.0f } * hs,
+            offset + glm::vec3{ -1.0f, -1.0f, -1.0f } * hs,
+            offset + glm::vec3{  1.0f, -1.0f, -1.0f } * hs,
+            offset + glm::vec3{  1.0f,  1.0f, -1.0f } * hs,
+            offset + glm::vec3{ -1.0f,  1.0f, -1.0f } * hs,
             // North
-            offset + glm::vec3{ 0.0f, 0.0f, 1.0f } * hs,
-            offset + glm::vec3{ 0.0f, 0.0f, 1.0f } * hs,
-            offset + glm::vec3{ 0.0f, 0.0f, 1.0f } * hs,
-            offset + glm::vec3{ 0.0f, 0.0f, 1.0f } * hs,
+            offset + glm::vec3{  1.0f, -1.0f, 1.0f } * hs,
+            offset + glm::vec3{ -1.0f, -1.0f, 1.0f } * hs,
+            offset + glm::vec3{ -1.0f,  1.0f, 1.0f } * hs,
+            offset + glm::vec3{  1.0f,  1.0f, 1.0f } * hs,
             // East
-            offset + glm::vec3{ 1.0f, 0.0f, 0.0f } * hs,
-            offset + glm::vec3{ 1.0f, 0.0f, 0.0f } * hs,
-            offset + glm::vec3{ 1.0f, 0.0f, 0.0f } * hs,
-            offset + glm::vec3{ 1.0f, 0.0f, 0.0f } * hs,
+            offset + glm::vec3{ 1.0f, -1.0f, -1.0f } * hs,
+            offset + glm::vec3{ 1.0f, -1.0f,  1.0f } * hs,
+            offset + glm::vec3{ 1.0f,  1.0f,  1.0f } * hs,
+            offset + glm::vec3{ 1.0f,  1.0f, -1.0f } * hs,
             // West
-            offset + glm::vec3{ -1.0f, 0.0f, 0.0f } * hs,
-            offset + glm::vec3{ -1.0f, 0.0f, 0.0f } * hs,
-            offset + glm::vec3{ -1.0f, 0.0f, 0.0f } * hs,
-            offset + glm::vec3{ -1.0f, 0.0f, 0.0f } * hs,
+            offset + glm::vec3{ -1.0f, -1.0f,  1.0f } * hs,
+            offset + glm::vec3{ -1.0f, -1.0f, -1.0f } * hs,
+            offset + glm::vec3{ -1.0f,  1.0f, -1.0f } * hs,
+            offset + glm::vec3{ -1.0f,  1.0f,  1.0f } * hs,
         };
         std::vector<glm::vec3> normals{
             // Top
@@ -160,12 +161,11 @@ namespace rune::utility::primitives
             { 0.0f, 0.0f },
             { 0.0f, 0.0f },
             // West
+            { 0.0f, 0.0f },//20
             { 0.0f, 0.0f },
             { 0.0f, 0.0f },
-            { 0.0f, 0.0f },
-            { 0.0f, 0.0f },
+            { 0.0f, 0.0f },//23
         };
-        // clang-format off
         std::vector<u32> triangles{
             // Top
             0, 1, 2, 2, 3, 0,
@@ -176,9 +176,9 @@ namespace rune::utility::primitives
             // North
             12, 13, 14, 14, 15, 12,
             // East
-            15, 16, 17, 17, 18, 15,
+            16, 17, 18, 18, 19, 16,
             // West
-            18, 19, 20, 20, 21, 18,
+            20, 21, 22, 22, 23, 20,
         };
         // clang-format on
 
