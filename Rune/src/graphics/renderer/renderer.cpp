@@ -33,6 +33,8 @@ namespace rune::graphics::renderer
         std::vector<glm::mat4> instances{};
         std::vector<RenderMesh> meshes{};
 
+        gfx::TextureHandle depthAttachment{};
+
         gfx::BufferHandle cameraBuffer{};
         gfx::PipelineHandle pipeline{};
         gfx::DescriptorSetHandle set{};
@@ -59,6 +61,19 @@ namespace rune::graphics::renderer
 
         auto device = graphics::get_device();
 
+        gfx::TextureInfo depthAttachmentInfo{
+            .usage = gfx::TextureUsage::eDepthStencilAttachment,
+            .type = gfx::TextureType::e2D,
+            .width = 800,
+            .height = 600,
+            .format = gfx::Format::eDepth24Stencil8,
+            .mipLevels = 1,
+        };
+        if (!gfx::create_texture(rendererData.depthAttachment, device, depthAttachmentInfo))
+        {
+            RUNE_THROW_EX("Failed to create GFX depth attachment texture!");
+        }
+
         const auto vertShaderBinary = io::read_binary<std::uint32_t>("triangle.vert.spv").value();
         const auto fragShaderBinary = io::read_binary<std::uint32_t>("triangle.frag.spv").value();
         gfx::GraphicsPipelineInfo pipelineInfo{
@@ -77,7 +92,9 @@ namespace rune::graphics::renderer
                                     },
                                 } },
             .constantBlock = { sizeof(glm::mat4), gfx::ShaderStageFlags_Vertex },
-            .depthTest = false,
+            .depthTest = true,
+            .colorAttachments = { gfx::Format::eBGRA8 },
+            .depthAttachmentFormat = gfx::Format::eDepth24Stencil8,
         };
         if (!gfx::create_graphics_pipeline(rendererData.pipeline, device, pipelineInfo))
         {
@@ -217,7 +234,7 @@ namespace rune::graphics::renderer
 
         gfx::RenderPassInfo renderPassInfo{
             .colorAttachments = { swapChainImageHandle },
-            .depthAttachment = {},
+            .depthAttachment = { rendererData.depthAttachment },
             .clearColor = { 0.392f, 0.584f, 0.929f, 1.0f },  // Cornflower Blue
         };
         gfx::begin_render_pass(cmdList, renderPassInfo);
