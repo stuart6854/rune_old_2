@@ -121,7 +121,7 @@ namespace rune::assetlib::mesh
         std::uint32_t positionCount{};
         READ(std::uint32_t, positionCount);
         outMesh.positions.resize(positionCount);
-        for (auto i = 0; i < positionCount; ++i)
+        for (auto i = 0u; i < positionCount; ++i)
         {
             auto& position = outMesh.positions[i];
             READ(float, position.x);
@@ -132,7 +132,7 @@ namespace rune::assetlib::mesh
         std::uint32_t normalCount{};
         READ(std::uint32_t, normalCount);
         outMesh.normals.resize(normalCount);
-        for (auto i = 0; i < normalCount; ++i)
+        for (auto i = 0u; i < normalCount; ++i)
         {
             auto& normal = outMesh.normals[i];
             READ(float, normal.x);
@@ -143,7 +143,7 @@ namespace rune::assetlib::mesh
         std::uint32_t texCoordCount{};
         READ(std::uint32_t, texCoordCount);
         outMesh.texCoords.resize(texCoordCount);
-        for (auto i = 0; i < texCoordCount; ++i)
+        for (auto i = 0u; i < texCoordCount; ++i)
         {
             auto& texCoord = outMesh.texCoords[i];
             READ(float, texCoord.x);
@@ -153,7 +153,7 @@ namespace rune::assetlib::mesh
         std::uint32_t submeshCount{};
         READ(std::uint32_t, submeshCount);
         outMesh.submeshes.resize(submeshCount);
-        for (auto i = 0; i < submeshCount; ++i)
+        for (auto i = 0u; i < submeshCount; ++i)
         {
             auto& sub = outMesh.submeshes[i];
             READ(std::uint32_t, sub.indexOffset);
