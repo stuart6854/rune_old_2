@@ -8,12 +8,13 @@ set(TARGET_NAME rune)
 
 file(GLOB_RECURSE ${TARGET_NAME}_SOURCES "src/*.cpp")
 add_library(${TARGET_NAME} STATIC ${${TARGET_NAME}_SOURCES})
+add_library(rune::rune ALIAS ${TARGET_NAME})
 
 target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${TARGET_NAME}> $<INSTALL_INTERFACE:include/${TARGET_NAME}>)
 target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(${TARGET_NAME} PUBLIC spdlog glm::glm glfw AudioFile OpenAL::OpenAL gfx EnTT::EnTT)
+target_link_libraries(${TARGET_NAME} PUBLIC rune::assetlib spdlog glm::glm glfw AudioFile OpenAL::OpenAL gfx EnTT::EnTT)
 
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 
