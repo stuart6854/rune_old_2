@@ -25,6 +25,48 @@ namespace rune::graphics::renderer
             .mipLevels = 1,
         };
         gfx::create_texture(m_texture, graphics::get_device(), textureInfo);
+
+        {
+            // Create staging buffer
+            gfx::BufferInfo stagingBufferInfo{
+                .type = gfx::BufferType::eUpload,
+                .size = sizeof(std::uint8_t) * data.size(),
+            };
+            gfx::BufferHandle stagingBufferHandle{};
+            if (!gfx::create_buffer(stagingBufferHandle, get_device(), stagingBufferInfo))
+            {
+                throw std::runtime_error("Failed to create GFX staging buffer!");
+            }
+
+            void* stagingBufferPtr{ nullptr };
+            if (gfx::map_buffer(stagingBufferHandle, stagingBufferPtr))
+            {
+                std::memcpy(stagingBufferPtr, data.data(), stagingBufferInfo.size);
+                gfx::unmap_buffer(stagingBufferHandle);
+            }
+
+            gfx::CommandListHandle uploadCommandListHandle{};
+            if (!gfx::create_command_list(uploadCommandListHandle, get_device(), 0))
+            {
+                throw std::runtime_error("Failed to create GFX upload command list!");
+            }
+
+            gfx::begin(uploadCommandListHandle);
+
+            gfx::transition_texture(uploadCommandListHandle, m_texture, gfx::TextureState::eUndefined, gfx::TextureState::eUploadDst);
+            gfx::copy_buffer_to_texture(uploadCommandListHandle, stagingBufferHandle, m_texture);
+            gfx::transition_texture(uploadCommandListHandle, m_texture, gfx::TextureState::eUploadDst, gfx::TextureState::eShaderRead);
+
+            gfx::end(uploadCommandListHandle);
+
+            gfx::SubmitInfo submitInfo{ .commandList = uploadCommandListHandle, .waitSemaphoreHandle = {} };
+            gfx::FenceHandle fenceHandle{};
+            gfx::submit_command_list(submitInfo, &fenceHandle, nullptr);
+
+            gfx::wait_on_fence(fenceHandle);
+            gfx::destroy_command_list(get_device(), uploadCommandListHandle);
+            gfx::destroy_buffer(stagingBufferHandle);
+        }
     }
 
 }
