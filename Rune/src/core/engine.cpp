@@ -7,6 +7,9 @@
 #include "graphics/graphics.hpp"
 #include "graphics/renderer/renderer.hpp"
 #include "scenes/scenes.hpp"
+#include "resources/manager.hpp"
+#include "graphics/renderer/static_mesh.hpp"
+#include "utility/primitives.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -72,6 +75,20 @@ namespace rune::engine
             graphics::renderer::initialise();
 
             scenes::initialise();
+
+            resources::initialise();
+
+            resources::add_resource(STRID("builtin_unit_cube"), utility::primitives::generate_cube(1.0f, { 0.0f, 0.0f, 0.0f }));
+            resources::add_resource(STRID("builtin_plane_5m"), utility::primitives::generate_plane({ 5, 5 }, { -2.5f, -2.5f }));
+
+            resources::ResourceHandle<graphics::renderer::StaticMesh> meshHandle{};
+            meshHandle = resources::get_ptr<graphics::renderer::StaticMesh>(STRID("builtin_unit_cube"));
+            RUNE_ASSERT(meshHandle.is_valid());
+            RUNE_ASSERT(meshHandle.is_loaded());
+            auto* mesh = meshHandle.get();
+            RUNE_ASSERT(mesh != nullptr);
+            LOG_INFO("Mesh Indices", mesh->get_index_count());
+
             scenes::new_test_scene();
         }
 
@@ -81,6 +98,8 @@ namespace rune::engine
             RUNE_UNUSED(engineData);
 
             LOG_INFO("Rune shutting down...");
+
+            resources::shutdown();
             scenes::shutdown();
 
             graphics::renderer::shutdown();

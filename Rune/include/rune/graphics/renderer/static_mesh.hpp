@@ -3,6 +3,7 @@
 #include "common.hpp"
 
 #include "graphics/graphics.hpp"
+#include "resources/resource.hpp"
 
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -11,11 +12,11 @@
 
 namespace rune::graphics::renderer
 {
-    class StaticMesh
+    class StaticMesh : public resources::Resource
     {
     public:
         StaticMesh() = default;
-        ~StaticMesh() = default;
+        ~StaticMesh() override = default;
 
         void set_positions(const std::vector<glm::vec3>& positions);
         void set_normals(const std::vector<glm::vec3>& normals);

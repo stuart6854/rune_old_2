@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include "resources/handle.hpp"
 #include "graphics/renderer/static_mesh.hpp"
 
 #include <glm/ext/vector_float3.hpp>
@@ -26,6 +27,6 @@ namespace rune::scenes
     {
         DEFINE_COMPONENT_CTORS(StaticRenderer);
 
-        std::shared_ptr<graphics::renderer::StaticMesh> mesh{ nullptr };
+        resources::ResourceHandle<graphics::renderer::StaticMesh> mesh{ nullptr };
     };
 }

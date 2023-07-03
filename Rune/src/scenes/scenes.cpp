@@ -3,6 +3,7 @@
 #include "internal_common.hpp"
 #include "scenes/components.hpp"
 #include "graphics/renderer/renderer.hpp"
+#include "resources/manager.hpp"
 #include "utility/primitives.hpp"
 
 #include <entt/entity/registry.hpp>
@@ -59,11 +60,15 @@ namespace rune::scenes
         {
             const auto& transform = view.get<Transform>(entity);
             const auto& renderer = view.get<StaticRenderer>(entity);
+            if (!renderer.mesh.is_loaded())
+            {
+                continue;
+            }
 
             auto worldMatrix = glm::translate(glm::mat4(1.0f), transform.position);
             worldMatrix = glm::scale(worldMatrix, transform.scale);
 
-            graphics::renderer::render_static_mesh(renderer.mesh, worldMatrix);
+            graphics::renderer::render_static_mesh(renderer.mesh.get(), worldMatrix);
         }
     }
 
@@ -93,8 +98,8 @@ namespace rune::scenes
         new_scene();
         auto& registry = g_scenesData->registry;
 
-        auto planeMesh = utility::primitives::generate_plane({ 5, 5 }, { -2.5f, -2.5f }, { 1, 1 });
-        auto cubeMesh = utility::primitives::generate_cube();
+        auto planeMesh = resources::get_ptr<graphics::renderer::StaticMesh>(STRID("builtin_plane_5m"));
+        auto cubeMesh = resources::get_ptr<graphics::renderer::StaticMesh>(STRID("builtin_unit_cube"));
 
         RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), planeMesh);
         RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), cubeMesh);
