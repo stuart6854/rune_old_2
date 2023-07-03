@@ -2,6 +2,8 @@
 
 #include "common.hpp"
 #include "static_mesh.hpp"
+#include "texture.hpp"
+#include "material.hpp"
 #include "platform/platform.hpp"
 #include "utility/enum_class_flags.hpp"
 
@@ -64,8 +66,8 @@ namespace rune::graphics::renderer
 
     auto create_static_mesh() -> std::unique_ptr<StaticMesh>;
     void create_skeletal_mesh();
-    void create_texture();
-    void create_material();
+    auto create_texture() -> std::unique_ptr<Texture>;
+    auto create_material() -> std::unique_ptr<Material>;
 
 #pragma endregion
 

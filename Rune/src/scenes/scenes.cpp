@@ -100,12 +100,12 @@ namespace rune::scenes
 
         auto planeMesh = resources::get_ptr<graphics::renderer::StaticMesh>(STRID("builtin_plane_5m"));
         auto cubeMesh = resources::get_ptr<graphics::renderer::StaticMesh>(STRID("builtin_unit_cube"));
-        auto graveMesh = resources::get_ptr<graphics::renderer::StaticMesh>(15653629975908837760u);
-        auto roadSignMesh = resources::get_ptr<graphics::renderer::StaticMesh>(11842605477950786152u);
-        auto rockMesh = resources::get_ptr<graphics::renderer::StaticMesh>(2202608496096559276u);
-        resources::load(15653629975908837760u);
-        resources::load(11842605477950786152u);
-        resources::load(2202608496096559276u);
+        auto graveMesh = resources::get_ptr<graphics::renderer::StaticMesh>(6876786);
+        auto roadSignMesh = resources::get_ptr<graphics::renderer::StaticMesh>(23455);
+        auto rockMesh = resources::get_ptr<graphics::renderer::StaticMesh>(1998);
+        resources::load(6876786);
+        resources::load(23455);
+        resources::load(1998);
 
         RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), planeMesh);
         RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f), graveMesh);

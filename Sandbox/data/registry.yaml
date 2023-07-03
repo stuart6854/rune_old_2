@@ -1,19 +1,31 @@
 resources:
+  - id: 8475893478597
+    type: 1
+    source: "PolygonNature_01.png"
+    flags: 0
+  - id: 23459839
+    type: 2
+    source: "material_01.yaml"
+    flags: 0
+    deps: [ 8475893478597 ]
   - id: 6876786
     type: 0
     source: "SM_Prop_Grave_03_0.bin"
     source_offset: 0
     source_size: 0
     flags: 0
+    deps: [ 23459839 ]
   - id: 23455
     type: 0
-    data_bank: "SM_Prop_Fence_01_0.bin"
-    data_offset: 0
-    data_size: 0
+    source: "SM_Prop_RoadSign_01_0.bin"
+    source_offset: 0
+    source_size: 0
     flags: 1
+    deps: [ 23459839 ]
   - id: 1998
     type: 0
-    data_bank: "SM_Prop_RoadSign_01_0.bin"
-    data_offset: 0
-    data_size: 0
+    source: "SM_Rock_01_0.bin"
+    source_offset: 0
+    source_size: 0
     flags: 0
+    deps: [ 23459839 ]

@@ -1,0 +1,8 @@
+material:
+  passes:
+    - pass: "default"
+    - pass: "shadow"
+  textures:
+    - name: "diffuse"
+      id: 8475893478597
+  

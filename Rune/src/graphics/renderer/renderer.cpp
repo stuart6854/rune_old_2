@@ -204,6 +204,16 @@ namespace rune::graphics::renderer
         return std::make_unique<StaticMesh>();
     }
 
+    auto create_texture() -> std::unique_ptr<Texture>
+    {
+        return std::make_unique<Texture>();
+    }
+
+    auto create_material() -> std::unique_ptr<Material>
+    {
+        return std::make_unique<Material>();
+    }
+
     void flush_camera(const RenderCamera& camera)
     {
         auto& rendererData = *g_rendererData;

@@ -5,6 +5,8 @@
 #include "resources/resource.hpp"
 #include "factory_funcs.hpp"
 
+#include <yaml-cpp/yaml.h>
+
 #include <unordered_set>
 #include <unordered_map>
 
@@ -25,6 +27,39 @@ namespace rune::resources
             RUNE_ASSERT(g_managerData != nullptr);
             return g_managerData->factoryFuncMap[resourceType];
         }
+
+        void load_registry_file(const std::filesystem::path& filename)
+        {
+            auto registryFile = YAML::LoadFile(filename.string());
+            RUNE_ASSERT(registryFile);
+
+            auto resourcesNode = registryFile["resources"];
+            RUNE_ASSERT(resourcesNode);
+
+            for (auto resourceNode : resourcesNode)
+            {
+                auto idNode = resourceNode["id"];
+                RUNE_ASSERT(idNode);
+                const auto resourceId = idNode.as<u64>();
+
+                auto& metadata = g_managerData->metadataMap[resourceId];
+
+                metadata.type = ResourceType(resourceNode["type"].as<u8>());  // TODO: Handle different resource types
+                metadata.source = ResourceSource::eDisk;
+                metadata.state = ResourceState::NotLoaded;
+                auto sourceFile = resourceNode["source"].as<std::string>();
+                metadata.sourceFilename = filename.parent_path() / sourceFile;
+
+                auto depsNode = resourceNode["deps"];
+                for (auto&& depNode : depsNode)
+                {
+                    metadata.dependencies.push_back(depNode.as<u64>());
+                }
+
+                LOG_INFO(
+                    "resources - Resource registered from registry file: id={}, source={}", resourceId, metadata.sourceFilename.string());
+            }
+        }
     }
 
     void initialise()
@@ -33,10 +68,16 @@ namespace rune::resources
         g_managerData = std::make_unique<ManagerData>();
 
         register_factory(ResourceType::StaticMesh, factory_load_static_mesh);
+        register_factory(ResourceType::Texture, factory_load_texture);
+        register_factory(ResourceType::Material, factory_load_material);
 
         const std::filesystem::path dataDirPath = "../../data";
         LOG_INFO("resources - data dir: {}", std::filesystem::absolute(dataDirPath).string());
         RUNE_ASSERT(std::filesystem::exists(dataDirPath));
+
+        const auto registryFile = dataDirPath / "registry.yaml";
+        RUNE_ASSERT(std::filesystem::exists(registryFile));
+        load_registry_file(registryFile);
 
         for (const auto& entry : std::filesystem::recursive_directory_iterator("../../data"))
         {
@@ -95,6 +136,15 @@ namespace rune::resources
     void load(ResourceId id)
     {
         auto& metadata = get_metadata(id);
+        if (metadata.state != ResourceState::NotLoaded)
+        {
+            return;
+        }
+
+        for (auto depResourceId : metadata.dependencies)
+        {
+            load(depResourceId);
+        }
 
         const auto& factory = get_factory(metadata.type);
         if (!factory)
@@ -105,6 +155,8 @@ namespace rune::resources
 
         metadata.state = ResourceState::Loading;
         metadata.resource = factory(metadata);
+        RUNE_ASSERT(metadata.resource != nullptr);
+
         metadata.state = ResourceState::Loaded;
     }
 

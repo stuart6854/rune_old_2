@@ -31,5 +31,6 @@ namespace rune::resources
         sizet sourceOffset;
         sizet sourceSize;
         std::unique_ptr<Resource> resource{ nullptr };
+        std::vector<ResourceId> dependencies{};
     };
 }
