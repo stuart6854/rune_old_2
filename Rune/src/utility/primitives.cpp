@@ -10,7 +10,7 @@
 namespace rune::utility::primitives
 {
     auto generate_plane(const glm::vec2& size, const glm::vec2& offset, const glm::uvec2& resolution)
-        -> std::shared_ptr<graphics::renderer::StaticMesh>
+        -> std::unique_ptr<graphics::renderer::StaticMesh>
     {
         glm::vec3 position{ offset.x, 0, offset.y };
         glm::vec3 normal{ 0, 1, 0 };
@@ -61,7 +61,7 @@ namespace rune::utility::primitives
         return mesh;
     }
 
-    auto generate_cube(f32 size, const glm::vec3& offset) -> std::shared_ptr<graphics::renderer::StaticMesh>
+    auto generate_cube(f32 size, const glm::vec3& offset) -> std::unique_ptr<graphics::renderer::StaticMesh>
     {
         const auto hs = size = 0.5f;
 
