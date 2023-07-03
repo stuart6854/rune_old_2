@@ -201,17 +201,20 @@ namespace rune::graphics::renderer
 
     auto create_static_mesh() -> std::unique_ptr<StaticMesh>
     {
-        return std::make_unique<StaticMesh>();
+        RUNE_ASSERT(g_rendererData != nullptr);
+        return std::make_unique<StaticMesh>(get_device());
     }
 
     auto create_texture() -> std::unique_ptr<Texture>
     {
-        return std::make_unique<Texture>();
+        RUNE_ASSERT(g_rendererData != nullptr);
+        return std::make_unique<Texture>(get_device());
     }
 
     auto create_material() -> std::unique_ptr<Material>
     {
-        return std::make_unique<Material>();
+        RUNE_ASSERT(g_rendererData != nullptr);
+        return std::make_unique<Material>(get_device());
     }
 
     void flush_camera(const RenderCamera& camera)
