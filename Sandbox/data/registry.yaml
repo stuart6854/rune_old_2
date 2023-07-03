@@ -1,0 +1,19 @@
+resources:
+  - id: 6876786
+    type: 0
+    source: "SM_Prop_Grave_03_0.bin"
+    source_offset: 0
+    source_size: 0
+    flags: 0
+  - id: 23455
+    type: 0
+    data_bank: "SM_Prop_Fence_01_0.bin"
+    data_offset: 0
+    data_size: 0
+    flags: 1
+  - id: 1998
+    type: 0
+    data_bank: "SM_Prop_RoadSign_01_0.bin"
+    data_offset: 0
+    data_size: 0
+    flags: 0
