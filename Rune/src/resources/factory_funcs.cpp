@@ -56,15 +56,15 @@ namespace rune::resources
 
         auto material = graphics::renderer::create_material();
 
+        std::vector<ResourceHandle<graphics::renderer::Texture>> textures{};
         auto texturesNode = materialNode["textures"];
-        for (auto i = 0; i < texturesNode.size(); ++i)
+        for (auto&& textureNode : texturesNode)
         {
-            auto textureNode = texturesNode[i];
-
             //            auto textureName = textureNode["name"].as<std::string>();
             auto textureResourceId = textureNode["id"].as<u64>();
-            material->textures.push_back(get_ptr<graphics::renderer::Texture>(textureResourceId));
+            textures.push_back(get_ptr<graphics::renderer::Texture>(textureResourceId));
         }
+        material->set_textures(textures);
 
         return material;
     }

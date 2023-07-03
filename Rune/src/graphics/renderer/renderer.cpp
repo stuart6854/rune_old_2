@@ -5,7 +5,7 @@
 #include "platform/platform.hpp"
 #include "io/io.hpp"
 
-#include "gfx/gfx.hpp"
+#include <gfx/gfx.hpp>
 
 #include <array>
 #include <memory>
@@ -32,6 +32,7 @@ namespace rune::graphics::renderer
 
         std::vector<glm::mat4> instances{};
         std::vector<RenderMesh> meshes{};
+        std::vector<Material*> materials{};
 
         gfx::TextureHandle depthAttachment{};
 
@@ -86,11 +87,18 @@ namespace rune::graphics::renderer
                                                            gfx::VertexAttribute("TexCoords", 2, gfx::Format::eRG32),
                                                        }),
             },
-            .descriptorSets = { {
-                                    .bindings = {
-                                        { gfx::DescriptorType::eUniformBuffer, 1, gfx::ShaderStageFlags_Vertex },
-                                    },
-                                } },
+            .descriptorSets = {
+                {
+                    .bindings = {
+                        { gfx::DescriptorType::eUniformBuffer, 1, gfx::ShaderStageFlags_Vertex },
+                    },
+                },
+                {
+                    .bindings = {
+                        { gfx::DescriptorType::eTexture, 1, gfx::ShaderStageFlags_Fragment },
+                    },
+                },
+            },
             .constantBlock = { sizeof(glm::mat4), gfx::ShaderStageFlags_Vertex },
             .depthTest = true,
             .colorAttachments = { gfx::Format::eBGRA8 },
@@ -141,7 +149,7 @@ namespace rune::graphics::renderer
         rendererData.camerasToRender.emplace_back(camera);
     }
 
-    void render_static_mesh(const StaticMesh* mesh, const glm::mat4& transform)
+    void render_static_mesh(const StaticMesh* mesh, const std::vector<Material*>& materials, const glm::mat4& transform)
     {
         RUNE_ASSERT(g_rendererData != nullptr);
         auto& rendererData = *g_rendererData;
@@ -160,9 +168,13 @@ namespace rune::graphics::renderer
         renderMesh.vertexBuffers = mesh->get_vertex_buffers();
         auto meshIdx = static_cast<u32>(rendererData.meshes.size() - 1);
 
+        rendererData.materials.push_back(materials[0]);
+        auto materialId = static_cast<u32>(rendererData.materials.size() - 1);
+
         auto& drawCall = rendererData.drawCalls.emplace_back();
         drawCall.instance = instanceIdx;
         drawCall.mesh = meshIdx;
+        drawCall.material = materialId;
     }
 
     void flush_renders()
@@ -285,9 +297,12 @@ namespace rune::graphics::renderer
         auto& rendererData = *g_rendererData;
 
         gfx::bind_pipeline(cmdList, rendererData.pipeline);
-        gfx::bind_descriptor_set(cmdList, rendererData.set);
+        gfx::bind_descriptor_sets(cmdList, 0, { rendererData.set });
         for (const auto& drawCall : rendererData.drawCalls)
         {
+            const auto* material = rendererData.materials.at(drawCall.material);
+            gfx::bind_descriptor_sets(cmdList, 1, { material->get_texture_set() });
+
             const auto& renderMesh = rendererData.meshes.at(drawCall.mesh);
             gfx::bind_index_buffer(cmdList, renderMesh.indexBuffer, gfx::IndexType::eUInt32);
             gfx::bind_vertex_buffers(cmdList, 0, renderMesh.vertexBuffers);

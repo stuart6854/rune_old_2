@@ -14,7 +14,7 @@
 
 #include <memory>
 
-#define RUNE_CREATE_TEST_ENTITY(_position, _scale, _mesh)          \
+#define RUNE_CREATE_TEST_ENTITY(_position, _scale, _mesh, _mat)    \
     {                                                              \
         auto entity = registry.create();                           \
         auto& transform = registry.emplace<Transform>(entity);     \
@@ -22,6 +22,7 @@
         transform.scale = _scale;                                  \
         auto& renderer = registry.emplace<StaticRenderer>(entity); \
         renderer.mesh = _mesh;                                     \
+        renderer.materials = { _mat };                             \
     }
 
 namespace rune::scenes
@@ -64,11 +65,16 @@ namespace rune::scenes
             {
                 continue;
             }
+            std::vector<graphics::renderer::Material*> materials(renderer.materials.size());
+            for (auto i = 0; i < renderer.materials.size(); ++i)
+            {
+                materials[i] = renderer.materials[i].get();
+            }
 
             auto worldMatrix = glm::translate(glm::mat4(1.0f), transform.position);
             worldMatrix = glm::scale(worldMatrix, transform.scale);
 
-            graphics::renderer::render_static_mesh(renderer.mesh.get(), worldMatrix);
+            graphics::renderer::render_static_mesh(renderer.mesh.get(), materials, worldMatrix);
         }
     }
 
@@ -106,12 +112,14 @@ namespace rune::scenes
         resources::load(6876786);
         resources::load(23455);
         resources::load(1998);
+        auto material = resources::get_ptr<graphics::renderer::Material>(23459839);
+        resources::load(23459839);
 
-        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), planeMesh);
-        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f), graveMesh);
-        RUNE_CREATE_TEST_ENTITY(glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f), roadSignMesh);
-        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), cubeMesh);
-        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.01f, 0.01f, 0.01f), rockMesh);
+        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), planeMesh, material);
+        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f), graveMesh, material);
+        RUNE_CREATE_TEST_ENTITY(glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f), roadSignMesh, material);
+        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), cubeMesh, material);
+        RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.01f, 0.01f, 0.01f), rockMesh, material);
     }
 
 }

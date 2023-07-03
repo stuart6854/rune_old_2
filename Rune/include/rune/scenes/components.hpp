@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "resources/handle.hpp"
 #include "graphics/renderer/static_mesh.hpp"
+#include "graphics/renderer/material.hpp"
 
 #include <glm/ext/vector_float3.hpp>
 
@@ -28,5 +29,6 @@ namespace rune::scenes
         DEFINE_COMPONENT_CTORS(StaticRenderer);
 
         resources::ResourceHandle<graphics::renderer::StaticMesh> mesh{ nullptr };
+        std::vector<resources::ResourceHandle<graphics::renderer::Material>> materials{};
     };
 }

@@ -58,7 +58,9 @@ namespace rune::graphics::renderer
     void shutdown();
 
     void render_camera(const RenderCamera& camera);
-    void render_static_mesh(const StaticMesh* mesh, const glm::mat4& transform = glm::mat4{ 1.0f });
+    void render_static_mesh(const StaticMesh* mesh,
+                            const std::vector<Material*>& materials,
+                            const glm::mat4& transform = glm::mat4{ 1.0f });
 
     void flush_renders();
 

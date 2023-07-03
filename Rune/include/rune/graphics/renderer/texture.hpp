@@ -17,6 +17,8 @@ namespace rune::graphics::renderer
 
         void set_data(const std::vector<u8>& data);
 
+        auto get_handle() const -> gfx::TextureHandle { return m_texture; }
+
     private:
         u32 m_width{};
         u32 m_height{};
