@@ -1,0 +1,4 @@
+add_subdirectory(submodules)
+
+add_library(stb INTERFACE)
+target_include_directories(stb SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)

@@ -37,3 +37,12 @@ CPMAddPackage(
         GITHUB_REPOSITORY skypjack/entt
         GIT_TAG v3.12.2
 )
+CPMAddPackage(
+        NAME yaml-cpp
+        GITHUB_REPOSITORY jbeder/yaml-cpp
+        GIT_TAG b8882652fcbeba4c00dec019a39da91e702e474e
+        OPTIONS
+        "YAML_CPP_BUILD_TESTS OFF"
+        "YAML_CPP_BUILD_CONTRIB OFF"
+        "YAML_CPP_BUILD_TOOLS OFF"
+)
