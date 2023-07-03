@@ -3,6 +3,7 @@
 #include "internal_common.hpp"
 #include "resources/metadata.hpp"
 #include "resources/resource.hpp"
+#include "factory_funcs.hpp"
 
 #include <unordered_set>
 #include <unordered_map>
@@ -11,15 +12,27 @@ namespace rune::resources
 {
     struct ManagerData
     {
+        std::unordered_map<ResourceType, FactoryFunc> factoryFuncMap{};
         std::unordered_map<ResourceId, Metadata> metadataMap{};
         std::unordered_set<strid> loadedResourcesSet{};
     };
     std::unique_ptr<ManagerData> g_managerData{ nullptr };  // NOLINT
 
+    namespace
+    {
+        auto get_factory(ResourceType resourceType) -> const FactoryFunc&
+        {
+            RUNE_ASSERT(g_managerData != nullptr);
+            return g_managerData->factoryFuncMap[resourceType];
+        }
+    }
+
     void initialise()
     {
         RUNE_ASSERT(g_managerData == nullptr);
         g_managerData = std::make_unique<ManagerData>();
+
+        register_factory(ResourceType::StaticMesh, factory_load_static_mesh);
 
         const std::filesystem::path dataDirPath = "../../data";
         LOG_INFO("resources - data dir: {}", std::filesystem::absolute(dataDirPath).string());
@@ -47,10 +60,17 @@ namespace rune::resources
         g_managerData = nullptr;
     }
 
+    void register_factory(ResourceType resourceType, FactoryFunc&& factoryFunc)
+    {
+        RUNE_ASSERT(g_managerData != nullptr);
+        g_managerData->factoryFuncMap[resourceType] = factoryFunc;
+    }
+
     void register_from_disk(const std::filesystem::path& filename)
     {
         const strid resourceId = STRID(filename.stem().string());
         auto& metadata = g_managerData->metadataMap[resourceId];
+        metadata.type = ResourceType::StaticMesh;  // TODO: Handle different resource types
         metadata.source = ResourceSource::eDisk;
         metadata.state = ResourceState::NotLoaded;
         metadata.sourceFilename = filename;
@@ -70,6 +90,29 @@ namespace rune::resources
     {
         RUNE_ASSERT(g_managerData != nullptr);
         return g_managerData->metadataMap.at(id);
+    }
+
+    void load(ResourceId id)
+    {
+        auto& metadata = get_metadata(id);
+
+        const auto& factory = get_factory(metadata.type);
+        if (!factory)
+        {
+            LOG_ERROR("resources - No factory for resource type '_resource_type_'!");
+            return;
+        }
+
+        metadata.state = ResourceState::Loading;
+        metadata.resource = factory(metadata);
+        metadata.state = ResourceState::Loaded;
+    }
+
+    void unload(ResourceId id)
+    {
+        auto& metadata = get_metadata(id);
+        metadata.state = ResourceState::NotLoaded;
+        metadata.resource = nullptr;
     }
 
 }

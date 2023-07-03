@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include "types.hpp"
 #include "resource.hpp"
 
 #include <filesystem>
@@ -23,6 +24,7 @@ namespace rune::resources
 
     struct Metadata
     {
+        ResourceType type{};
         std::atomic<ResourceState> state{ ResourceState::NotLoaded };
         ResourceSource source{ ResourceSource::eNone };
         std::filesystem::path sourceFilename{};

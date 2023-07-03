@@ -115,11 +115,13 @@ namespace rune::assetlib::mesh
 
     void mesh::import_static_mesh_optimised(std::ifstream& stream, StaticMesh& outMesh)
     {
-        std::uint32_t x{};
-        stream.read(reinterpret_cast<char*>(&x), sizeof(std::uint32_t));
+        if (!stream)
+        {
+            return;
+        }
 
-        std::uint32_t positionCount{};
-        READ(std::uint32_t, positionCount);
+        std::uint64_t positionCount{};
+        READ(std::uint64_t, positionCount);
         outMesh.positions.resize(positionCount);
         for (auto i = 0u; i < positionCount; ++i)
         {
@@ -129,8 +131,8 @@ namespace rune::assetlib::mesh
             READ(float, position.z);
         }
 
-        std::uint32_t normalCount{};
-        READ(std::uint32_t, normalCount);
+        std::uint64_t normalCount{};
+        READ(std::uint64_t, normalCount);
         outMesh.normals.resize(normalCount);
         for (auto i = 0u; i < normalCount; ++i)
         {
@@ -140,8 +142,8 @@ namespace rune::assetlib::mesh
             READ(float, normal.z);
         }
 
-        std::uint32_t texCoordCount{};
-        READ(std::uint32_t, texCoordCount);
+        std::uint64_t texCoordCount{};
+        READ(std::uint64_t, texCoordCount);
         outMesh.texCoords.resize(texCoordCount);
         for (auto i = 0u; i < texCoordCount; ++i)
         {
@@ -150,8 +152,16 @@ namespace rune::assetlib::mesh
             READ(float, texCoord.y);
         }
 
-        std::uint32_t submeshCount{};
-        READ(std::uint32_t, submeshCount);
+        std::uint64_t triangleCount{};
+        READ(std::uint64_t, triangleCount);
+        outMesh.triangles.resize(triangleCount);
+        for (auto i = 0u; i < triangleCount; ++i)
+        {
+            READ(std::uint32_t, outMesh.triangles[i]);
+        }
+
+        std::uint8_t submeshCount{};
+        READ(std::uint8_t, submeshCount);
         outMesh.submeshes.resize(submeshCount);
         for (auto i = 0u; i < submeshCount; ++i)
         {
@@ -163,7 +173,7 @@ namespace rune::assetlib::mesh
 
     void export_static_mesh_optimised(std::ofstream& stream, const StaticMesh& mesh)
     {
-        auto positionCount = mesh.positions.size();
+        auto positionCount = std::uint64_t(mesh.positions.size());
         WRITE(positionCount, std::uint64_t);
         for (const auto& position : mesh.positions)
         {
@@ -172,7 +182,7 @@ namespace rune::assetlib::mesh
             WRITE(position.z, float);
         }
 
-        auto normalCount = mesh.normals.size();
+        auto normalCount = std::uint64_t(mesh.normals.size());
         WRITE(normalCount, std::uint64_t);
         for (const auto& normal : mesh.normals)
         {
@@ -181,7 +191,7 @@ namespace rune::assetlib::mesh
             WRITE(normal.z, float);
         }
 
-        auto texCoordCount = mesh.texCoords.size();
+        auto texCoordCount = std::uint64_t(mesh.texCoords.size());
         WRITE(texCoordCount, std::uint64_t);
         for (const auto& texCoord : mesh.texCoords)
         {
@@ -189,8 +199,15 @@ namespace rune::assetlib::mesh
             WRITE(texCoord.y, float);
         }
 
-        auto submeshCount = mesh.submeshes.size();
-        WRITE(submeshCount, std::uint64_t);
+        auto triangleCount = std::uint64_t(mesh.triangles.size());
+        WRITE(triangleCount, std::uint64_t);
+        for (const auto& triangle : mesh.triangles)
+        {
+            WRITE(triangle, std::uint32_t);
+        }
+
+        auto submeshCount = std::uint8_t(mesh.submeshes.size());
+        WRITE(submeshCount, std::uint8_t);
         for (const auto& submesh : mesh.submeshes)
         {
             WRITE(submesh.indexOffset, std::uint32_t);
