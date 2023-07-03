@@ -2,6 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <string_view>
 
 #define GLM_FORCE_XYZW_ONLY
 
@@ -20,4 +22,9 @@ namespace rune
     using u32 = std::uint32_t;
     using u64 = std::uint64_t;
     using sizet = std::size_t;
+
+    // # TODO: Replace with StringId type
+    using strid = sizet;
+#define STRID(_str) std::hash<std::string_view>{}(_str)
+
 }
