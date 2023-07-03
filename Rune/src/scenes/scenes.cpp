@@ -2,6 +2,8 @@
 
 #include "internal_common.hpp"
 #include "scenes/components.hpp"
+#include "core/engine.hpp"
+#include "platform/platform.hpp"
 #include "graphics/renderer/renderer.hpp"
 #include "resources/manager.hpp"
 #include "utility/primitives.hpp"
@@ -11,6 +13,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <memory>
 
@@ -34,6 +37,9 @@ namespace rune::scenes
     };
     std::unique_ptr<ScenesData> g_scenesData{ nullptr };  // NOLINT
 
+    std::pair<f64, f64> g_lastCursorPos{};
+    glm::vec2 g_yawPitch{};
+
     void initialise()
     {
         RUNE_ASSERT(g_scenesData == nullptr);
@@ -56,6 +62,66 @@ namespace rune::scenes
 
         auto& registry = g_scenesData->registry;
 
+        auto cameraView = registry.view<Camera, Transform>();
+        for (auto entity : cameraView)
+        {
+            const auto& camera = cameraView.get<Camera>(entity);
+            if (!camera.targetWindow)
+            {
+                continue;
+            }
+
+            auto& transform = cameraView.get<Transform>(entity);
+
+            {
+                // #TODO: Temp camera input/movement
+                if (platform::is_mouse_button_down(camera.targetWindow, platform::Button::Right))
+                {
+                    glm::vec3 movement{};
+                    if (platform::is_key_down(camera.targetWindow, platform::Key::W))
+                    {
+                        movement += transform.get_forward() * 1.0f;
+                    }
+                    if (platform::is_key_down(camera.targetWindow, platform::Key::S))
+                    {
+                        movement += transform.get_forward() * -1.0f;
+                    }
+                    if (platform::is_key_down(camera.targetWindow, platform::Key::D))
+                    {
+                        movement += transform.get_right() * 1.0f;
+                    }
+                    if (platform::is_key_down(camera.targetWindow, platform::Key::A))
+                    {
+                        movement += transform.get_right() * -1.0f;
+                    }
+                    if (glm::length(movement) > 0)
+                    {
+                        transform.position += movement * 8.0f * engine::get_delta_time();
+                    }
+
+                    auto cursorPos = platform::get_cursor_position(camera.targetWindow);
+                    glm::vec2 cursorDelta = { cursorPos.first - g_lastCursorPos.first, cursorPos.second - g_lastCursorPos.second };
+                    g_lastCursorPos = cursorPos;
+
+                    g_yawPitch += glm::vec2{ cursorDelta.x, cursorDelta.y };
+
+                    transform.rotation = glm::quat(glm::vec3{ glm::radians(g_yawPitch.y), glm::radians(g_yawPitch.x), 0.0f });
+                }
+            }
+
+            glm::mat4 viewMatrix{ 1.0f };
+            viewMatrix = glm::translate(viewMatrix, transform.position);
+            viewMatrix *= glm::mat4_cast(transform.rotation);
+            viewMatrix = glm::inverse(viewMatrix);
+
+            auto windowSize = platform::get_window_size_pixels(camera.targetWindow);
+            graphics::renderer::render_camera(
+                { camera.targetWindow,
+                  windowSize,
+                  glm::perspectiveLH_ZO(glm::radians(70.0f), f32(windowSize.x) / f32(windowSize.y), 0.1f, 100.0f),
+                  viewMatrix });
+        }
+
         auto view = registry.view<Transform, StaticRenderer>();
         for (auto entity : view)
         {
@@ -72,6 +138,7 @@ namespace rune::scenes
             }
 
             auto worldMatrix = glm::translate(glm::mat4(1.0f), transform.position);
+            worldMatrix *= glm::mat4_cast(transform.rotation);
             worldMatrix = glm::scale(worldMatrix, transform.scale);
 
             graphics::renderer::render_static_mesh(renderer.mesh.get(), materials, worldMatrix);
@@ -120,6 +187,15 @@ namespace rune::scenes
         RUNE_CREATE_TEST_ENTITY(glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f), roadSignMesh, material);
         RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), cubeMesh, material);
         RUNE_CREATE_TEST_ENTITY(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.01f, 0.01f, 0.01f), rockMesh, material);
+
+        {
+            auto cameraEntity = registry.create();
+            auto& camera = registry.emplace<Camera>(cameraEntity);
+            camera.targetWindow = engine::get_primary_window();
+            auto& transform = registry.emplace<Transform>(cameraEntity);
+            transform.position = {};
+            transform.rotation = {};
+        }
     }
 
 }

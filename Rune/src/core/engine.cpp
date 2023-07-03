@@ -115,14 +115,11 @@ namespace rune::engine
             auto& engineData = get_engine_data();
             engineData.isRunning = true;
 
-            glm::vec3 camPosition{ -2.0f, 1.5f, -5.0f };
-            const f32 camSpeed = 10.0f;
-
             auto lastTime = platform::get_time();
             while (engineData.isRunning)
             {
                 auto time = platform::get_time();
-                const auto deltaTime = f32(time - lastTime);
+                engineData.deltaTime = f32(time - lastTime);
                 lastTime = time;
 
                 platform::update();
@@ -131,34 +128,11 @@ namespace rune::engine
                     request_shutdown();
                 }
 
-                platform::set_window_title(engineData.primaryWindow, std::format("Primary Window - {:.2f}ms", deltaTime));
-
-                // Camera Input
-                glm::vec3 camMovement{};
-                if (platform::is_key_down(engineData.primaryWindow, platform::Key::W))
-                {
-                    camMovement.z += 1.0f;
-                }
-                if (platform::is_key_down(engineData.primaryWindow, platform::Key::S))
-                {
-                    camMovement.z -= 1.0f;
-                }
-                if (platform::is_key_down(engineData.primaryWindow, platform::Key::D))
-                {
-                    camMovement.x += 1.0f;
-                }
-                if (platform::is_key_down(engineData.primaryWindow, platform::Key::A))
-                {
-                    camMovement.x -= 1.0f;
-                }
-
-                if (glm::length(camMovement) > 0.0f)
-                {
-                    camPosition += glm::normalize(camMovement) * camSpeed * deltaTime;
-                }
+                platform::set_window_title(engineData.primaryWindow, std::format("Primary Window - {:.2f}ms", engineData.deltaTime));
 
                 scenes::update();
 
+#if 0
                 auto windowSize = platform::get_window_size_pixels(engineData.primaryWindow);
                 graphics::renderer::render_camera({
                     engineData.primaryWindow,
@@ -166,11 +140,10 @@ namespace rune::engine
                     glm::perspectiveLH_ZO(glm::radians(70.0f), f32(windowSize.x) / f32(windowSize.y), 0.1f, 100.0f),
                     glm::lookAtLH(camPosition, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
                 });
-#if 0
-            for (auto* window : engineData.windows)
-            {
-                renderer.render_camera({ window, platform::get_window_size_pixels(window) });
-            }
+                for (auto* window : engineData.windows)
+                {
+                    renderer.render_camera({ window, platform::get_window_size_pixels(window) });
+                }
 #endif
 
                 graphics::renderer::flush_renders();
