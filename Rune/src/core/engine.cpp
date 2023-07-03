@@ -81,14 +81,6 @@ namespace rune::engine
             resources::add_resource(STRID("builtin_unit_cube"), utility::primitives::generate_cube(1.0f, { 0.0f, 0.0f, 0.0f }));
             resources::add_resource(STRID("builtin_plane_5m"), utility::primitives::generate_plane({ 5, 5 }, { -2.5f, -2.5f }));
 
-            resources::ResourceHandle<graphics::renderer::StaticMesh> meshHandle{};
-            meshHandle = resources::get_ptr<graphics::renderer::StaticMesh>(STRID("builtin_unit_cube"));
-            RUNE_ASSERT(meshHandle.is_valid());
-            RUNE_ASSERT(meshHandle.is_loaded());
-            auto* mesh = meshHandle.get();
-            RUNE_ASSERT(mesh != nullptr);
-            LOG_INFO("Mesh Indices", mesh->get_index_count());
-
             scenes::new_test_scene();
         }
 
