@@ -141,10 +141,15 @@ namespace rune::graphics::renderer
         rendererData.camerasToRender.emplace_back(camera);
     }
 
-    void render_static_mesh(const std::shared_ptr<StaticMesh>& mesh, const glm::mat4& transform)
+    void render_static_mesh(const StaticMesh* mesh, const glm::mat4& transform)
     {
         RUNE_ASSERT(g_rendererData != nullptr);
         auto& rendererData = *g_rendererData;
+
+        if (mesh == nullptr)
+        {
+            return;
+        }
 
         rendererData.instances.push_back(transform);
         auto instanceIdx = static_cast<u32>(rendererData.instances.size() - 1);
@@ -194,9 +199,9 @@ namespace rune::graphics::renderer
         rendererData.instances.clear();
     }
 
-    auto create_static_mesh() -> std::shared_ptr<StaticMesh>
+    auto create_static_mesh() -> std::unique_ptr<StaticMesh>
     {
-        return std::make_shared<StaticMesh>();
+        return std::make_unique<StaticMesh>();
     }
 
     void flush_camera(const RenderCamera& camera)
