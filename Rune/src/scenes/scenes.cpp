@@ -75,6 +75,10 @@ namespace rune::scenes
 
             {
                 // #TODO: Temp camera input/movement
+                auto cursorPos = platform::get_cursor_position(camera.targetWindow);
+                glm::vec2 cursorDelta = { cursorPos.first - g_lastCursorPos.first, cursorPos.second - g_lastCursorPos.second };
+                g_lastCursorPos = cursorPos;
+
                 if (platform::is_mouse_button_down(camera.targetWindow, platform::Button::Right))
                 {
                     glm::vec3 movement{};
@@ -96,16 +100,13 @@ namespace rune::scenes
                     }
                     if (glm::length(movement) > 0)
                     {
-                        transform.position += movement * 8.0f * engine::get_delta_time();
+                        transform.position += glm::normalize(movement) * 8.0f * engine::get_delta_time();
                     }
 
-                    auto cursorPos = platform::get_cursor_position(camera.targetWindow);
-                    glm::vec2 cursorDelta = { cursorPos.first - g_lastCursorPos.first, cursorPos.second - g_lastCursorPos.second };
-                    g_lastCursorPos = cursorPos;
+                    g_yawPitch += glm::vec2{ cursorDelta.y, cursorDelta.x };
+                    g_yawPitch.x = glm::clamp(g_yawPitch.x, -89.0f, 89.0f);
 
-                    g_yawPitch += glm::vec2{ cursorDelta.x, cursorDelta.y };
-
-                    transform.rotation = glm::quat(glm::vec3{ glm::radians(g_yawPitch.y), glm::radians(g_yawPitch.x), 0.0f });
+                    transform.rotation = glm::quat(glm::vec3{ glm::radians(g_yawPitch.x), glm::radians(g_yawPitch.y), 0.0f });
                 }
             }
 
