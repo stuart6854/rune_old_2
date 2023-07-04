@@ -7,15 +7,15 @@
     - Support immediate & queued messages
     - Listeners register themselves
   - IO layer
-  - Graphics layer - Vulkan wrapper
+  - [x] Graphics layer - Vulkan wrapper
   - Network layer??
 - High-Level
   - Input system
     - Action binding (keys)
     - Axis binding (mouse, joystick)
-  - Scene/World system
-  - Scene rendering
-  - Resource manager
+  - [x] Scene/World system
+  - [x] Scene rendering
+  - [x] Resource manager
   - Scripting - C#
 - Misc
   - Utility
@@ -27,6 +27,6 @@
 - [x] Scene/World
   - [ ] Components - Transform, StaticRenderer, Camera, Light
   - [ ] Loading from disk
-- [ ] Resource Manager
-- [ ] Add camera controls
+- [x] Resource Manager
+- [x] Add camera controls
 - [ ] Use Synty assets to built test scene
