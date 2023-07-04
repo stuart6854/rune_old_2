@@ -81,7 +81,8 @@ namespace rune::engine
             resources::add_resource(STRID("builtin_unit_cube"), utility::primitives::generate_cube(1.0f, { 0.0f, 0.0f, 0.0f }));
             resources::add_resource(STRID("builtin_plane_5m"), utility::primitives::generate_plane({ 5, 5 }, { -2.5f, -2.5f }));
 
-            scenes::new_test_scene();
+            scenes::load_scene("scene_01.yaml");
+            //            scenes::new_test_scene();
         }
 
         void shutdown()

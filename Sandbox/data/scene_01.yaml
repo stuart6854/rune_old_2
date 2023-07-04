@@ -1,0 +1,39 @@
+entities:
+  - name: "camera"
+    Transform:
+      position: [ 0, 1, -2 ]
+      rotation: [ 0, 0, 0 ]
+      scale: [ 0, 0, 0 ]
+    Camera:
+  - name: "ground"
+    Transform:
+      position: [ 0, 0, 0 ]
+      rotation: [ 0, 0, 0 ]
+      scale: [ 1, 1, 1 ]
+    StaticRenderer:
+      mesh: 5236636474228712412
+      materials: [ 23459839 ]
+  - name: "grave"
+    Transform:
+      position: [ 0, 0, 0 ]
+      rotation: [ 0, 0, 0 ]
+      scale: [ 0.01, 0.01, 0.01 ]
+    StaticRenderer:
+      mesh: 6876786
+      materials: [ 23459839 ]
+  - name: "road_sign"
+    Transform:
+      position: [ 2, 0, 0 ]
+      rotation: [ 0, 0, 0 ]
+      scale: [ 0.01, 0.01, 0.01 ]
+    StaticRenderer:
+      mesh: 23455
+      materials: [ 23459839 ]
+  - name: "rock"
+    Transform:
+      position: [ 0, 0, 2 ]
+      rotation: [ 0, 0, 0 ]
+      scale: [ 0.01, 0.01, 0.01 ]
+    StaticRenderer:
+      mesh: 1998
+      materials: [ 23459839 ]

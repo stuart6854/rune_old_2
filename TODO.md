@@ -26,7 +26,7 @@
 
 - [x] Scene/World
   - [ ] Components - Transform, StaticRenderer, Camera, Light
-  - [ ] Loading from disk
+  - [x] Loading from disk
 - [x] Resource Manager
 - [x] Add camera controls
 - [ ] Use Synty assets to built test scene

@@ -7,6 +7,7 @@
 #include "graphics/renderer/renderer.hpp"
 #include "resources/manager.hpp"
 #include "utility/primitives.hpp"
+#include "utility/yaml-conversions.hpp"
 
 #include <entt/entity/registry.hpp>
 
@@ -14,6 +15,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/quaternion.hpp>
+
+#include <yaml-cpp/yaml.h>
 
 #include <memory>
 
@@ -30,15 +33,87 @@
 
 namespace rune::scenes
 {
+    struct LoadedSceneData
+    {
+        std::filesystem::path filename{};
+        std::vector<entt::entity> entities{};
+    };
+
     struct ScenesData
     {
         entt::registry registry{};
-        std::unordered_map<std::string, int> loadedSceneMap{};
+        std::unordered_map<u64, LoadedSceneData> loadedSceneMap{};
     };
     std::unique_ptr<ScenesData> g_scenesData{ nullptr };  // NOLINT
 
     std::pair<f64, f64> g_lastCursorPos{};
     glm::vec2 g_yawPitch{};
+
+    namespace
+    {
+        void load_scene_impl(std::filesystem::path filename)
+        {
+            RUNE_ASSERT(g_scenesData != nullptr);
+
+            filename = "../../data" / filename;
+
+            auto scene = YAML::LoadFile(filename.string());
+            if (!scene)
+            {
+                return;
+            }
+
+            auto entitiesNode = scene["entities"];
+            if (!entitiesNode)
+            {
+                return;
+            }
+
+            auto& sceneData = g_scenesData->loadedSceneMap[STRID(filename.string())];
+            auto& registry = g_scenesData->registry;
+
+            for (auto&& entityNode : entitiesNode)
+            {
+                auto entity = registry.create();
+                sceneData.entities.push_back(entity);
+
+                if (entityNode["Transform"])
+                {
+                    auto node = entityNode["Transform"];
+                    auto& transform = registry.emplace<Transform>(entity);
+                    transform.position = node["position"].as<glm::vec3>();
+                    transform.rotation = glm::quat(node["rotation"].as<glm::vec3>());
+                    transform.scale = node["scale"].as<glm::vec3>();
+                }
+
+                if (entityNode["StaticRenderer"])
+                {
+                    auto node = entityNode["StaticRenderer"];
+                    auto& renderer = registry.emplace<StaticRenderer>(entity);
+
+                    auto meshId = node["mesh"].as<u64>();
+                    renderer.mesh = resources::get_ptr<graphics::renderer::StaticMesh>(meshId);
+                    resources::load(meshId);
+
+                    auto materialsNode = node["materials"];
+                    for (auto&& materialNode : materialsNode)
+                    {
+                        auto materialId = materialNode.as<u64>();
+                        auto materialHandle = resources::get_ptr<graphics::renderer::Material>(materialId);
+                        renderer.materials.push_back(materialHandle);
+                        resources::load(materialId);
+                    }
+                }
+
+                if (entityNode["Camera"])
+                {
+                    auto node = entityNode["Camera"];
+                    auto& camera = registry.emplace<Camera>(entity);
+                    camera.targetWindow = engine::get_primary_window();
+                }
+            }
+        }
+    }
 
     void initialise()
     {
@@ -156,10 +231,11 @@ namespace rune::scenes
 
     void load_scene(std::string_view filename, LoadMethod loadMethod)
     {
-        RUNE_UNUSED(filename);
         RUNE_UNUSED(loadMethod);
 
         RUNE_ASSERT(g_scenesData != nullptr);
+
+        load_scene_impl(filename);
     }
 
     void unload_scene()
