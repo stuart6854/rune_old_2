@@ -2,6 +2,8 @@
 
 #include "common_internal.hpp"
 
+#include <cstring>
+
 using namespace sm;
 
 namespace rune

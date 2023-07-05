@@ -10,6 +10,7 @@
 #include <array>
 #include <memory>
 #include <vector>
+#include <cstring>
 
 using namespace sm;
 

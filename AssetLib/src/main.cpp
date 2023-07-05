@@ -62,7 +62,7 @@ int main(int argc, char** argv)
         PRINT("Importing => {}", inputFile);
         auto importedMeshes = mesh::import_static_mesh_raw(inputFile);
         PRINT("Imported {} separate meshes", importedMeshes.size());
-        importedMeshesStatic.insert_range(importedMeshesStatic.end(), importedMeshes);
+        importedMeshesStatic.insert(importedMeshesStatic.end(), importedMeshes.begin(), importedMeshes.end());
 
         if (verbosePrint)
         {

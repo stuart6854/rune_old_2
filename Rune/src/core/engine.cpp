@@ -17,6 +17,7 @@
 #include <memory>
 #include <chrono>
 #include <ranges>
+#include <thread>
 
 namespace rune
 {

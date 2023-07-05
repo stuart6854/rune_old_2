@@ -56,7 +56,7 @@ int fib(int n)
         ctx->Prepare(func);  // Prepare the stack
 
         // Set functions args
-        ctx->SetArgDWord(0, 30);  // 47
+        ctx->SetArgDWord(0, 47);  // 47
         // ctx->SetArgQWord(arg, value);
         // ctx->SetArgFloat(arg, value);
         // ctx->SetArgDouble(arg, value);

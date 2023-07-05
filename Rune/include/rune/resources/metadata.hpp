@@ -4,6 +4,7 @@
 #include "types.hpp"
 #include "resource.hpp"
 
+#include <atomic>
 #include <filesystem>
 
 namespace rune

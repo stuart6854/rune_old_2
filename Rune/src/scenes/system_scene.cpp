@@ -118,7 +118,7 @@ namespace rune
                 continue;
             }
             std::vector<Material*> materials(renderer.materials.size());
-            for (auto i = 0; i < renderer.materials.size(); ++i)
+            for (auto i = 0u; i < renderer.materials.size(); ++i)
             {
                 materials[i] = renderer.materials[i].get();
             }

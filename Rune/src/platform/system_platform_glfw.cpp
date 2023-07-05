@@ -258,8 +258,8 @@ namespace rune
         Event event{};
         event.type = EventType::WindowSize;
         event.context = window;
-        event.payload.i32[0] = width;
-        event.payload.i32[1] = height;
+        event.payload.int32[0] = width;
+        event.payload.int32[1] = height;
         Engine::get().get_system<SystemEvents>()->post_event(event);
     }
 

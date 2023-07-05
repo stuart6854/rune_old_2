@@ -4,6 +4,7 @@
 #include "system.hpp"
 
 #include <memory>
+#include <format>
 #include <filesystem>
 #include <string_view>
 #include <source_location>

@@ -63,10 +63,7 @@ namespace rune::assetlib::mesh
                 }
             }
 
-            if (mesh->mMaterialIndex >= 0)
-            {
-                // #TODO: process material
-            }
+            // #TODO: process material
         }
 
         void assimp_process_node(aiNode* node, const aiScene* scene, std::vector<StaticMesh>& outMeshes)
@@ -113,7 +110,7 @@ namespace rune::assetlib::mesh
         return meshes;
     }
 
-    void mesh::import_static_mesh_optimised(std::ifstream& stream, StaticMesh& outMesh)
+    void import_static_mesh_optimised(std::ifstream& stream, StaticMesh& outMesh)
     {
         if (!stream)
         {

@@ -21,14 +21,14 @@ namespace rune
         void* context{};
         union Payload
         {
-            i32 i32[4];
-            i64 i64[2];
+            i32 int32[4];
+            i64 int64[2];
 
-            u32 u32[4];
-            u64 u64[2];
+            u32 uint32[4];
+            u64 uint64[2];
 
-            f32 f32[4];
-            f64 f64[2];
+            f32 float32[4];
+            f64 float64[2];
         } payload;
     };
 
