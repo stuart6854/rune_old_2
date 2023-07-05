@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "internal_common.hpp"
+#include "common_internal.hpp"
 
 #include <cstdint>
 #include <string_view>

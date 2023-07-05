@@ -4,8 +4,7 @@
 
 void rune::configure_engine(rune::EngineConfig& config)
 {
-    std::cout << "Engine config" << std::endl;
-
-    config.logDirPath = "./logs";
-    config.configFilename = "./config.ini";
+    config.logDirPath = "../../logs";
+    config.configFilename = "../../config.ini";
+    config.initialScene = "scene_01.yaml";
 }

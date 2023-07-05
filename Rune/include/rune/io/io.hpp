@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "internal_common.hpp"
+#include "common_internal.hpp"
 
 #include <string>
 #include <fstream>

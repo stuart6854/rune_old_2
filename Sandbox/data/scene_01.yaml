@@ -10,9 +10,9 @@ entities:
       position: [ 0, 0, 0 ]
       rotation: [ 0, 0, 0 ]
       scale: [ 1, 1, 1 ]
-    StaticRenderer:
-      mesh: 5236636474228712412
-      materials: [ 23459839 ]
+      # StaticRenderer:
+      # mesh: 5236636474228712412
+      # materials: [ 23459839 ]
   - name: "grave"
     Transform:
       position: [ 0, 0, 0 ]

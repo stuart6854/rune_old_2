@@ -1,6 +1,6 @@
 #include "utility/ini_reader.hpp"
 
-#include "internal_common.hpp"
+#include "common_internal.hpp"
 #include "io/io.hpp"
 #include "utility/strings.hpp"
 

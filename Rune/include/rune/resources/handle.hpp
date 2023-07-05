@@ -3,14 +3,14 @@
 #include "common.hpp"
 #include "metadata.hpp"
 
-namespace rune::resources
+namespace rune
 {
     template <typename T>
     class ResourceHandle
     {
     public:
         ResourceHandle() = default;
-        explicit ResourceHandle(Metadata* metadata);
+        explicit ResourceHandle(ResourceMetadata* metadata);
         ~ResourceHandle() = default;
 
         auto get() const -> T*;
@@ -26,11 +26,11 @@ namespace rune::resources
         auto operator->() -> T*;
 
     private:
-        Metadata* m_metadata{ nullptr };
+        ResourceMetadata* m_metadata{ nullptr };
     };
 
     template <typename T>
-    ResourceHandle<T>::ResourceHandle(Metadata* metadata) : m_metadata(metadata)
+    ResourceHandle<T>::ResourceHandle(ResourceMetadata* metadata) : m_metadata(metadata)
     {
     }
 

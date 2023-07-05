@@ -4,13 +4,13 @@
 
 #include "utility/primitives.hpp"
 
-#include "internal_common.hpp"
-#include "graphics/renderer/renderer.hpp"
+#include "common_internal.hpp"
+#include "core/engine.hpp"
+#include "rendering/system_renderer.hpp"
 
 namespace rune::utility::primitives
 {
-    auto generate_plane(const glm::vec2& size, const glm::vec2& offset, const glm::uvec2& resolution)
-        -> std::unique_ptr<graphics::renderer::StaticMesh>
+    auto generate_plane(const glm::vec2& size, const glm::vec2& offset, const glm::uvec2& resolution) -> std::unique_ptr<StaticMesh>
     {
         glm::vec3 position{ offset.x, 0, offset.y };
         glm::vec3 normal{ 0, 1, 0 };
@@ -52,7 +52,7 @@ namespace rune::utility::primitives
             }
         }
 
-        auto mesh = graphics::renderer::create_static_mesh();
+        auto mesh = Engine::get().get_system<SystemRenderer>()->create_static_mesh();
         mesh->set_positions(positions);
         mesh->set_normals(normals);
         mesh->set_tex_coords(texCoords);
@@ -61,7 +61,7 @@ namespace rune::utility::primitives
         return mesh;
     }
 
-    auto generate_cube(f32 size, const glm::vec3& offset) -> std::unique_ptr<graphics::renderer::StaticMesh>
+    auto generate_cube(f32 size, const glm::vec3& offset) -> std::unique_ptr<StaticMesh>
     {
         const auto hs = size = 0.5f;
 
@@ -182,7 +182,7 @@ namespace rune::utility::primitives
         };
         // clang-format on
 
-        auto mesh = graphics::renderer::create_static_mesh();
+        auto mesh = Engine::get().get_system<SystemRenderer>()->create_static_mesh();
         mesh->set_positions(positions);
         mesh->set_normals(normals);
         mesh->set_tex_coords(texCoords);

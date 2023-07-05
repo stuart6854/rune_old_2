@@ -2,20 +2,21 @@
 
 #include "common.hpp"
 
-#include "graphics/graphics.hpp"
-#include "graphics/graphics_resource.hpp"
+#include "renderer_resource.hpp"
+
+#include <gfx/gfx.hpp>
 
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float3.hpp>
 
 #include <vector>
 
-namespace rune::graphics::renderer
+namespace rune
 {
-    class StaticMesh : public GraphicsResource
+    class StaticMesh : public RendererResource
     {
     public:
-        explicit StaticMesh(gfx::DeviceHandle device) : GraphicsResource(device) {}
+        explicit StaticMesh(SystemRenderer& renderer) : RendererResource(renderer) {}
         ~StaticMesh() override = default;
 
         void set_positions(const std::vector<glm::vec3>& positions);
@@ -26,8 +27,8 @@ namespace rune::graphics::renderer
         void apply();
 
         auto get_index_count() const -> u32;
-        auto get_index_buffer() const -> gfx::BufferHandle;
-        auto get_vertex_buffers() const -> std::vector<gfx::BufferHandle>;
+        auto get_index_buffer() const -> sm::gfx::BufferHandle;
+        auto get_vertex_buffers() const -> std::vector<sm::gfx::BufferHandle>;
 
     private:
         std::vector<glm::vec3> m_positions{};
@@ -35,9 +36,9 @@ namespace rune::graphics::renderer
         std::vector<glm::vec2> m_texCoords{};
         std::vector<u32> m_triangles{};
 
-        gfx::BufferHandle m_positionsBuffer{};
-        gfx::BufferHandle m_otherAttribBuffer{};
-        gfx::BufferHandle m_indexBuffer{};
+        sm::gfx::BufferHandle m_positionsBuffer{};
+        sm::gfx::BufferHandle m_otherAttribBuffer{};
+        sm::gfx::BufferHandle m_indexBuffer{};
         u32 m_indexCount;
     };
 }

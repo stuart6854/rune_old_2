@@ -2,7 +2,7 @@
 
 #include "common.hpp"
 
-namespace rune::resources
+namespace rune
 {
     enum class ResourceType : u8
     {

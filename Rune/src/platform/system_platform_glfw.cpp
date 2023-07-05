@@ -1,132 +1,113 @@
-#include "platform/platform.hpp"
+#include "platform/system_platform_glfw.hpp"
 
-#if defined(RUNE_PLATFORM_WINDOWS) || defined(RUNE_PLATFORM_LINUX)
+#include "common_internal.hpp"
 
-    #include "internal_common.hpp"
+#include <GLFW/glfw3.h>
+#if defined(RUNE_PLATFORM_WINDOWS)
+    #define GLFW_EXPOSE_NATIVE_WIN32
+#elif defined(RUNE_PLATFORM_LINUX)
+    #define GLFW_EXPOSE_NATIVE_WAYLAND
+#endif
+#define GLFW_NATIVE_INCLUDE_NONE
+#include <GLFW/glfw3native.h>
 
-    #include <GLFW/glfw3.h>
-    #if defined(RUNE_PLATFORM_WINDOWS)
-        #define GLFW_EXPOSE_NATIVE_WIN32
-    #elif defined(RUNE_PLATFORM_LINUX)
-        #define GLFW_EXPOSE_NATIVE_WAYLAND
-    #endif
-    #define GLFW_NATIVE_INCLUDE_NONE
-    #include <GLFW/glfw3native.h>
-
-    #include <utility>
-    #include <unordered_map>
-
-namespace rune::platform
+namespace rune
 {
-    namespace
+    struct SystemPlatformGLFW::Pimpl
     {
-        bool g_glfwInitialised{ false };  // NOLINT
+        bool glfwInitialised{ false };
+    };
 
-        struct WindowData
-        {
-            GLFWwindow* handle{ nullptr };
-            std::pair<i32, i32> windowedSize{};
-            std::pair<i32, i32> windowedPosition{};
-        };
-        std::unordered_map<WindowHandle, WindowData> g_windowData{};  // NOLINT
-    }
+    SystemPlatformGLFW::SystemPlatformGLFW() : m_pimpl(new Pimpl) {}
 
-    void initialise()
+    SystemPlatformGLFW::~SystemPlatformGLFW() = default;
+
+    void SystemPlatformGLFW::initialise()
     {
-        if (g_glfwInitialised)
-        {
-            return;
-        }
+        RUNE_ASSERT(!m_pimpl->glfwInitialised);
 
-        g_glfwInitialised = glfwInit();
-        if (!g_glfwInitialised)
+        if (!glfwInit())
         {
             RUNE_THROW_EX("Failed to initialise GLFW platform!");
         }
+
+        m_pimpl->glfwInitialised = true;
+
+        LOG_INFO("Platform (GLFW) system initialised.");
     }
 
-    void shutdown()
-    {
-        glfwTerminate();
-
-        g_glfwInitialised = false;
-    }
-
-    void update()
+    void SystemPlatformGLFW::update()
     {
         glfwPollEvents();
     }
 
-    #pragma region Time
+    void SystemPlatformGLFW::shutdown()
+    {
+        glfwTerminate();
+        m_pimpl->glfwInitialised = true;
 
-    auto get_time() -> f64
+        LOG_INFO("Platform (GLFW) system has shut down.");
+    }
+
+    f64 SystemPlatformGLFW::get_time() const
     {
         return glfwGetTime();
     }
 
-    #pragma endregion
-
-    #pragma region Windows
-
-    auto create_window(i32 width, i32 height, std::string_view title) -> WindowHandle
+    auto SystemPlatformGLFW::create_window(i32 width, i32 height, std::string_view title) -> WindowHandle
     {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         auto* glfwWindow = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
-
-        auto& windowData = g_windowData[glfwWindow];
-        windowData.handle = glfwWindow;
-        windowData.windowedSize = { width, height };
-
         return glfwWindow;
     }
 
-    void destroy_window(WindowHandle window)
+    void SystemPlatformGLFW::destroy_window(WindowHandle window)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         glfwDestroyWindow(glfwWindow);
     }
 
-    auto get_platform_display_handle() -> void*
-    {
-    #if defined(RUNE_PLATFORM_WINDOWS)
-        return GetModuleHandle(nullptr);
-    #elif defined(RUNE_PLATFORM_LINUX)
-        return glfwGetWaylandDisplay();
-    #endif
-    }
-
-    auto get_window_platform_handle(WindowHandle window) -> void*
+    void SystemPlatformGLFW::show_window(WindowHandle window)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
-    #if defined(RUNE_PLATFORM_WINDOWS)
-        return glfwGetWin32Window(glfwWindow);
-    #elif defined(RUNE_PLATFORM_LINUX)
-        return glfwGetWaylandWindow(glfwWindow);
-    #endif
+        glfwShowWindow(glfwWindow);
     }
 
-    bool has_window_requested_close(WindowHandle window)
+    void SystemPlatformGLFW::hide_window(WindowHandle window)
+    {
+        auto* glfwWindow = static_cast<GLFWwindow*>(window);
+        glfwHideWindow(glfwWindow);
+    }
+
+    bool SystemPlatformGLFW::has_window_requested_close(WindowHandle window)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         bool closeRequested = glfwWindowShouldClose(glfwWindow);
         return closeRequested;
     }
 
-    void show_window(WindowHandle window)
+    auto SystemPlatformGLFW::get_platform_display_handle() -> void*
     {
-        auto* glfwWindow = static_cast<GLFWwindow*>(window);
-        glfwShowWindow(glfwWindow);
+#if defined(RUNE_PLATFORM_WINDOWS)
+        return GetModuleHandle(nullptr);
+#elif defined(RUNE_PLATFORM_LINUX)
+        return glfwGetWaylandDisplay();
+#endif
     }
 
-    void hide_window(WindowHandle window)
+    auto SystemPlatformGLFW::get_window_platform_handle(WindowHandle window) -> void*
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
-        glfwHideWindow(glfwWindow);
+#if defined(RUNE_PLATFORM_WINDOWS)
+        return glfwGetWin32Window(glfwWindow);
+#elif defined(RUNE_PLATFORM_LINUX)
+        return glfwGetWaylandWindow(glfwWindow);
+#endif
     }
 
-    auto get_window_size(WindowHandle window) -> glm::i32vec2
+    glm::ivec2 SystemPlatformGLFW::get_window_size(WindowHandle window)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         int width{};
@@ -135,7 +116,7 @@ namespace rune::platform
         return { width, height };
     }
 
-    auto get_window_size_pixels(WindowHandle window) -> glm::i32vec2
+    glm::ivec2 SystemPlatformGLFW::get_window_size_pixels(WindowHandle window)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         int width{};
@@ -144,7 +125,7 @@ namespace rune::platform
         return { width, height };
     }
 
-    auto get_window_position(WindowHandle window) -> glm::i32vec2
+    glm::ivec2 SystemPlatformGLFW::get_window_position(WindowHandle window)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         int x{};
@@ -153,28 +134,30 @@ namespace rune::platform
         return { x, y };
     }
 
-    void set_window_size(WindowHandle window, i32 width, i32 height)
+    void SystemPlatformGLFW::set_window_size(WindowHandle window, i32 width, i32 height)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         glfwSetWindowSize(glfwWindow, width, height);
     }
 
-    void set_window_position(WindowHandle window, i32 x, i32 y)
+    void SystemPlatformGLFW::set_window_position(WindowHandle window, i32 x, i32 y)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         glfwSetWindowPos(glfwWindow, x, y);
     }
 
-    void set_window_title(WindowHandle window, std::string_view title)
+    void SystemPlatformGLFW::set_window_title(WindowHandle window, std::string_view title)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         glfwSetWindowTitle(glfwWindow, title.data());
     }
 
-    void set_window_windowed(WindowHandle window)
+    void SystemPlatformGLFW::set_window_windowed(WindowHandle window)
     {
+        RUNE_UNUSED(window);
+        // #TODO: Implement SystemPlatformGLFW::set_window_windowed()
+#if 0
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
-
         const auto& windowData = g_windowData[glfwWindow];
         const auto x = windowData.windowedPosition.first;
         const auto y = windowData.windowedPosition.second;
@@ -182,9 +165,10 @@ namespace rune::platform
         const auto height = windowData.windowedSize.second;
 
         glfwSetWindowMonitor(glfwWindow, nullptr, x, y, width, height, 0);
+#endif
     }
 
-    void set_window_fullscreen(WindowHandle window)
+    void SystemPlatformGLFW::set_window_fullscreen(WindowHandle window)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
 
@@ -194,11 +178,7 @@ namespace rune::platform
         glfwSetWindowMonitor(glfwWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
     }
 
-    #pragma endregion
-
-    #pragma region Input
-
-    auto get_key_name(Key key) -> std::string_view
+    std::string_view SystemPlatformGLFW::get_key_name(Key key)
     {
         auto glfwKey = static_cast<u16>(key);
 
@@ -206,7 +186,7 @@ namespace rune::platform
         return keyName;
     }
 
-    bool is_key_down(WindowHandle window, Key key)
+    bool SystemPlatformGLFW::is_key_down(WindowHandle window, Key key)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
         auto glfwKey = static_cast<u16>(key);
@@ -215,7 +195,16 @@ namespace rune::platform
         return state != GLFW_RELEASE;
     }
 
-    auto get_cursor_position(WindowHandle window) -> std::pair<f64, f64>
+    bool SystemPlatformGLFW::is_mouse_button_down(WindowHandle window, Button button)
+    {
+        auto* glfwWindow = static_cast<GLFWwindow*>(window);
+        auto glfwButton = static_cast<u8>(button);
+
+        auto state = glfwGetMouseButton(glfwWindow, glfwButton);
+        return state != GLFW_RELEASE;
+    }
+
+    glm::ivec2 SystemPlatformGLFW::get_cursor_position(WindowHandle window)
     {
         auto* glfwWindow = static_cast<GLFWwindow*>(window);
 
@@ -225,29 +214,20 @@ namespace rune::platform
         return { x, y };
     }
 
-    bool is_mouse_button_down(WindowHandle window, Button button)
-    {
-        auto* glfwWindow = static_cast<GLFWwindow*>(window);
-        auto glfwButton = static_cast<u8>(button);
-
-        auto state = glfwGetMouseButton(glfwWindow, glfwButton);
-        return state != GLFW_RELEASE;
-    }
-
-    bool is_gamepad_present(Gamepad gamepad)
+    bool SystemPlatformGLFW::is_gamepad_present(Gamepad gamepad)
     {
         auto glfwGamepad = static_cast<u8>(gamepad);
         return glfwJoystickIsGamepad(glfwGamepad);
     }
 
-    auto get_gamepad_name(Gamepad gamepad) -> std::string_view
+    std::string_view SystemPlatformGLFW::get_gamepad_name(Gamepad gamepad)
     {
         auto glfwGamepad = static_cast<u8>(gamepad);
         const auto* gamepadName = glfwGetGamepadName(glfwGamepad);
         return gamepadName;
     }
 
-    bool is_gamepad_button_down(Gamepad gamepad, GamepadButton button)
+    bool SystemPlatformGLFW::is_gamepad_button_down(Gamepad gamepad, GamepadButton button)
     {
         auto glfwGamepad = static_cast<u8>(gamepad);
         auto glfwButton = static_cast<u8>(button);
@@ -257,7 +237,7 @@ namespace rune::platform
         return state.buttons[glfwButton] != GLFW_RELEASE;  // NOLINT
     }
 
-    auto get_gamepad_axis_state(Gamepad gamepad, GamepadAxis axis) -> f32
+    f32 SystemPlatformGLFW::get_gamepad_axis_state(Gamepad gamepad, GamepadAxis axis)
     {
         auto glfwGamepad = static_cast<u8>(gamepad);
         auto glfwAxis = static_cast<u8>(axis);
@@ -267,8 +247,4 @@ namespace rune::platform
         return state.axes[glfwAxis];  // NOLINT
     }
 
-    #pragma endregion
-
 }
-
-#endif

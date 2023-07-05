@@ -6,7 +6,7 @@
 
 #include <filesystem>
 
-namespace rune::resources
+namespace rune
 {
     enum class ResourceState
     {
@@ -22,7 +22,7 @@ namespace rune::resources
         eApp
     };
 
-    struct Metadata
+    struct ResourceMetadata
     {
         ResourceType type{};
         std::atomic<ResourceState> state{ ResourceState::NotLoaded };

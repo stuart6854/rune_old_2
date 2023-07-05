@@ -1,8 +1,10 @@
-#include "graphics/renderer/static_mesh.hpp"
+#include "rendering/static_mesh.hpp"
 
 #include <cstring>
 
-namespace rune::graphics::renderer
+using namespace sm;
+
+namespace rune
 {
     void StaticMesh::set_positions(const std::vector<glm::vec3>& positions)
     {
@@ -36,14 +38,14 @@ namespace rune::graphics::renderer
             .type = gfx::BufferType::eVertex,
             .size = sizeof(glm::vec3) * m_positions.size(),
         };
-        gfx::create_buffer(m_positionsBuffer, get_device(), bufferInfo);
+        gfx::create_buffer(m_positionsBuffer, get_renderer().get_device(), bufferInfo);
         gfx::map_buffer(m_positionsBuffer, mappedData);
         std::memcpy(mappedData, m_positions.data(), bufferInfo.size);
         gfx::unmap_buffer(m_positionsBuffer);
         m_positions.clear();  // #TODO: Allow user to specify to keep vertex data
 
         bufferInfo.size = (sizeof(glm::vec3) * m_normals.size()) + (sizeof(glm::vec2) * m_texCoords.size());
-        gfx::create_buffer(m_otherAttribBuffer, get_device(), bufferInfo);
+        gfx::create_buffer(m_otherAttribBuffer, get_renderer().get_device(), bufferInfo);
         gfx::map_buffer(m_otherAttribBuffer, mappedData);
         u8* writePtr = static_cast<u8*>(mappedData);
         for (sizet i = 0; i < m_normals.size(); ++i)
@@ -58,7 +60,7 @@ namespace rune::graphics::renderer
 
         bufferInfo.type = gfx::BufferType::eIndex;
         bufferInfo.size = sizeof(u32) * m_triangles.size();
-        gfx::create_buffer(m_indexBuffer, get_device(), bufferInfo);
+        gfx::create_buffer(m_indexBuffer, get_renderer().get_device(), bufferInfo);
         gfx::map_buffer(m_indexBuffer, mappedData);
         std::memcpy(mappedData, m_triangles.data(), bufferInfo.size);
         gfx::unmap_buffer(m_indexBuffer);

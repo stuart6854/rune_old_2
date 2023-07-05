@@ -1,24 +1,24 @@
+// #TODO: Default system priority when system is provided (if priority is not already set)
+
 #include "core/engine.hpp"
-#include "engine_internal.hpp"
 
 #include "core/config_internal.hpp"
-#include "platform/platform.hpp"
-#include "audio/audio.hpp"
-#include "graphics/graphics.hpp"
-#include "graphics/renderer/renderer.hpp"
-#include "scenes/scenes.hpp"
-#include "resources/manager.hpp"
-#include "graphics/renderer/static_mesh.hpp"
-#include "utility/primitives.hpp"
+#include "core/system_logging.hpp"
+#include "platform/system_platform_glfw.hpp"
+#include "rendering/system_renderer.hpp"
+#include "resources/system_resources.hpp"
+#include "scenes/system_scene.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
 #include <memory>
 #include <chrono>
+#include <ranges>
 
-namespace rune::engine
+namespace rune
 {
+#if 0
     std::unique_ptr<internal::EngineData> s_engineData{ nullptr };  // NOLINT
 
     auto get_primary_window() -> platform::WindowHandle
@@ -61,13 +61,13 @@ namespace rune::engine
             platform::initialise();
             audio::initialise();
 
-#if 0
+    #if 0
         for (auto i = 0; i < 5; ++i)
         {
             engineData.windows.push_back(platform::create_window(400, 400, "Window " + std::to_string(i)));
             platform::show_window(engineData.windows.back());
         }
-#endif
+    #endif
             engineData.primaryWindow = platform::create_window(800, 600, "Primary Window");
             platform::show_window(engineData.primaryWindow);
 
@@ -133,7 +133,7 @@ namespace rune::engine
 
                 scenes::update();
 
-#if 0
+    #if 0
                 auto windowSize = platform::get_window_size_pixels(engineData.primaryWindow);
                 graphics::renderer::render_camera({
                     engineData.primaryWindow,
@@ -145,7 +145,7 @@ namespace rune::engine
                 {
                     renderer.render_camera({ window, platform::get_window_size_pixels(window) });
                 }
-#endif
+    #endif
 
                 graphics::renderer::flush_renders();
                 //            graphics::render_temp();
@@ -155,4 +155,112 @@ namespace rune::engine
         }
 
     }
+#endif
+
+    static Engine* s_engine{ nullptr };  // NOLINT
+
+    auto Engine::get() -> Engine&
+    {
+        RUNE_ASSERT(s_engine != nullptr);
+        return *s_engine;
+    }
+
+    Engine::Engine(const EngineConfig& config) : m_config(config)
+    {
+        RUNE_ASSERT(s_engine == nullptr);
+        s_engine = this;
+    }
+
+    Engine::~Engine()
+    {
+        s_engine = nullptr;
+    }
+
+    void Engine::run()
+    {
+        initialise();
+
+        m_isRunning = true;
+
+        auto lastTime = get_system<SystemPlatform>()->get_time();
+        while (m_isRunning)
+        {
+            auto time = get_system<SystemPlatform>()->get_time();
+            m_deltaTime = f32(time - lastTime);
+            lastTime = time;
+
+            update();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        }
+
+        shutdown();
+    }
+
+    void Engine::request_shutdown()
+    {
+        m_isRunning = false;
+    }
+
+    void Engine::initialise()
+    {
+        set_system_priority<SystemLogging>(100);
+        provide_system<SystemLogging>(std::make_unique<SystemLogging>(m_config.logDirPath));
+
+        set_system_priority<SystemPlatform>(99);
+        provide_system<SystemPlatform>(std::make_unique<SystemPlatformGLFW>());
+
+        set_system_priority<SystemRenderer>(50);
+        provide_system<SystemRenderer>(std::make_unique<SystemRenderer>());
+
+        set_system_priority<SystemResources>(40);
+        provide_system<SystemResources>(std::make_unique<SystemResources>());
+
+        set_system_priority<SystemScene>(10);
+        provide_system<SystemScene>(std::make_unique<SystemScene>());
+
+        for (auto [system, _] : m_systemPriorityVec)
+        {
+            m_systemMap.at(system)->initialise();
+        }
+        LOG_INFO("All systems initialised.");
+
+        m_primaryWindow = get_system<SystemPlatform>()->create_window(1280, 720, "Rune");
+        get_system<SystemPlatform>()->show_window(m_primaryWindow);
+
+        if (!m_config.initialScene.empty())
+        {
+            get_system<SystemScene>()->load_scene(m_config.initialScene);
+        }
+    }
+
+    void Engine::update()
+    {
+        for (auto [system, _] : m_systemPriorityVec)
+        {
+            m_systemMap.at(system)->update();
+        }
+
+        if (get_system<SystemPlatform>()->has_window_requested_close(m_primaryWindow))
+        {
+            request_shutdown();
+        }
+
+        get_system<SystemPlatform>()->set_window_title(m_primaryWindow,
+                                                       std::format("Primary Window - {:.2f}s/{}ms", m_deltaTime, u32(m_deltaTime * 1000)));
+
+        get_system<SystemRenderer>()->flush();
+    }
+
+    void Engine::shutdown()
+    {
+        LOG_INFO("Shutting all systems down.");
+
+        std::ranges::reverse_view systemPriorityReverse{ m_systemPriorityVec };
+        for (auto [system, _] : systemPriorityReverse)
+        {
+            m_systemMap.at(system)->shutdown();
+        }
+    }
+
 }

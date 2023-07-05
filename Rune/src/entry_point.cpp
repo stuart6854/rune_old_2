@@ -1,8 +1,9 @@
 #include "entry_point.hpp"
 
+#include "common_internal.hpp"
 #include "core/platform_detection.hpp"
-#include "core/engine_internal.hpp"
-#include "core/internal/internal_logging.hpp"
+#include "core/engine.hpp"
+#include "core/system_logging.hpp"
 
 #ifdef RUNE_PLATFORM_WINDOWS
     #define NOMINMAX
@@ -22,28 +23,35 @@ int main(int /*argc*/, char** /*argv*/)
     EngineConfig config{};
     configure_engine(config);
 
+    Engine engine(config);
+
     //    try
     {
-        logging::internal::initialise(config.logDirPath);
-        engine::internal::initialise(config);
-        engine::internal::run();
-        engine::internal::shutdown();
-        logging::internal::shutdown();
+        engine.run();
     }
-    //    catch (std::exception& ex)
-    //    {
-    //        LOG_CRITICAL("critical: runtime exception: {}", ex.what());
-    //        logging::internal::flush();
-    //        RUNE_DEBUG_BREAK();
-    //        return EXIT_FAILURE;
-    //    }
-    //    catch (...)
-    //    {
-    //        LOG_CRITICAL("critical: unknown exception");
-    //        logging::internal::flush();
-    //        RUNE_DEBUG_BREAK();
-    //        return EXIT_FAILURE;
-    //    }
+#if 0
+        catch (RuneException& ex)
+    {
+                LOG_CRITICAL("critical: runtime exception: {}", ex.what());
+                engine.get_system<SystemLogging>()->flush();
+                RUNE_DEBUG_BREAK();
+                return EXIT_FAILURE;
+    }
+        catch (std::exception& ex)
+        {
+            LOG_CRITICAL("critical: runtime exception: {}", ex.what());
+            logging::internal::flush();
+            RUNE_DEBUG_BREAK();
+            return EXIT_FAILURE;
+        }
+        catch (...)
+        {
+            LOG_CRITICAL("critical: unknown exception");
+            logging::internal::flush();
+            RUNE_DEBUG_BREAK();
+            return EXIT_FAILURE;
+        }
+#endif
 
     return 0;
 }

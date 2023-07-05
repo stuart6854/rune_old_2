@@ -1,8 +1,10 @@
-#include "graphics/renderer/texture.hpp"
+#include "rendering/texture.hpp"
 
-#include "internal_common.hpp"
+#include "common_internal.hpp"
 
-namespace rune::graphics::renderer
+using namespace sm;
+
+namespace rune
 {
     void Texture::set_dimensions(u32 width, u32 height, u32 depth)
     {
@@ -24,7 +26,7 @@ namespace rune::graphics::renderer
             .format = gfx::Format::eRGBA8,
             .mipLevels = 1,
         };
-        gfx::create_texture(m_texture, graphics::get_device(), textureInfo);
+        gfx::create_texture(m_texture, get_renderer().get_device(), textureInfo);
 
         {
             // Create staging buffer
@@ -33,7 +35,7 @@ namespace rune::graphics::renderer
                 .size = sizeof(std::uint8_t) * data.size(),
             };
             gfx::BufferHandle stagingBufferHandle{};
-            if (!gfx::create_buffer(stagingBufferHandle, get_device(), stagingBufferInfo))
+            if (!gfx::create_buffer(stagingBufferHandle, get_renderer().get_device(), stagingBufferInfo))
             {
                 throw std::runtime_error("Failed to create GFX staging buffer!");
             }
@@ -46,7 +48,7 @@ namespace rune::graphics::renderer
             }
 
             gfx::CommandListHandle uploadCommandListHandle{};
-            if (!gfx::create_command_list(uploadCommandListHandle, get_device(), 0))
+            if (!gfx::create_command_list(uploadCommandListHandle, get_renderer().get_device(), 0))
             {
                 throw std::runtime_error("Failed to create GFX upload command list!");
             }
@@ -64,7 +66,7 @@ namespace rune::graphics::renderer
             gfx::submit_command_list(submitInfo, &fenceHandle, nullptr);
 
             gfx::wait_on_fence(fenceHandle);
-            gfx::destroy_command_list(get_device(), uploadCommandListHandle);
+            gfx::destroy_command_list(get_renderer().get_device(), uploadCommandListHandle);
             gfx::destroy_buffer(stagingBufferHandle);
         }
     }

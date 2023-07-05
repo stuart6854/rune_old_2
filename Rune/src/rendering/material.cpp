@@ -1,10 +1,12 @@
-#include "graphics/renderer/material.hpp"
+#include "rendering/material.hpp"
 
-#include "internal_common.hpp"
+#include "common_internal.hpp"
 
-namespace rune::graphics::renderer
+using namespace sm;
+
+namespace rune
 {
-    Material::Material(gfx::DeviceHandle device) : GraphicsResource(device)
+    Material::Material(SystemRenderer& renderer) : RendererResource(renderer)
     {
         gfx::DescriptorSetInfo setInfo
         {
@@ -12,7 +14,7 @@ namespace rune::graphics::renderer
                 { gfx::DescriptorType::eTexture, 1, gfx::ShaderStageFlags_Fragment },
             },
         };
-        gfx::create_descriptor_set(m_textureSet, get_device(), setInfo);
+        gfx::create_descriptor_set(m_textureSet, get_renderer().get_device(), setInfo);
     }
 
     Material::~Material()
@@ -20,7 +22,7 @@ namespace rune::graphics::renderer
         // #TODO: Destroy texture set
     }
 
-    void Material::set_textures(const std::vector<resources::ResourceHandle<Texture>>& textures)
+    void Material::set_textures(const std::vector<ResourceHandle<Texture>>& textures)
     {
         m_textures = textures;
 
@@ -29,7 +31,7 @@ namespace rune::graphics::renderer
             .filterMode = gfx::SamplerFilterMode::eLinear,
         };
         gfx::SamplerHandle samplerHandle{};
-        gfx::create_sampler(samplerHandle, get_device(), samplerInfo);
+        gfx::create_sampler(samplerHandle, get_renderer().get_device(), samplerInfo);
 
         auto* textureToBind = m_textures[0].get();
         gfx::bind_texture_to_descriptor_set(m_textureSet, 0, textureToBind->get_handle(), samplerHandle);

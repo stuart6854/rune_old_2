@@ -1,6 +1,6 @@
 #pragma once
 
-namespace rune::resources
+namespace rune
 {
     using ResourceId = u64;
 
