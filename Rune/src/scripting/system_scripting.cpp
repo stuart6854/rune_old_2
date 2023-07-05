@@ -1,6 +1,9 @@
 #include "scripting/system_scripting.hpp"
 
 #include "common_internal.hpp"
+#include "script_glue.hpp"
+
+#include <entt/entity/entity.hpp>
 
 #define CHECK_AS_RESULT(_result) RUNE_ASSERT(_result >= 0)
 
@@ -24,6 +27,8 @@ namespace rune
         m_engine = asCreateScriptEngine();
         RUNE_ASSERT(m_engine != nullptr);
 
+        scriptglue::register_entity_types(m_engine);
+
         result = m_engine->SetMessageCallback(asFUNCTION(message_callback), nullptr, asCALL_CDECL);
         CHECK_AS_RESULT(result);
 
@@ -38,6 +43,14 @@ int fib(int n)
     if(n <= 1) return n;
     return fib(n - 1) + fib(n - 2);
 }
+
+Entity test()
+{
+    Entity e1 = Entity::create();
+    Entity e2 = Entity::create();
+    e1.destroy();
+    return e2;
+}
         )";
 
         result = m_module->AddScriptSection("script.as", testScript.c_str());
@@ -45,7 +58,8 @@ int fib(int n)
         result = m_module->Build();
         CHECK_AS_RESULT(result);
 
-        const auto* func_decl = "int fib(int)";
+        //        const auto* func_decl = "int fib(int)";
+        const auto* func_decl = "Entity test()";
         auto* func = m_module->GetFunctionByDecl(func_decl);
         RUNE_ASSERT(func != nullptr);
 
@@ -56,7 +70,7 @@ int fib(int n)
         ctx->Prepare(func);  // Prepare the stack
 
         // Set functions args
-        ctx->SetArgDWord(0, 47);  // 47
+        // ctx->SetArgDWord(0, 30);  // 47
         // ctx->SetArgQWord(arg, value);
         // ctx->SetArgFloat(arg, value);
         // ctx->SetArgDouble(arg, value);
@@ -70,8 +84,11 @@ int fib(int n)
         if (result == asEXECUTION_FINISHED)
         {
             // The return value is only valid if the execution finished successfully
-            asDWORD ret = ctx->GetReturnDWord();
-            LOG_INFO("scripting - Return value: {}", ret);
+            // asDWORD ret = ctx->GetReturnDWord();
+            //            LOG_INFO("scripting - Return value: {}", ret);
+            auto* ret = ctx->GetReturnObject();
+            entt::entity entity = *(entt::entity*)ret;
+            LOG_INFO("scripting - Returned entity: {}", Entity(entity));
         }
 
         ctx->Release();
