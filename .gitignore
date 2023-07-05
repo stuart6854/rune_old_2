@@ -8,3 +8,6 @@ cmake-build-*/
 bin/
 out/
 *.spv
+
+# Other Artifacts
+*/log[s]
