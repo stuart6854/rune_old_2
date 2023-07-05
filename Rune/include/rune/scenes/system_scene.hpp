@@ -16,6 +16,8 @@ namespace rune
         Additive,
     };
 
+    using Entity = u32;
+
     class SystemScene : public ISystem
     {
     public:
@@ -30,6 +32,9 @@ namespace rune
 
         void load_scene(std::string_view filename, LoadMethod loadMethod = LoadMethod::Normal);
         void unload_scene();
+
+        auto create_entity() -> Entity;
+        void destroy_entity(Entity entity);
 
     private:
         void load_yaml_scene(std::filesystem::path filename);

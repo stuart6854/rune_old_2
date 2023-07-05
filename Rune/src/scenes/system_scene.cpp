@@ -150,6 +150,16 @@ namespace rune
 
     void SystemScene::unload_scene() {}
 
+    auto SystemScene::create_entity() -> Entity
+    {
+        return u64(m_pimpl->registry.create());
+    }
+
+    void SystemScene::destroy_entity(Entity entity)
+    {
+        m_pimpl->registry.destroy(entt::entity(entity));
+    }
+
     void SystemScene::load_yaml_scene(std::filesystem::path filename)
     {
         filename = "../../data" / filename;
