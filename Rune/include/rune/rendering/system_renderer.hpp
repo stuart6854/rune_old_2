@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include "core/system.hpp"
+#include "events/system_events.hpp"
 #include "platform/system_platform.hpp"
 #include "utility/enum_class_flags.hpp"
 
@@ -81,6 +82,8 @@ namespace rune
         auto create_material() -> std::unique_ptr<Material>;
 
 #pragma endregion
+
+        void on_event_recieved(const Event& msg);
 
         auto get_device() const -> sm::gfx::DeviceHandle { return m_device; }
 

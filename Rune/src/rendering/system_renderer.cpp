@@ -38,6 +38,9 @@ namespace rune
             RUNE_THROW_EX("graphics - Failed to create device!");
         }
 
+        Engine::get().get_system<SystemEvents>()->register_receiver([this](auto&& msg)
+                                                                    { on_event_recieved(std::forward<decltype(msg)>(msg)); });
+
         LOG_INFO("Renderer system initialised.");
 
         gfx::TextureInfo depthAttachmentInfo{
@@ -198,6 +201,12 @@ namespace rune
     auto SystemRenderer::create_material() -> std::unique_ptr<Material>
     {
         return std::make_unique<Material>(*this);
+    }
+
+    void SystemRenderer::on_event_recieved(const Event& msg)
+    {
+        LOG_INFO("Event: {}", u64(msg.type));
+        // #TODO: Recreate render resources (attachments, etc.)
     }
 
     void SystemRenderer::flush_camera(const RenderCamera& camera)

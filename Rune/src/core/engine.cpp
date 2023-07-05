@@ -4,6 +4,7 @@
 
 #include "core/config_internal.hpp"
 #include "core/system_logging.hpp"
+#include "events/system_events.hpp"
 #include "platform/system_platform_glfw.hpp"
 #include "rendering/system_renderer.hpp"
 #include "resources/system_resources.hpp"
@@ -207,7 +208,10 @@ namespace rune
         set_system_priority<SystemLogging>(100);
         provide_system<SystemLogging>(std::make_unique<SystemLogging>(m_config.logDirPath));
 
-        set_system_priority<SystemPlatform>(99);
+        set_system_priority<SystemEvents>(90);
+        provide_system<SystemEvents>(std::make_unique<SystemEvents>());
+
+        set_system_priority<SystemPlatform>(80);
         provide_system<SystemPlatform>(std::make_unique<SystemPlatformGLFW>());
 
         set_system_priority<SystemRenderer>(50);

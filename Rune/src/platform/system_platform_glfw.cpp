@@ -1,6 +1,7 @@
 #include "platform/system_platform_glfw.hpp"
 
 #include "common_internal.hpp"
+#include "events/system_events.hpp"
 
 #include <GLFW/glfw3.h>
 #if defined(RUNE_PLATFORM_WINDOWS)
@@ -17,6 +18,8 @@ namespace rune
     {
         bool glfwInitialised{ false };
     };
+
+    void window_size_callback(GLFWwindow* window, i32 width, i32 height);
 
     SystemPlatformGLFW::SystemPlatformGLFW() : m_pimpl(new Pimpl) {}
 
@@ -60,6 +63,9 @@ namespace rune
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         auto* glfwWindow = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
+
+        glfwSetWindowSizeCallback(glfwWindow, window_size_callback);
+
         return glfwWindow;
     }
 
@@ -245,6 +251,16 @@ namespace rune
         GLFWgamepadstate state{};
         glfwGetGamepadState(glfwGamepad, &state);
         return state.axes[glfwAxis];  // NOLINT
+    }
+
+    void window_size_callback(GLFWwindow* window, i32 width, i32 height)
+    {
+        Event event{};
+        event.type = EventType::WindowSize;
+        event.context = window;
+        event.payload.i32[0] = width;
+        event.payload.i32[1] = height;
+        Engine::get().get_system<SystemEvents>()->post_event(event);
     }
 
 }
