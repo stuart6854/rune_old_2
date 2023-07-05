@@ -14,7 +14,7 @@ target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURR
 target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(${TARGET_NAME} PUBLIC rune::assetlib spdlog glm::glm glfw AudioFile OpenAL::OpenAL gfx EnTT::EnTT yaml-cpp::yaml-cpp stb)
+target_link_libraries(${TARGET_NAME} PUBLIC rune::assetlib spdlog glm::glm glfw AudioFile OpenAL::OpenAL gfx EnTT::EnTT yaml-cpp::yaml-cpp stb angelscript)
 
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 

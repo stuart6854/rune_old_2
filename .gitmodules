@@ -1,3 +1,6 @@
 [submodule "Rune/libs/submodules/gfx"]
 	path = Rune/libs/submodules/gfx
 	url = git@github.com:stuart6854/gfx.git
+[submodule "Rune/libs/submodules/angelscript"]
+	path = Rune/libs/submodules/angelscript
+	url = https://github.com/codecat/angelscript-mirror.git
