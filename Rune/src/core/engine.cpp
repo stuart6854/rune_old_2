@@ -7,6 +7,7 @@
 #include "events/system_events.hpp"
 #include "platform/system_platform_glfw.hpp"
 #include "rendering/system_renderer.hpp"
+#include "scripting/system_scripting.hpp"
 #include "resources/system_resources.hpp"
 #include "scenes/system_scene.hpp"
 
@@ -217,7 +218,10 @@ namespace rune
         set_system_priority<SystemRenderer>(50);
         provide_system<SystemRenderer>(std::make_unique<SystemRenderer>());
 
-        set_system_priority<SystemResources>(40);
+        set_system_priority<SystemScripting>(40);
+        provide_system<SystemScripting>(std::make_unique<SystemScripting>());
+
+        set_system_priority<SystemResources>(20);
         provide_system<SystemResources>(std::make_unique<SystemResources>());
 
         set_system_priority<SystemScene>(10);
