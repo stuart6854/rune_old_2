@@ -2,16 +2,18 @@
 
 #include "common.hpp"
 #include "scenes/system_scene.hpp"
+#include "mono/metadata/object.h"
+
+#include <mono/metadata/image.h>
 
 #include <glm/ext/vector_float3.hpp>
 
 namespace rune::scriptglue
 {
     void register_functions();
+    void register_components(MonoImage* image);
 
 #pragma region Time
-
-    void register_time_functions();
 
     auto Time_GetDelta() -> float;
     auto Time_GetSinceStartup() -> float;
@@ -20,13 +22,17 @@ namespace rune::scriptglue
 
 #pragma region Entity
 
-    void register_entity_functions();
-
     auto Entity_Create() -> Entity;
     void Entity_Destroy(Entity* entity);
 
-    void Entity_GetPosition(Entity* entity, glm::vec3* position);
-    void Entity_SetPosition(Entity* entity, glm::vec3* position);
+    bool Entity_HasComponent(const Entity* entity, MonoReflectionType* componentType);
+
+#pragma endregion
+
+#pragma region Transform
+
+    void Transform_GetPosition(const Entity* entity, glm::vec3* position);
+    void Transform_SetPosition(const Entity* entity, glm::vec3* position);
 
 #pragma endregion
 }

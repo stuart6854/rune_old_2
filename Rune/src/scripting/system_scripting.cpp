@@ -129,6 +129,8 @@ namespace rune
             return;
         }
 
+        scriptglue::register_components(m_pimpl->coreAssemblyImage);
+
         // #TODO: Use ManagedThunks for frequently called methods, they are a faster way of calling C# methods (Benchmark?)
 
         LOG_INFO("Scripting system initialised.");

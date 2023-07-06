@@ -53,4 +53,11 @@ namespace rune
         std::string scriptClass{};
     };
 
+    template <typename... Component>
+    struct ComponentGroup
+    {
+    };
+
+    using AllComponents = ComponentGroup<Transform, StaticRenderer, Camera, ScriptBehaviour>;
+
 }

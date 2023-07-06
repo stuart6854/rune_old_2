@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Rune
 {
@@ -20,16 +21,17 @@ namespace Rune
         internal static extern Entity Entity_Create(out Entity entity);
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal static extern void Entity_Destroy(ref Entity entity);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern bool Entity_HasComponent(Entity entity, Type componentType);
+
+        #endregion
+
+        #region Transform
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void Entity_AddPosition(Entity entity, ref Vector3 position);
+        internal static extern void Transform_GetPosition(Entity entity, out Vector3 position);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void Entity_GetComponent(Entity entity, out Vector3 position);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void Entity_GetPosition(Entity entity, out Vector3 position);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void Entity_SetPosition(Entity entity, ref Vector3 position);
+        internal static extern void Transform_SetPosition(Entity entity, ref Vector3 position);
 
         #endregion
 

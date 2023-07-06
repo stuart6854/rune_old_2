@@ -11,12 +11,12 @@
         {
             get
             {
-                InternalCalls.Entity_GetPosition(Entity, out Vector3 Position);
+                InternalCalls.Transform_GetPosition(Entity, out Vector3 Position);
                 return Position;
             }
             set
             {
-                InternalCalls.Entity_SetPosition(Entity, ref value);
+                InternalCalls.Transform_SetPosition(Entity, ref value);
             }
         }
 
@@ -24,12 +24,12 @@
         {
             get
             {
-                InternalCalls.Entity_GetPosition(Entity, out Vector3 Position);
+                InternalCalls.Transform_GetPosition(Entity, out Vector3 Position);
                 return Position;
             }
             set
             {
-                InternalCalls.Entity_SetPosition(Entity, ref value);
+                InternalCalls.Transform_SetPosition(Entity, ref value);
             }
         }
 
@@ -37,12 +37,12 @@
         {
             get
             {
-                InternalCalls.Entity_GetPosition(Entity, out Vector3 Position);
+                InternalCalls.Transform_GetPosition(Entity, out Vector3 Position);
                 return Position;
             }
             set
             {
-                InternalCalls.Entity_SetPosition(Entity, ref value);
+                InternalCalls.Transform_SetPosition(Entity, ref value);
             }
         }
     }

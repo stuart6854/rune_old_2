@@ -22,21 +22,28 @@ namespace Rune
             _id = id;
         }
 
+        public bool HasComponent<T>() where T : Component, new()
+        {
+            Type componentType = typeof(T);
+            return InternalCalls.Entity_HasComponent(this, componentType);
+        }
+
         public T GetComponent<T>() where T : Component, new()
         {
-            Console.WriteLine("Entity::GetComponent<T>()");
-            return default;
+            if (!HasComponent<T>())
+                return null;
+
+            T component = new T() { Entity = this };
+            return component;
         }
 
         public T AddComponent<T>() where T : Component, new()
         {
-            Console.WriteLine("Entity::AddComponent<T>()");
             return default;
         }
 
         public void RemoveComponent<T>() where T : Component, new()
         {
-            Console.WriteLine("Entity::RemoveComponent<T>()");
         }
 
     }
