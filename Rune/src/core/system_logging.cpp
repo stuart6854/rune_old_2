@@ -48,9 +48,9 @@ namespace rune
         m_pimpl->defaultLogger->set_pattern("%T:%e | %^%-8l%$ | thread=%-6t | %s:%# - %v");
 
 #if defined(RUNE_BUILD_DEBUG) || defined(RUNE_BUILD_RELEASE)
-        spdlog::set_level(spdlog::level::trace);
+        m_pimpl->defaultLogger->set_level(spdlog::level::trace);
 #elif defined(RUNE_BUILD_DISTRO)
-        spdlog::set_level(spdlog::level::info);
+        m_pimpl->defaultLogger->set_level(spdlog::level::info);
 #endif
 
         LOG_INFO("Logging system initialised.");
