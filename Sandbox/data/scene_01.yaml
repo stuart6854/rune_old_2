@@ -6,7 +6,7 @@ entities:
       scale: [ 0, 0, 0 ]
     Camera:
     ScriptBehaviour:
-      class: "Sandbox.Example"
+      class: "Sandbox.Camera"
   - name: "ground"
     Transform:
       position: [ 0, 0, 0 ]

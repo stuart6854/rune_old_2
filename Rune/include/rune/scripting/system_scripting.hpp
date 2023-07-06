@@ -24,7 +24,8 @@ namespace rune
         void init_mono();
         void shutdown_mono();
 
-        void load_core_assembly(const std::filesystem::path& assemblyFilename);
+        bool load_core_assembly(const std::filesystem::path& assemblyFilename);
+        bool load_app_assembly(const std::filesystem::path& assemblyFilename);
 
     private:
         struct Pimpl;

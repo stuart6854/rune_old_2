@@ -7,10 +7,11 @@
 
 #include <entt/entity/entity.hpp>
 
-#include <mono/metadata/assembly.h>
 #include <mono/jit/jit.h>
+#include <mono/metadata/threads.h>
+#include <mono/metadata/assembly.h>
 
-#include <string.h>
+#include <cstring>
 
 #define CHECK_AS_RESULT(_result) RUNE_ASSERT(_result >= 0)
 
@@ -29,8 +30,15 @@ namespace rune
     {
         MonoDomain* rootDomain{ nullptr };
         MonoDomain* appDomain{ nullptr };
+
         MonoAssembly* coreAssembly{ nullptr };
         MonoImage* coreAssemblyImage{ nullptr };
+
+        MonoAssembly* appAssembly{ nullptr };
+        MonoImage* appAssemblyImage{ nullptr };
+
+        std::filesystem::path coreAssemblyFilename;
+        std::filesystem::path appAssemblyFilename;
     };
 
     namespace
@@ -105,31 +113,21 @@ namespace rune
     void SystemScripting::initialise()
     {
         init_mono();
-        load_core_assembly("../../data/Rune-ScriptCore.dll");
-
         scriptglue::register_functions();
 
-#if 0
-        // Retrieve and instiantiate class (with ctor)
-        auto* monoClass = mono_class_from_name(m_pimpl->coreAssemblyImage, "Rune", "Test");
-        auto* objectInstance = mono_object_new(m_pimpl->appDomain, monoClass);
-        mono_runtime_object_init(objectInstance);  // Call (default) ctor, Wse MonoMethod for ctors with params
+        if (!load_core_assembly("../../data/Rune-ScriptCore.dll"))
+        {
+            RUNE_THROW_EX("Failed to load Rune-ScriptCore assembly.");
+            return;
+        }
 
-        // Call method
-        auto* printMessageFunc = mono_class_get_method_from_name(monoClass, "PrintMessage", 0);
-        mono_runtime_invoke(printMessageFunc, objectInstance, nullptr, nullptr);
-
-        // Call method (w/ params)
-        auto* printIntFunc = mono_class_get_method_from_name(monoClass, "PrintInt", 1);
-        int value = 5;
-        void* params[1] = { &value };
-        mono_runtime_invoke(printIntFunc, objectInstance, params, nullptr);
-
-        auto* monoString = mono_string_new(m_pimpl->appDomain, "Hello from C++!");
-        auto* printStringFunc = mono_class_get_method_from_name(monoClass, "PrintString", 1);
-        void* stringParam = monoString;
-        mono_runtime_invoke(printStringFunc, objectInstance, &stringParam, nullptr);
-#endif
+        // #TODO: Get engine data dir + app script assembly filename from somewhere (Config)
+        auto scriptModulePath = std::filesystem::current_path() / "../../data/Sandbox-ScriptAssembly.dll";
+        if (!load_app_assembly(scriptModulePath))
+        {
+            RUNE_THROW_EX("Failed to load app assembly.");
+            return;
+        }
 
         // #TODO: Use ManagedThunks for frequently called methods, they are a faster way of calling C# methods (Benchmark?)
 
@@ -150,7 +148,7 @@ namespace rune
         auto lastDot = className.find_last_of('.');
         auto namespaceName = std::string(className.substr(0, lastDot));
         auto actualClassName = std::string(className.substr(lastDot + 1, className.size() - lastDot - 1));
-        auto* monoClass = mono_class_from_name(m_pimpl->coreAssemblyImage, namespaceName.c_str(), actualClassName.c_str());
+        auto* monoClass = mono_class_from_name(m_pimpl->appAssemblyImage, namespaceName.c_str(), actualClassName.c_str());
 
         auto* monoMethod = mono_class_get_method_from_name(monoClass, methodName.data(), 1);
         mono_runtime_invoke(monoMethod, nullptr, args, nullptr);
@@ -158,33 +156,56 @@ namespace rune
 
     void SystemScripting::init_mono()
     {
-        LOG_INFO("Current Path: {}", std::filesystem::current_path().string());
         mono_set_assemblies_path("lib");
 
         m_pimpl->rootDomain = mono_jit_init("RuneJitRuntime");
         RUNE_ASSERT(m_pimpl->rootDomain);
+
+        mono_thread_set_main(mono_thread_current());
     }
 
     void SystemScripting::shutdown_mono()
     {
-        m_pimpl->coreAssembly = nullptr;
-        // mono_domain_unload(m_pimpl->appDomain);  // #TODO: Does not work
+        mono_domain_set(mono_get_root_domain(), false);
+
+        mono_domain_unload(m_pimpl->appDomain);
         m_pimpl->appDomain = nullptr;
-        mono_jit_cleanup(m_pimpl->rootDomain);  // This might be unloading all domains??
-                                                // https://www.mono-project.com/docs/advanced/embedding/#shutting-down-the-runtime
+
+        mono_jit_cleanup(m_pimpl->rootDomain);
+        m_pimpl->rootDomain = nullptr;
     }
 
-    void SystemScripting::load_core_assembly(const std::filesystem::path& assemblyFilename)
+    bool SystemScripting::load_core_assembly(const std::filesystem::path& assemblyFilename)
     {
         m_pimpl->appDomain = mono_domain_create_appdomain(_strdup("RuneScriptDomain"), nullptr);
-        RUNE_ASSERT(m_pimpl->appDomain);
         mono_domain_set(m_pimpl->appDomain, true);
 
+        m_pimpl->coreAssemblyFilename = assemblyFilename;
         m_pimpl->coreAssembly = load_mono_assembly(assemblyFilename);
-        RUNE_ASSERT(m_pimpl->coreAssembly);
+        if (!m_pimpl->coreAssembly)
+        {
+            return false;
+        }
+
         m_pimpl->coreAssemblyImage = mono_assembly_get_image(m_pimpl->coreAssembly);
 
-        print_assembly_types(m_pimpl->coreAssembly);
+        return true;
+    }
+
+    bool SystemScripting::load_app_assembly(const std::filesystem::path& assemblyFilename)
+    {
+        m_pimpl->appAssemblyFilename = assemblyFilename;
+        m_pimpl->appAssembly = load_mono_assembly(assemblyFilename);
+        if (!m_pimpl->appAssembly)
+        {
+            return false;
+        }
+
+        m_pimpl->appAssemblyImage = mono_assembly_get_image(m_pimpl->appAssembly);
+
+        // #TODO: Setup filewatcher
+
+        return true;
     }
 
 }
