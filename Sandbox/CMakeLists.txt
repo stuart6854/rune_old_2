@@ -27,5 +27,6 @@ set_target_properties(${TARGET_NAME}
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
         #        COMMAND ${CMAKE_COMMAND} -E echo "runtime dlls = $<TARGET_RUNTIME_DLLS:${TARGET_NAME}>" # Print required runtime dlls
         COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${TARGET_NAME}> $<TARGET_RUNTIME_DLLS:${TARGET_NAME}>
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_SOURCE_DIR}/Rune/libs/bin/lib" "$<TARGET_FILE_DIR:${TARGET_NAME}>/lib"
         COMMAND_EXPAND_LISTS
         )

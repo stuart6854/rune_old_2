@@ -13,17 +13,22 @@ namespace rune::scriptglue
 {
 #pragma region Entity
 
-    void register_entity_types(asIScriptEngine* engine)
+    void register_entity_types()
     {
+#if 0
         CHECK_RESULT(engine->SetDefaultNamespace(""));
         CHECK_RESULT(engine->RegisterObjectType("Entity", sizeof(entt::entity), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<entt::entity>()));
-        CHECK_RESULT(engine->RegisterObjectMethod("Entity", "void destroy()", asFUNCTION(destroy_entity), asCALL_CDECL_OBJLAST));
+        CHECK_RESULT(engine->RegisterObjectMethod("Entity", "void destroy()", asFUNCTION(entity_destroy), asCALL_CDECL_OBJLAST));
+        CHECK_RESULT(engine->RegisterObjectMethod("Entity", "vec3 get_position()", asFUNCTION(entity_position_get), asCALL_CDECL_OBJLAST));
+        CHECK_RESULT(
+            engine->RegisterObjectMethod("Entity", "void set_position(vec3)", asFUNCTION(entity_position_set), asCALL_CDECL_OBJLAST));
 
         CHECK_RESULT(engine->SetDefaultNamespace("Entity"));
-        CHECK_RESULT(engine->RegisterGlobalFunction("Entity create()", asFUNCTION(create_entity), asCALL_CDECL));
+        CHECK_RESULT(engine->RegisterGlobalFunction("Entity create()", asFUNCTION(entity_create), asCALL_CDECL));
+#endif
     }
 
-    auto create_entity() -> Entity
+    auto entity_create() -> Entity
     {
         auto* sceneSystem = Engine::get().get_system<SystemScene>();
         auto entity = sceneSystem->create_entity();
@@ -31,13 +36,26 @@ namespace rune::scriptglue
         return entity;
     }
 
-    void destroy_entity(Entity* entity)
+    void entity_destroy(Entity* entity)
     {
         auto* sceneSystem = Engine::get().get_system<SystemScene>();
         sceneSystem->destroy_entity(*entity);
         LOG_INFO("scripting - glue - Destroyed entity {}", Entity(*entity));
     }
 
-#pragma endregion
+    auto entity_position_get(Entity* entity) -> glm::vec3
+    {
+        auto* sceneSystem = Engine::get().get_system<SystemScene>();
+        sceneSystem->destroy_entity(*entity);
+        return {};
+    }
 
+    void entity_position_set(Entity* entity, glm::vec3 position)
+    {
+        RUNE_UNUSED(position);
+        auto* sceneSystem = Engine::get().get_system<SystemScene>();
+        sceneSystem->destroy_entity(*entity);
+    }
+
+#pragma endregion
 }

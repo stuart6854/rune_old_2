@@ -6,8 +6,10 @@
 # Build Artifacts
 cmake-build-*/
 bin/
+obj/
 out/
 *.spv
+!Rune/libs/bin
 
 # Other Artifacts
 */log[s]
