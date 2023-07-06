@@ -46,4 +46,11 @@ namespace rune
         WindowHandle targetWindow{};
     };
 
+    struct ScriptBehaviour
+    {
+        DEFINE_COMPONENT_CTORS(ScriptBehaviour);
+
+        std::string scriptClass{};
+    };
+
 }

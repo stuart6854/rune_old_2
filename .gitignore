@@ -8,6 +8,7 @@ cmake-build-*/
 bin/
 obj/
 out/
+*.pdb
 *.spv
 !Rune/libs/bin
 

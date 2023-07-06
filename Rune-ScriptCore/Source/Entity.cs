@@ -4,12 +4,17 @@ namespace Rune
 {
     public class Entity
     {
-        private uint _id;
+        private readonly uint _id;
 
         public static Entity Create()
         {
-            Console.WriteLine("Entity::Create()");
-            return new Entity(0);
+            InternalCalls.Entity_Create(out Entity entity);
+            return entity;
+        }
+        public static void Destroy(ref Entity entity)
+        {
+            InternalCalls.Entity_Destroy(ref entity);
+            entity = null;
         }
 
         private Entity(uint id)
@@ -17,26 +22,22 @@ namespace Rune
             _id = id;
         }
 
-        public void Destroy()
-        {
-            Console.WriteLine("Entity::Destroy()");
-        }
-
-        public T GetComponent<T>()
+        public T GetComponent<T>() where T : Component, new()
         {
             Console.WriteLine("Entity::GetComponent<T>()");
             return default;
         }
 
-        public T AddComponent<T>()
+        public T AddComponent<T>() where T : Component, new()
         {
             Console.WriteLine("Entity::AddComponent<T>()");
             return default;
         }
 
-        public void RemoveComponent<T>()
+        public void RemoveComponent<T>() where T : Component, new()
         {
             Console.WriteLine("Entity::RemoveComponent<T>()");
         }
+
     }
 }

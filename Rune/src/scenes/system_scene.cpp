@@ -5,10 +5,9 @@
 #include "core/engine.hpp"
 #include "rendering/system_renderer.hpp"
 #include "resources/system_resources.hpp"
+#include "scripting/system_scripting.hpp"
 #include "utility/primitives.hpp"
 #include "utility/yaml-conversions.hpp"
-
-#include <entt/entity/registry.hpp>
 
 #include <yaml-cpp/yaml.h>
 
@@ -18,25 +17,6 @@
 
 namespace rune
 {
-    struct LoadedSceneData
-    {
-        std::filesystem::path filename{};
-        std::vector<entt::entity> entities{};
-    };
-
-    struct SystemScene::Pimpl
-    {
-        entt::registry registry{};
-        std::unordered_map<u64, LoadedSceneData> loadedSceneMap{};
-
-        glm::ivec2 lastCursorPos{};
-        glm::vec2 yawPitch{};
-    };
-
-    SystemScene::SystemScene() : m_pimpl(new Pimpl) {}
-
-    SystemScene::~SystemScene() = default;
-
     void SystemScene::initialise()
     {
         clear_scene();
@@ -46,7 +26,17 @@ namespace rune
 
     void SystemScene::update()
     {
-        auto cameraView = m_pimpl->registry.view<Camera, Transform>();
+        auto* scriptSystem = Engine::get().get_system<SystemScripting>();
+        auto scriptView = m_registry.view<ScriptBehaviour>();
+        for (auto entity : scriptView)
+        {
+            const auto& script = scriptView.get<ScriptBehaviour>(entity);
+
+            void* arg = &entity;
+            scriptSystem->invoke_method(script.scriptClass, "Update", &arg);
+        }
+
+        auto cameraView = m_registry.view<Camera, Transform>();
         for (auto entity : cameraView)
         {
             const auto& camera = cameraView.get<Camera>(entity);
@@ -61,8 +51,8 @@ namespace rune
             {
                 // #TODO: Temp camera input/movement
                 auto cursorPos = platformSystem->get_cursor_position(camera.targetWindow);
-                glm::vec2 cursorDelta = cursorPos - m_pimpl->lastCursorPos;
-                m_pimpl->lastCursorPos = cursorPos;
+                glm::vec2 cursorDelta = cursorPos - m_lastCursorPos;
+                m_lastCursorPos = cursorPos;
 
                 if (platformSystem->is_mouse_button_down(camera.targetWindow, Button::Right))
                 {
@@ -88,10 +78,10 @@ namespace rune
                         transform.position += glm::normalize(movement) * 8.0f * Engine::get().get_delta_time();
                     }
 
-                    m_pimpl->yawPitch += glm::vec2{ cursorDelta.y, cursorDelta.x };
-                    m_pimpl->yawPitch.x = glm::clamp(m_pimpl->yawPitch.x, -89.0f, 89.0f);
+                    m_yawPitch += glm::vec2{ cursorDelta.y, cursorDelta.x };
+                    m_yawPitch.x = glm::clamp(m_yawPitch.x, -89.0f, 89.0f);
 
-                    transform.rotation = glm::quat(glm::vec3{ glm::radians(m_pimpl->yawPitch.x), glm::radians(m_pimpl->yawPitch.y), 0.0f });
+                    transform.rotation = glm::quat(glm::vec3{ glm::radians(m_yawPitch.x), glm::radians(m_yawPitch.y), 0.0f });
                 }
             }
 
@@ -108,7 +98,7 @@ namespace rune
                   viewMatrix });
         }
 
-        auto view = m_pimpl->registry.view<Transform, StaticRenderer>();
+        auto view = m_registry.view<Transform, StaticRenderer>();
         for (auto entity : view)
         {
             const auto& transform = view.get<Transform>(entity);
@@ -138,7 +128,7 @@ namespace rune
 
     void SystemScene::clear_scene()
     {
-        m_pimpl->registry = {};
+        m_registry = {};
     }
 
     void SystemScene::load_scene(std::string_view filename, LoadMethod loadMethod)
@@ -152,12 +142,12 @@ namespace rune
 
     auto SystemScene::create_entity() -> Entity
     {
-        return u64(m_pimpl->registry.create());
+        return u64(m_registry.create());
     }
 
     void SystemScene::destroy_entity(Entity entity)
     {
-        m_pimpl->registry.destroy(entt::entity(entity));
+        m_registry.destroy(entt::entity(entity));
     }
 
     void SystemScene::load_yaml_scene(std::filesystem::path filename)
@@ -176,18 +166,18 @@ namespace rune
             return;
         }
 
-        auto& sceneData = m_pimpl->loadedSceneMap[STRID(filename.string())];
+        auto& sceneData = m_loadedSceneMap[STRID(filename.string())];
 
         auto* resourcesSystem = Engine::get().get_system<SystemResources>();
         for (auto&& entityNode : entitiesNode)
         {
-            auto entity = m_pimpl->registry.create();
+            auto entity = m_registry.create();
             sceneData.entities.push_back(entity);
 
             if (entityNode["Transform"])
             {
                 auto node = entityNode["Transform"];
-                auto& transform = m_pimpl->registry.emplace<Transform>(entity);
+                auto& transform = m_registry.emplace<Transform>(entity);
                 transform.position = node["position"].as<glm::vec3>();
                 transform.rotation = glm::quat(node["rotation"].as<glm::vec3>());
                 transform.scale = node["scale"].as<glm::vec3>();
@@ -196,7 +186,7 @@ namespace rune
             if (entityNode["StaticRenderer"])
             {
                 auto node = entityNode["StaticRenderer"];
-                auto& renderer = m_pimpl->registry.emplace<StaticRenderer>(entity);
+                auto& renderer = m_registry.emplace<StaticRenderer>(entity);
 
                 auto meshId = node["mesh"].as<u64>();
                 renderer.mesh = resourcesSystem->get_ptr<StaticMesh>(meshId);
@@ -215,8 +205,15 @@ namespace rune
             if (entityNode["Camera"])
             {
                 auto node = entityNode["Camera"];
-                auto& camera = m_pimpl->registry.emplace<Camera>(entity);
+                auto& camera = m_registry.emplace<Camera>(entity);
                 camera.targetWindow = Engine::get().get_primary_window();
+            }
+
+            if (entityNode["ScriptBehaviour"])
+            {
+                auto node = entityNode["ScriptBehaviour"];
+                auto& script = m_registry.emplace<ScriptBehaviour>(entity);
+                script.scriptClass = node["class"].as<std::string>();
             }
         }
     }

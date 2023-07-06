@@ -18,9 +18,13 @@ namespace rune
         void update() override;
         void shutdown() override;
 
+        void invoke_method(std::string_view className, std::string_view methodName, void** args);
+
     private:
         void init_mono();
         void shutdown_mono();
+
+        void load_core_assembly(const std::filesystem::path& assemblyFilename);
 
     private:
         struct Pimpl;

@@ -2,33 +2,54 @@
 
 #include "common_internal.hpp"
 #include "core/engine.hpp"
+#include "platform/system_platform.hpp"
+#include "scenes/components.hpp"
+
+#include <mono/metadata/loader.h>
 
 #include <entt/entity/entity.hpp>
 
-#define CHECK_RESULT(_x)                 \
-    auto COMBINE(result, __LINE__) = _x; \
-    RUNE_ASSERT(COMBINE(result, __LINE__) >= 0)
-
 namespace rune::scriptglue
 {
-#pragma region Entity
+#define RUNE_ADD_INTERNAL_CALL(_funcName) mono_add_internal_call("Rune.InternalCalls::" #_funcName, _funcName)
 
-    void register_entity_types()
+    void register_functions()
     {
-#if 0
-        CHECK_RESULT(engine->SetDefaultNamespace(""));
-        CHECK_RESULT(engine->RegisterObjectType("Entity", sizeof(entt::entity), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<entt::entity>()));
-        CHECK_RESULT(engine->RegisterObjectMethod("Entity", "void destroy()", asFUNCTION(entity_destroy), asCALL_CDECL_OBJLAST));
-        CHECK_RESULT(engine->RegisterObjectMethod("Entity", "vec3 get_position()", asFUNCTION(entity_position_get), asCALL_CDECL_OBJLAST));
-        CHECK_RESULT(
-            engine->RegisterObjectMethod("Entity", "void set_position(vec3)", asFUNCTION(entity_position_set), asCALL_CDECL_OBJLAST));
-
-        CHECK_RESULT(engine->SetDefaultNamespace("Entity"));
-        CHECK_RESULT(engine->RegisterGlobalFunction("Entity create()", asFUNCTION(entity_create), asCALL_CDECL));
-#endif
+        register_time_functions();
+        register_entity_functions();
     }
 
-    auto entity_create() -> Entity
+#pragma region Time
+
+    void register_time_functions()
+    {
+        RUNE_ADD_INTERNAL_CALL(Time_GetDelta);
+        RUNE_ADD_INTERNAL_CALL(Time_GetSinceStartup);
+    }
+
+    auto Time_GetDelta() -> float
+    {
+        return Engine::get().get_delta_time();
+    }
+
+    auto Time_GetSinceStartup() -> float
+    {
+        return f32(Engine::get().get_system<SystemPlatform>()->get_time());
+    }
+
+#pragma endregion
+
+#pragma region Entity
+
+    void register_entity_functions()
+    {
+        RUNE_ADD_INTERNAL_CALL(Entity_Create);
+        RUNE_ADD_INTERNAL_CALL(Entity_Destroy);
+        RUNE_ADD_INTERNAL_CALL(Entity_GetPosition);
+        RUNE_ADD_INTERNAL_CALL(Entity_SetPosition);
+    }
+
+    auto Entity_Create() -> Entity
     {
         auto* sceneSystem = Engine::get().get_system<SystemScene>();
         auto entity = sceneSystem->create_entity();
@@ -36,25 +57,25 @@ namespace rune::scriptglue
         return entity;
     }
 
-    void entity_destroy(Entity* entity)
+    void Entity_Destroy(Entity* entity)
     {
         auto* sceneSystem = Engine::get().get_system<SystemScene>();
         sceneSystem->destroy_entity(*entity);
         LOG_INFO("scripting - glue - Destroyed entity {}", Entity(*entity));
     }
 
-    auto entity_position_get(Entity* entity) -> glm::vec3
+    void Entity_GetPosition(Entity* entity, glm::vec3* position)
     {
         auto* sceneSystem = Engine::get().get_system<SystemScene>();
-        sceneSystem->destroy_entity(*entity);
-        return {};
+        auto* transform = sceneSystem->get_component<Transform>(*entity);
+        *position = transform->position;
     }
 
-    void entity_position_set(Entity* entity, glm::vec3 position)
+    void Entity_SetPosition(Entity* entity, glm::vec3* position)
     {
-        RUNE_UNUSED(position);
         auto* sceneSystem = Engine::get().get_system<SystemScene>();
-        sceneSystem->destroy_entity(*entity);
+        auto* transform = sceneSystem->get_component<Transform>(*entity);
+        transform->position = *position;
     }
 
 #pragma endregion
