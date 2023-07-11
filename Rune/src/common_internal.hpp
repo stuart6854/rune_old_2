@@ -5,6 +5,8 @@
 #include "core/engine.hpp"
 #include "core/system_logging.hpp"
 
+#include <tracy/Tracy.hpp>
+
 #include <source_location>
 
 #define GLFW_NATIVE_INCLUDE_NONE
@@ -51,6 +53,13 @@
             }                                                                                              \
         } while (false)
 
+    #define RUNE_PROFILE_SCOPE() ZoneScoped
+    #define RUNE_PROFILE_FRAME() FrameMark
+    #define RUNE_PROFILE_SECTION(_x) ZoneScopedN(_x)
+    #define RUNE_PROFILE_TAG(_x) ZoneText(_x, strlen(_x))               // Give regions more detail
+    #define RUNE_PROFILE_LOG(_text, _size) TracyMessage(_text, _size)   // Send logs to Tracy app (view logs alongside profile data)
+    #define RUNE_PROFILE_VALUE(_text, _value) TracyPlot(_text, _value)  // Plot numbers
+
 #elif defined(RUNE_BUILD_DISTRO)
     #define LOG_TRACE(...)
     #define LOG_DEBUG(...)
@@ -61,6 +70,13 @@
 
     #define RUNE_DEBUG_BREAK()
     #define RUNE_ASSERT(_expr)
+
+    #define RUNE_PROFILE_SCOPE()
+    #define RUNE_PROFILE_FRAME()
+    #define RUNE_PROFILE_SECTION(_x)
+    #define RUNE_PROFILE_TAG(_x)
+    #define RUNE_PROFILE_LOG(_text, _size)
+    #define RUNE_PROFILE_VALUE(_text, _value)
 #else
     #error Rune build type has not been defined!
 #endif

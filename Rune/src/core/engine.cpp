@@ -188,6 +188,8 @@ namespace rune
         auto lastTime = get_system<SystemPlatform>()->get_time();
         while (m_isRunning)
         {
+            RUNE_PROFILE_FRAME();
+
             auto time = get_system<SystemPlatform>()->get_time();
             m_deltaTime = f32(time - lastTime);
             lastTime = time;
@@ -207,6 +209,8 @@ namespace rune
 
     void Engine::initialise()
     {
+        RUNE_PROFILE_SCOPE();
+
         set_system_priority<SystemLogging>(100);
         provide_system<SystemLogging>(std::make_unique<SystemLogging>(m_config.logDirPath));
 
@@ -234,6 +238,10 @@ namespace rune
         }
         LOG_INFO("All systems initialised.");
 
+#ifdef TRACY_ENABLE
+        LOG_INFO("Profiling enabled.");
+#endif
+
         m_primaryWindow = get_system<SystemPlatform>()->create_window(1280, 720, "Rune");
         get_system<SystemPlatform>()->show_window(m_primaryWindow);
 
@@ -245,6 +253,8 @@ namespace rune
 
     void Engine::update()
     {
+        RUNE_PROFILE_SCOPE();
+
         for (auto [system, _] : m_systemPriorityVec)
         {
             m_systemMap.at(system)->update();

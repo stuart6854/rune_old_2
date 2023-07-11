@@ -26,6 +26,8 @@ namespace rune
 
     void SystemScene::update()
     {
+        RUNE_PROFILE_SCOPE();
+
         auto* scriptSystem = Engine::get().get_system<SystemScripting>();
         auto scriptView = m_registry.view<ScriptBehaviour>();
         for (auto entity : scriptView)
@@ -133,6 +135,8 @@ namespace rune
 
     void SystemScene::load_scene(std::string_view filename, LoadMethod loadMethod)
     {
+        RUNE_PROFILE_SCOPE();
+
         RUNE_UNUSED(loadMethod);
 
         load_yaml_scene(filename);

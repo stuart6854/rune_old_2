@@ -1,4 +1,10 @@
 CPMAddPackage("gh:gabime/spdlog#v1.11.0")
+CPMAddPackage(
+        NAME tracy
+        GITHUB_REPOSITORY wolfpld/tracy
+        GIT_TAG v0.9.1
+)
+
 CPMAddPackage("gh:g-truc/glm#0.9.9.8")
 CPMAddPackage(
         NAME glfw

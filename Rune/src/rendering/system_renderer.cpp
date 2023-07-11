@@ -101,6 +101,8 @@ namespace rune
 
     void SystemRenderer::shutdown()
     {
+        RUNE_PROFILE_SCOPE();
+
         gfx::wait_for_device_idle(m_device);
         gfx::destroy_device(m_device);
         gfx::shutdown();
@@ -110,6 +112,8 @@ namespace rune
 
     void SystemRenderer::render_camera(const RenderCamera& camera)
     {
+        RUNE_PROFILE_SCOPE();
+
         if (!m_swapchainMap.contains(camera.targetWindow))
         {
             auto* platformSystem = Engine::get().get_system<SystemPlatform>();
@@ -135,6 +139,8 @@ namespace rune
 
     void SystemRenderer::render_static_mesh(const StaticMesh* mesh, const std::vector<Material*>& materials, const glm::mat4& transform)
     {
+        RUNE_PROFILE_SCOPE();
+
         if (mesh == nullptr)
         {
             return;
@@ -160,6 +166,8 @@ namespace rune
 
     void SystemRenderer::flush()
     {
+        RUNE_PROFILE_SCOPE();
+
         // #TODO: Setup global uniform data
 
         m_frameIndex = (m_frameIndex + 1) % FRAME_BUFFER_COUNT;
@@ -212,6 +220,8 @@ namespace rune
 
     void SystemRenderer::flush_camera(const RenderCamera& camera)
     {
+        RUNE_PROFILE_SCOPE();
+
         RUNE_ASSERT(m_swapchainMap.contains(camera.targetWindow));
 
         auto swapchainHandle = m_swapchainMap.at(camera.targetWindow);
@@ -268,11 +278,16 @@ namespace rune
         frameData.semaphores.push_back(semaphoreHandle);
         frameData.commandLists.push_back(cmdList);
 
-        gfx::present_swap_chain(swapchainHandle, 0, &semaphoreHandle);
+        {
+            RUNE_PROFILE_SECTION("Present");
+            gfx::present_swap_chain(swapchainHandle, 0, &semaphoreHandle);
+        }
     }
 
     void SystemRenderer::geometry_pass(gfx::CommandListHandle cmdList)
     {
+        RUNE_PROFILE_SCOPE();
+
         gfx::bind_pipeline(cmdList, m_pipeline);
         gfx::bind_descriptor_sets(cmdList, 0, { m_set });
         for (const auto& drawCall : m_drawCalls)

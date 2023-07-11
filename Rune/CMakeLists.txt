@@ -14,7 +14,7 @@ target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURR
 target_include_directories(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 target_include_directories(${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(${TARGET_NAME} PUBLIC rune::assetlib spdlog glm::glm glfw AudioFile OpenAL::OpenAL gfx EnTT::EnTT yaml-cpp::yaml-cpp stb mono)
+target_link_libraries(${TARGET_NAME} PUBLIC rune::assetlib spdlog Tracy::TracyClient glm::glm glfw AudioFile OpenAL::OpenAL gfx EnTT::EnTT yaml-cpp::yaml-cpp stb mono)
 
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 
@@ -27,9 +27,9 @@ else ()
 endif ()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    target_compile_definitions(${TARGET_NAME} PUBLIC RUNE_BUILD_DEBUG)
+    target_compile_definitions(${TARGET_NAME} PUBLIC RUNE_BUILD_DEBUG TRACY_ENABLE)
 elseif (CMAKE_BUILD_TYPE MATCHES Release)
-    target_compile_definitions(${TARGET_NAME} PUBLIC RUNE_BUILD_RELEASE)
+    target_compile_definitions(${TARGET_NAME} PUBLIC RUNE_BUILD_RELEASE TRACY_ENABLE)
 elseif (CMAKE_BUILD_TYPE MATCHES Distro)
     target_compile_definitions(${TARGET_NAME} PUBLIC RUNE_BUILD_DISTRO)
 endif ()
