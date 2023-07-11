@@ -1,6 +1,7 @@
 #include <rune/assetlib/mesh/static_mesh.hpp>
 #include <cxxopts.hpp>
 
+#include <regex>
 #include <string>
 #include <format>
 #include <fstream>
@@ -26,6 +27,32 @@ using namespace rune::assetlib;
         }                       \
     } while (false)
 
+static auto wildcardToRegex(const std::string& wildcardStr, bool caseSensitive = true) -> std::regex
+{
+    // Note It is possible to automate checking if filesystem is case sensitive or not (e.g. by performing a test first time this function
+    // is ran)
+    std::string regexString{ wildcardStr };
+    // Escape all regex special chars:
+    regexString = std::regex_replace(regexString, std::regex("\\\\"), "\\\\");
+    regexString = std::regex_replace(regexString, std::regex("\\^"), "\\^");
+    regexString = std::regex_replace(regexString, std::regex("\\."), "\\.");
+    regexString = std::regex_replace(regexString, std::regex("\\$"), "\\$");
+    regexString = std::regex_replace(regexString, std::regex("\\|"), "\\|");
+    regexString = std::regex_replace(regexString, std::regex("\\("), "\\(");
+    regexString = std::regex_replace(regexString, std::regex("\\)"), "\\)");
+    regexString = std::regex_replace(regexString, std::regex("\\{"), "\\{");
+    regexString = std::regex_replace(regexString, std::regex("\\{"), "\\}");
+    regexString = std::regex_replace(regexString, std::regex("\\["), "\\[");
+    regexString = std::regex_replace(regexString, std::regex("\\]"), "\\]");
+    regexString = std::regex_replace(regexString, std::regex("\\+"), "\\+");
+    regexString = std::regex_replace(regexString, std::regex("\\/"), "\\/");
+    // Convert wildcard specific chars '*?' to their regex equivalents:
+    regexString = std::regex_replace(regexString, std::regex("\\?"), ".");
+    regexString = std::regex_replace(regexString, std::regex("\\*"), ".*");
+
+    return std::regex(regexString, caseSensitive ? std::regex_constants::ECMAScript : std::regex_constants::icase);
+}
+
 std::vector<mesh::StaticMesh> importedMeshesStatic{};
 
 int main(int argc, char** argv)
@@ -47,8 +74,8 @@ int main(int argc, char** argv)
     auto result = options.parse(argc, argv);
 
     // Any input files?
-    const auto& inputFiles = result.unmatched();
-    if (inputFiles.empty())
+    const auto& inputRegexes = result.unmatched();
+    if (inputRegexes.empty())
     {
         std::cout << options.help() << std::endl;
         return 0;
@@ -57,7 +84,27 @@ int main(int argc, char** argv)
     const bool verbosePrint = result["verbose"].as<bool>();
     const bool batchExport = result["batch"].as<bool>();
 
-    for (const auto& inputFile : inputFiles)
+    // Treat input files/paths as regex & use then to get a list of files
+    std::vector<std::string> files{};
+    std::filesystem::recursive_directory_iterator directoryIterator(std::filesystem::current_path());
+    for (const auto& dirEntry : directoryIterator)
+    {
+        for (const auto& inputRegexStr : inputRegexes)
+        {
+            if (!dirEntry.is_regular_file())
+            {
+                continue;
+            }
+
+            const auto reg = wildcardToRegex(inputRegexStr);
+            if (std::regex_match(dirEntry.path().string(), reg))
+            {
+                files.push_back(dirEntry.path().string());
+            }
+        }
+    }
+
+    for (const auto& inputFile : files)
     {
         PRINT("Importing => {}", inputFile);
         auto importedMeshes = mesh::import_static_mesh_raw(inputFile);
