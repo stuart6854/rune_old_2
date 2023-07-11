@@ -18,10 +18,14 @@ namespace rune::assetlib::mesh
     {
         void assimp_process_mesh(StaticMesh& outMesh, aiMesh* mesh, const aiScene* /*scene*/)
         {
-            outMesh.positions.resize(mesh->mNumVertices);
-            outMesh.normals.resize(mesh->mNumVertices);
-            outMesh.texCoords.resize(mesh->mNumVertices);
-            outMesh.triangles.resize(mesh->mNumFaces * 3);
+            auto& submesh = outMesh.submeshes.emplace_back();
+            submesh.indexOffset = std::uint32_t(outMesh.triangles.size());
+            submesh.indexCount = std::uint32_t(mesh->mNumFaces * 3);
+
+            outMesh.positions.resize(outMesh.positions.size() + mesh->mNumVertices);
+            outMesh.normals.resize(outMesh.normals.size() + mesh->mNumVertices);
+            outMesh.texCoords.resize(outMesh.texCoords.size() + mesh->mNumVertices);
+            outMesh.triangles.resize(outMesh.triangles.size() + mesh->mNumFaces * 3);
 
             for (auto i = 0u; i < mesh->mNumVertices; ++i)
             {
