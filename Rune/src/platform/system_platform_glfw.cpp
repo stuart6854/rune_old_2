@@ -20,6 +20,8 @@ namespace rune
     };
 
     void window_size_callback(GLFWwindow* window, i32 width, i32 height);
+    void cursor_pos_callback(GLFWwindow* window, double x, double y);
+    void mouse_btn_callback(GLFWwindow* window, int btn, int action, int mods);
 
     SystemPlatformGLFW::SystemPlatformGLFW() : m_pimpl(new Pimpl) {}
 
@@ -64,7 +66,14 @@ namespace rune
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         auto* glfwWindow = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
 
+        glfwSetWindowUserPointer(glfwWindow, this);
+
         glfwSetWindowSizeCallback(glfwWindow, window_size_callback);
+        glfwSetCursorPosCallback(glfwWindow, cursor_pos_callback);
+        glfwSetMouseButtonCallback(glfwWindow, mouse_btn_callback);
+
+        // Trigger some callbacks
+        window_size_callback(glfwWindow, width, height);
 
         return glfwWindow;
     }
@@ -260,6 +269,33 @@ namespace rune
         event.context = window;
         event.payload.int32[0] = width;
         event.payload.int32[1] = height;
+        Engine::get().get_system<SystemEvents>()->post_event(event);
+    }
+
+    void cursor_pos_callback(GLFWwindow* window, double x, double y)
+    {
+        Event event{};
+        event.type = EventType::InputCursorPos;
+        event.context = window;
+        event.payload.float32[0] = f32(x);
+        event.payload.float32[1] = f32(y);
+        Engine::get().get_system<SystemEvents>()->post_event(event);
+    }
+
+    void mouse_btn_callback(GLFWwindow* window, int btn, int action, int mods)
+    {
+        RUNE_UNUSED(mods);
+
+        if (action == GLFW_REPEAT)
+        {
+            return;  // Ignore repeat input
+        }
+
+        Event event{};
+        event.type = EventType::InputButton;
+        event.context = window;
+        event.payload.uint32[0] = btn;
+        event.payload.uint32[0] = action == GLFW_PRESS;
         Engine::get().get_system<SystemEvents>()->post_event(event);
     }
 
