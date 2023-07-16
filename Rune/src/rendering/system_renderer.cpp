@@ -216,7 +216,7 @@ namespace rune
 
     void SystemRenderer::on_event_recieved(const Event& msg)
     {
-        LOG_INFO("Event: {}", u64(msg.type));
+        RUNE_UNUSED(msg);
         // #TODO: Recreate render resources (attachments, etc.)
     }
 
