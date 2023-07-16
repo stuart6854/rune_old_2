@@ -1,6 +1,7 @@
 #include "ui/system_imgui.hpp"
 
 #include "common_internal.hpp"
+#include "core/engine.hpp"
 
 #include <imgui.h>
 
@@ -18,7 +19,8 @@ namespace rune
         // ImGui::StyleColorsLight();
 
         // Setup backend
-        // #TODO: Plug into platform backend
+        auto* eventSystem = Engine::get().get_system<SystemEvents>();
+        eventSystem->register_receiver([this](const Event& event) { receive_event(event); });
         // #TODO: Plug into renderer backend
 
         // Load fonts
@@ -29,6 +31,9 @@ namespace rune
 
     void SystemImGui::update()
     {
+        auto& io = ImGui::GetIO();
+        io.DeltaTime = Engine::get().get_delta_time();
+
         ImGui::NewFrame();
         ImGui::Render();
         auto* drawData = ImGui::GetDrawData();
@@ -38,10 +43,38 @@ namespace rune
 
     void SystemImGui::shutdown()
     {
-        // #TODO: Unplug from platform backend
+        // #TODO: Unregister event receiver
         // #TODO: Unplug from renderer backend
 
         ImGui::DestroyContext();
+    }
+
+    void SystemImGui::receive_event(const Event& event)
+    {
+        auto* primaryWindow = Engine::get().get_primary_window();
+        if (event.context != primaryWindow)
+        {
+            return;
+        }
+
+        auto& io = ImGui::GetIO();
+        if (event.type == EventType::WindowSize)
+        {
+            io.DisplaySize.x = f32(event.payload.int32[0]);
+            io.DisplaySize.y = f32(event.payload.int32[1]);
+        }
+        else if (event.type == EventType::InputButton)
+        {
+            auto btn = event.payload.uint32[0];
+            auto isDown = event.payload.uint32[1];
+            io.AddMouseButtonEvent(i32(btn), isDown);
+        }
+        else if (event.type == EventType::InputCursorPos)
+        {
+            auto x = event.payload.float32[0];
+            auto y = event.payload.float32[1];
+            io.AddMousePosEvent(x, y);
+        }
     }
 
 }
