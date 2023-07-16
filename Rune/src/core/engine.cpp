@@ -9,6 +9,7 @@
 #include "rendering/system_renderer.hpp"
 #include "scripting/system_scripting.hpp"
 #include "resources/system_resources.hpp"
+#include "ui/system_imgui.hpp"
 #include "scenes/system_scene.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
@@ -228,6 +229,9 @@ namespace rune
 
         set_system_priority<SystemResources>(20);
         provide_system<SystemResources>(std::make_unique<SystemResources>());
+
+        set_system_priority<SystemImGui>(10);
+        provide_system<SystemImGui>(std::make_unique<SystemImGui>());
 
         set_system_priority<SystemScene>(10);
         provide_system<SystemScene>(std::make_unique<SystemScene>());

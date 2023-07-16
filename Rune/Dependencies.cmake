@@ -52,3 +52,14 @@ CPMAddPackage(
         "YAML_CPP_BUILD_CONTRIB OFF"
         "YAML_CPP_BUILD_TOOLS OFF"
 )
+CPMAddPackage("gh:ocornut/imgui#v1.89.7")
+add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp # optionally comment this out
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        )
+message(${imgui_SOURCE_DIR})
+target_include_directories(imgui INTERFACE ${imgui_SOURCE_DIR})
+target_compile_definitions(imgui PUBLIC -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS) # optional imgui setting

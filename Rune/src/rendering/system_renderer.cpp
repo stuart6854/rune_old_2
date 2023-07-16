@@ -7,6 +7,8 @@
 #include "platform/system_platform.hpp"
 #include "io/io.hpp"
 
+#include <imgui.h>
+
 #include <array>
 #include <memory>
 #include <vector>
