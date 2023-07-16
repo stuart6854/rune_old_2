@@ -13,6 +13,7 @@ namespace rune
         WindowSize,
         InputKey,
         InputButton,
+        InputCursorPos,
     };
 
     struct Event
