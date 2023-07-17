@@ -4,8 +4,12 @@
 #include "core/system.hpp"
 #include "events/system_events.hpp"
 
+#include <gfx/gfx.hpp>
+
 namespace rune
 {
+    using namespace sm;
+
     class SystemImGui : public ISystem
     {
     public:
@@ -17,5 +21,7 @@ namespace rune
         static void receive_event(const Event& event);
 
     private:
+        gfx::TextureHandle m_fontTexture{};
+        gfx::DescriptorSetHandle m_fontTextureSet{};
     };
 }
