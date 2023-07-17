@@ -166,6 +166,11 @@ namespace rune
         drawCall.material = materialId;
     }
 
+    void SystemRenderer::bind_custom_ui_render_func(SystemRenderer::CustomRenderFunc&& customRenderFunc)
+    {
+        m_customUIRenderFunc = customRenderFunc;
+    }
+
     void SystemRenderer::flush()
     {
         RUNE_PROFILE_SCOPE();
@@ -264,6 +269,7 @@ namespace rune
             gfx::set_scissor(cmdList, 0, 0, camera.targetWindowSize.x, camera.targetWindowSize.y);
 
             geometry_pass(cmdList);
+            ui_pass(cmdList);
         }
         gfx::end_render_pass(cmdList);
 
@@ -304,6 +310,14 @@ namespace rune
             const auto& instance = m_instances.at(drawCall.instance);
             gfx::set_constants(cmdList, gfx::ShaderStageFlags_Vertex, 0, sizeof(instance), &instance);
             gfx::draw_indexed(cmdList, renderMesh.indexCount, 1, 0, 0, 0);
+        }
+    }
+
+    void SystemRenderer::ui_pass(sm::gfx::CommandListHandle cmdList)
+    {
+        if (m_customUIRenderFunc)
+        {
+            m_customUIRenderFunc(cmdList, m_frameIndex);
         }
     }
 

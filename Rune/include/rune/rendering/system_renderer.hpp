@@ -60,6 +60,7 @@ namespace rune
     class Texture;
     class Material;
 
+    using namespace sm;
     class SystemRenderer : public ISystem
     {
     public:
@@ -71,6 +72,9 @@ namespace rune
         void render_static_mesh(const StaticMesh* mesh,
                                 const std::vector<Material*>& materials,
                                 const glm::mat4& transform = glm::mat4{ 1.0f });
+
+        using CustomRenderFunc = std::function<void(gfx::CommandListHandle cmdList, u32 frameIndex)>;
+        void bind_custom_ui_render_func(CustomRenderFunc&& customRenderFunc);
 
         void flush();
 
@@ -97,6 +101,7 @@ namespace rune
 
         void flush_camera(const RenderCamera& camera);
         void geometry_pass(sm::gfx::CommandListHandle cmdList);
+        void ui_pass(sm::gfx::CommandListHandle cmdList);
 
     private:
         sm::gfx::DeviceHandle m_device{};
@@ -109,6 +114,8 @@ namespace rune
         std::vector<glm::mat4> m_instances{};
         std::vector<RenderMesh> m_meshes{};
         std::vector<Material*> m_materials{};
+
+        CustomRenderFunc m_customUIRenderFunc{};
 
         sm::gfx::TextureHandle m_depthAttachment{};
 
