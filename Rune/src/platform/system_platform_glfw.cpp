@@ -295,7 +295,7 @@ namespace rune
         event.type = EventType::InputButton;
         event.context = window;
         event.payload.uint32[0] = btn;
-        event.payload.uint32[0] = action == GLFW_PRESS;
+        event.payload.uint32[1] = action == GLFW_PRESS;
         Engine::get().get_system<SystemEvents>()->post_event(event);
     }
 
