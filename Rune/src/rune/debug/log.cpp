@@ -25,7 +25,16 @@ namespace rune::debug
         s_clientLogger = create_shared<spdlog::logger>("Client", sinks.begin(), sinks.end());
     }
 
-    void shutdown() {}
+    void shutdown()
+    {
+        s_clientLogger->flush();
+        s_clientLogger = nullptr;
+
+        s_engineLogger->flush();
+        s_engineLogger = nullptr;
+
+        spdlog::shutdown();
+    }
 
     void log_engine(const char* file, i32 line, LogLevel level, std::string_view msg)
     {
