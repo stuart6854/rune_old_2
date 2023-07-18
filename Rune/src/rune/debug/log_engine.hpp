@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rune/common.hpp"
+#include "rune/debug/log.hpp"
 
 #include <format>
 #include <string_view>
