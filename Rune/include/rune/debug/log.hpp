@@ -13,7 +13,7 @@ namespace rune::debug
         Debug,
         Info,
         Warn,
-        Err,
+        Error,
         Critical,
         Off,
     };
@@ -26,7 +26,7 @@ namespace rune::debug
     template <typename... Args>
     void log_client(const char* file, i32 line, LogLevel level, std::string_view fmt, Args&&... args)
     {
-        log_client(file, line, level, std::format(fmt, std::forward(args)...));
+        log_client(file, line, level, std::vformat(fmt, std::make_format_args(args...)));
     }
 }
 
