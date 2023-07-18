@@ -1,5 +1,6 @@
 #include "rune/debug/log.hpp"
 #include "log_engine.hpp"
+#include "assert_engine.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -38,11 +39,15 @@ namespace rune::debug
 
     void log_engine(const char* file, i32 line, LogLevel level, std::string_view msg)
     {
+        RUNE_ENG_ASSERT(s_engineLogger != nullptr);
+
         s_engineLogger->log(spdlog::source_loc{ file, line, "" }, spdlog::level::level_enum(level), msg);
     }
 
     void log_client(const char* file, i32 line, LogLevel level, std::string_view msg)
     {
+        RUNE_ENG_ASSERT(s_clientLogger != nullptr);
+
         s_clientLogger->log(spdlog::source_loc{ file, line, "" }, spdlog::level::level_enum(level), msg);
     }
 

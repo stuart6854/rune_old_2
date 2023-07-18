@@ -1,6 +1,7 @@
 #include "rune/platform/platform.hpp"
 
 #include "rune/debug/log_engine.hpp"
+#include "rune/debug/assert_engine.hpp"
 
 #ifdef RUNE_PLATFORM_WINDOWS
 
@@ -17,6 +18,7 @@ namespace rune::platform
 
     bool initialise()
     {
+        RUNE_ENG_ASSERT(s_platform == nullptr);
         s_platform = create_owned<PlatformData>();
 
         if (!glfwInit())
@@ -32,6 +34,7 @@ namespace rune::platform
 
     bool shutdown()
     {
+        RUNE_ENG_ASSERT(s_platform != nullptr);
         for (auto& [handle, window] : s_platform->windowMap)
         {
             glfwDestroyWindow((GLFWwindow*)handle);
@@ -49,11 +52,14 @@ namespace rune::platform
 
     void update()
     {
+        RUNE_ENG_ASSERT(s_platform != nullptr);
         glfwPollEvents();
     }
 
     auto create_window(std::string_view title, i32 width, i32 height) -> WindowPtr
     {
+        RUNE_ENG_ASSERT(s_platform != nullptr);
+
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         auto glfwWindow = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
 
@@ -64,6 +70,8 @@ namespace rune::platform
 
     void destroy_window(WindowPtr window)
     {
+        RUNE_ENG_ASSERT(s_platform != nullptr);
+
         auto* glfwWindow = (GLFWwindow*)window->handle();
 
         auto it = s_platform->windowMap.find(glfwWindow);

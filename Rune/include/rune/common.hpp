@@ -40,3 +40,11 @@ namespace rune
         return std::make_shared<T>(std::forward<Args>(args)...);
     }
 }
+
+#if defined(RUNE_DEBUG) || defined(RUNE_RELEASE)
+    #ifdef RUNE_PLATFORM_WINDOWS
+        #define RUNE_DEBUG_BREAK() __debugbreak()
+    #endif
+#else
+    #define RUNE_DEBUG_BREAK()
+#endif
