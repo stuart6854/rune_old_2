@@ -18,6 +18,8 @@ namespace rune
         bool initialise();
         bool shutdown();
 
+        void main_loop();
+
     private:
         EngineConfig m_config{};
     };
