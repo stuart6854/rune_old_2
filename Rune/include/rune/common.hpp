@@ -1,7 +1,9 @@
 #pragma once
 
+#include <memory>
 #include <cstdint>
 #include <cstddef>
+#include <functional>
 
 namespace rune
 {
@@ -19,4 +21,22 @@ namespace rune
 
     using f32 = float;
     using f64 = double;
+
+    template <typename T>
+    using Owned = std::unique_ptr<T>;
+
+    template <typename T>
+    using Shared = std::shared_ptr<T>;
+
+    template <typename T, typename... Args>
+    auto create_owned(Args&&... args) -> Owned<T>
+    {
+        return std::make_unique<T>(std::forward<Args>(args)...);
+    }
+
+    template <typename T, typename... Args>
+    auto create_shared(Args&&... args) -> Shared<T>
+    {
+        return std::make_shared<T>(std::forward<Args>(args)...);
+    }
 }

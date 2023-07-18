@@ -7,22 +7,22 @@
 
 namespace rune::debug
 {
-    static std::shared_ptr<spdlog::logger> s_engineLogger{ nullptr };
-    static std::shared_ptr<spdlog::logger> s_clientLogger{ nullptr };
+    static Shared<spdlog::logger> s_engineLogger{ nullptr };
+    static Shared<spdlog::logger> s_clientLogger{ nullptr };
 
     void initialise(const std::string& logOutputDir)
     {
         spdlog::set_level(spdlog::level::trace);
 
-        auto sharedFileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logOutputDir + "/log.txt");
-        auto sharedConsoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        auto sharedFileSink = create_shared<spdlog::sinks::basic_file_sink_mt>(logOutputDir + "/log.txt");
+        auto sharedConsoleSink = create_shared<spdlog::sinks::stdout_color_sink_mt>();
 
         std::vector<spdlog::sink_ptr> sinks{
             sharedConsoleSink,
             sharedFileSink,
         };
-        s_engineLogger = std::make_shared<spdlog::logger>("Engine", sinks.begin(), sinks.end());
-        s_clientLogger = std::make_shared<spdlog::logger>("Client", sinks.begin(), sinks.end());
+        s_engineLogger = create_shared<spdlog::logger>("Engine", sinks.begin(), sinks.end());
+        s_clientLogger = create_shared<spdlog::logger>("Client", sinks.begin(), sinks.end());
     }
 
     void shutdown() {}
