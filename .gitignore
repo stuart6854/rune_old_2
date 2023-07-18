@@ -1,0 +1,11 @@
+# Build Artifacts
+bin/
+bin-int/
+
+# Solution/Project Artifacts
+.vs/
+.vscode/
+*.sln
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
