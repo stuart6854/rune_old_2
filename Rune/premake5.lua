@@ -22,7 +22,8 @@ project "Rune"
 
     externalincludedirs
     {
-        "vendor/*/include"
+        "vendor/*/include",
+        "../vendor/glm"
     }
 
     flags

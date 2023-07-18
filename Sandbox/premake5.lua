@@ -23,6 +23,7 @@ project "Sandbox"
     externalincludedirs
     {
         "../Rune/include"
+        "../vendor/glm"
     }
 
     links
