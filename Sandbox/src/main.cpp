@@ -5,6 +5,7 @@ int main()
     using namespace rune;
 
     EngineConfig config{};
+    config.logOutputDir = "./logs";
 
     Engine engine{};
 

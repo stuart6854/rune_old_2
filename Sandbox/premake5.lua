@@ -7,6 +7,8 @@ project "Sandbox"
     targetdir("bin/" .. outputdir .. "/%{prj.name}")
     objdir("bin-int/" .. outputdir .. "/%{prj.name}")
 
+    debugdir "%{prj.location}"
+
     files
     {
         "src/**.cpp"
