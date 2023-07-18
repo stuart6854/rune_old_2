@@ -28,6 +28,7 @@ project "Sandbox"
 
     links
     {
+        "../Rune/vendor/glfw/lib/glfw3_mt",
         "Rune"
     }
 
