@@ -65,7 +65,11 @@ namespace rune::platform
 
         s_platform->windowMap.emplace(glfwWindow, Window(glfwWindow));
 
-        return &s_platform->windowMap.at(glfwWindow);
+        auto windowPtr = &s_platform->windowMap.at(glfwWindow);
+
+        RUNE_ENG_DEBUG("Platform: Window created. title={}, size={}", title, windowPtr->size());
+
+        return windowPtr;
     }
 
     void destroy_window(WindowPtr window)
@@ -80,6 +84,8 @@ namespace rune::platform
 
         glfwDestroyWindow(glfwWindow);
         s_platform->windowMap.erase(glfwWindow);
+
+        RUNE_ENG_DEBUG("Platform: Window destroyed.");
     }
 
     Window::Window(void* handle) : m_handle(handle) {}
