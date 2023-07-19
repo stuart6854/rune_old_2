@@ -118,6 +118,11 @@ namespace rune::platform
         return get_window_fb_size((WindowPtr)this);
     }
 
+    bool Window::close_requested()
+    {
+        return platform::get_window_close_requested((WindowPtr)this);
+    }
+
     auto get_window_title(WindowPtr window) -> std::string_view
     {
         return window->title();
@@ -137,6 +142,11 @@ namespace rune::platform
         return size;
     }
 
+    bool get_window_close_requested(WindowPtr window)
+    {
+        return glfwWindowShouldClose((GLFWwindow*)window->handle());
+    }
+
     void on_window_size(GLFWwindow* glfwWindow, double w, double h)
     {
         auto* platform = static_cast<PlatformData*>(glfwGetWindowUserPointer(glfwWindow));
@@ -144,6 +154,7 @@ namespace rune::platform
         auto& window = platform->windowMap.at(glfwWindow);
         platform->events->post(EVENT_WINDOW_SIZE(&window, w, h));
     }
+
 }
 
 #endif

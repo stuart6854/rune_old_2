@@ -26,6 +26,8 @@ namespace rune::platform
         auto size() const -> glm::ivec2;
         auto fb_size() const -> glm::ivec2;
 
+        bool close_requested();
+
     private:
         void* m_handle{ nullptr };
         std::string m_title{};
@@ -38,4 +40,6 @@ namespace rune::platform
     auto get_window_title(WindowPtr window) -> std::string_view;
     auto get_window_size(WindowPtr window) -> glm::ivec2;
     auto get_window_fb_size(WindowPtr window) -> glm::ivec2;
+
+    bool get_window_close_requested(WindowPtr window);
 }
