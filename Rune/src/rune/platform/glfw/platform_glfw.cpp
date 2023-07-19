@@ -12,14 +12,19 @@ namespace rune::platform
 {
     struct PlatformData
     {
+        Events* events{ nullptr };
         std::unordered_map<GLFWwindow*, Window> windowMap{};
     };
     static Owned<PlatformData> s_platform{ nullptr };
 
-    bool initialise()
+    void on_window_size(GLFWwindow* window, double w, double h);
+
+    bool initialise(Events& events)
     {
         RUNE_ENG_ASSERT(s_platform == nullptr);
         s_platform = create_owned<PlatformData>();
+
+        s_platform->events = &events;
 
         if (!glfwInit())
         {
@@ -62,14 +67,16 @@ namespace rune::platform
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         auto glfwWindow = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
+        glfwSetWindowUserPointer(glfwWindow, s_platform.get());
 
         s_platform->windowMap.emplace(glfwWindow, Window(glfwWindow));
+        WindowPtr window = &s_platform->windowMap.at(glfwWindow);
 
-        auto windowPtr = &s_platform->windowMap.at(glfwWindow);
+        s_platform->events->post(EVENT_WINDOW_CREATE(window));
 
-        RUNE_ENG_DEBUG("Platform: Window created. title={}, size={}", title, windowPtr->size());
+        RUNE_ENG_DEBUG("Platform: Window created. title={}, size={}", title, window->size());
 
-        return windowPtr;
+        return window;
     }
 
     void destroy_window(WindowPtr window)
@@ -82,6 +89,7 @@ namespace rune::platform
         if (it == s_platform->windowMap.end())
             return;
 
+        s_platform->events->post(EVENT_WINDOW_DESTROY(window));
         glfwDestroyWindow(glfwWindow);
         s_platform->windowMap.erase(glfwWindow);
 
@@ -129,6 +137,13 @@ namespace rune::platform
         return size;
     }
 
+    void on_window_size(GLFWwindow* glfwWindow, double w, double h)
+    {
+        auto* platform = static_cast<PlatformData*>(glfwGetWindowUserPointer(glfwWindow));
+
+        auto& window = platform->windowMap.at(glfwWindow);
+        platform->events->post(EVENT_WINDOW_SIZE(&window, w, h));
+    }
 }
 
 #endif

@@ -33,7 +33,7 @@ namespace rune
         RUNE_ENG_INFO("Rune Engine v0.0.1");
         RUNE_ENG_INFO("Initialising...");
 
-        if (!platform::initialise())
+        if (!platform::initialise(m_events))
             return false;
 
         return true;

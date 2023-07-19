@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rune/common.hpp"
+#include "rune/events/events.hpp"
 
 #include <glm/ext/vector_int2.hpp>
 
@@ -8,7 +9,7 @@
 
 namespace rune::platform
 {
-    bool initialise();
+    bool initialise(Events& events);
     bool shutdown();
 
     void update();

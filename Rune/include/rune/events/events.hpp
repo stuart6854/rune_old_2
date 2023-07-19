@@ -52,4 +52,22 @@ namespace rune
         std::vector<EventCallbackFn> m_subscribers{};
         std::queue<Event> m_eventQueue{};
     };
+
+#define EVENT_WINDOW_CREATE(_windowHandle)                         \
+    Event                                                          \
+    {                                                              \
+        .type = EventType::WindowCreate, .context = _windowHandle, \
+    }
+
+#define EVENT_WINDOW_DESTROY(_windowHandle)                        \
+    Event                                                          \
+    {                                                              \
+        .type = EventType::WindowCreate, .context = _windowHandle, \
+    }
+
+#define EVENT_WINDOW_SIZE(_windowHandle, _w, _h)                                                               \
+    Event                                                                                                      \
+    {                                                                                                          \
+        .type = EventType::WindowCreate, .context = _windowHandle, .payload = {.int32 = { i32(_w), i32(_h) } } \
+    }
 }
