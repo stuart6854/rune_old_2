@@ -2,12 +2,14 @@
 
 #include "rune/debug/log.hpp"
 #include "rune/debug/log_engine.hpp"
+#include "rune/core/app.hpp"
 #include "rune/platform/platform.hpp"
 
 namespace rune
 {
-    bool Engine::run(const EngineConfig& config)
+    bool Engine::run(IApplication* app, const EngineConfig& config)
     {
+        m_application = app;
         m_config = config;
 
         if (!initialise())
@@ -17,6 +19,7 @@ namespace rune
             return false;
         }
 
+        m_isRunning = true;
         main_loop();
 
         if (!shutdown())
@@ -25,6 +28,11 @@ namespace rune
         }
 
         return true;
+    }
+
+    void Engine::request_shutdown()
+    {
+        m_isRunning = false;
     }
 
     bool Engine::initialise()
@@ -36,12 +44,18 @@ namespace rune
         if (!platform::initialise(m_events))
             return false;
 
+        if (m_application)
+            m_application->initialise(*this);
+
         return true;
     }
 
     bool Engine::shutdown()
     {
         RUNE_ENG_INFO("Shutting down...");
+
+        if (m_application)
+            m_application->shutdown(*this);
 
         platform::shutdown();
         debug::shutdown();
@@ -51,13 +65,13 @@ namespace rune
 
     void Engine::main_loop()
     {
-        int x = 10;
-        while (x > 0)
+        while (m_isRunning)
         {
             platform::update();
             m_events.update();
 
-            --x;
+            if (m_application)
+                m_application->update(*this);
         }
     }
 
