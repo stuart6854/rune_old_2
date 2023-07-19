@@ -41,6 +41,8 @@ namespace rune
     }
 }
 
+#define RUNE_UNUSED(_x) (void)(_x)
+
 #if defined(RUNE_DEBUG) || defined(RUNE_RELEASE)
     #ifdef RUNE_PLATFORM_WINDOWS
         #define RUNE_DEBUG_BREAK() __debugbreak()
