@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rune/events/events.hpp"
+
 #include <string>
 
 namespace rune
@@ -14,6 +16,8 @@ namespace rune
     public:
         bool run(const EngineConfig& config);
 
+        auto get_events() -> Events& { return m_events; }
+
     private:
         bool initialise();
         bool shutdown();
@@ -22,5 +26,6 @@ namespace rune
 
     private:
         EngineConfig m_config{};
+        Events m_events{};
     };
 }

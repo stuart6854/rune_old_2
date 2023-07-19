@@ -55,6 +55,7 @@ namespace rune
         while (x > 0)
         {
             platform::update();
+            m_events.update();
 
             --x;
         }
