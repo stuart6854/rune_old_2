@@ -30,6 +30,7 @@ project "Sandbox"
     links
     {
         "../Rune/vendor/glfw/lib/glfw3_mt",
+        os.getenv("VULKAN_SDK") .. "/Lib/vulkan-1",
         "Rune"
     }
 

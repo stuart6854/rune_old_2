@@ -7,5 +7,6 @@
 #include "core/engine.hpp"
 
 #include "platform/platform.hpp"
+#include "rendering/rhi.hpp"
 
 #include "events/events.hpp"

@@ -23,7 +23,14 @@ project "Rune"
     externalincludedirs
     {
         "vendor/*/include",
-        "../vendor/glm"
+        "../vendor/glm",
+        "vendor/vma-hpp/VulkanMemoryAllocator/include",
+        os.getenv("VULKAN_SDK") .. "/Include"
+    }
+
+    defines
+    {
+        "VULKAN_HPP_DISPATCH_LOADER_DYNAMIC"
     }
 
     flags
@@ -43,7 +50,8 @@ project "Rune"
 
         defines
         {
-            "RUNE_PLATFORM_WINDOWS"
+            "RUNE_PLATFORM_WINDOWS",
+            "VK_USE_PLATFORM_WIN32_KHR"
         }
 
         -- https://premake.github.io/docs/postbuildcommands/
