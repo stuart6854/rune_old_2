@@ -7,6 +7,14 @@
 
     #define GLFW_INCLUDE_NONE
     #include <GLFW/glfw3.h>
+    #ifdef RUNE_PLATFORM_WINDOWS
+        #define GLFW_EXPOSE_NATIVE_WIN32
+        #define WIN32_LEAN_AND_MEAN
+        #define NOMINMAX
+        #include <windows.h>
+    #endif
+    #define GLFW_NATIVE_INCLUDE_NONE
+    #include <glfw/glfw3native.h>
 
 namespace rune::platform
 {
@@ -118,6 +126,16 @@ namespace rune::platform
         return get_window_fb_size((WindowPtr)this);
     }
 
+    auto Window::native_display_handle() const -> void*
+    {
+        return get_window_native_display_handle((WindowPtr)this);
+    }
+
+    auto Window::native_surface_handle() const -> void*
+    {
+        return get_window_native_surface_handle((WindowPtr)this);
+    }
+
     bool Window::close_requested()
     {
         return platform::get_window_close_requested((WindowPtr)this);
@@ -142,6 +160,21 @@ namespace rune::platform
         return size;
     }
 
+    auto get_window_native_display_handle(WindowPtr window) -> void*
+    {
+    #ifdef RUNE_PLATFORM_WINDOWS
+        RUNE_UNUSED(window);
+        return GetModuleHandle(nullptr);
+    #endif
+    }
+
+    auto get_window_native_surface_handle(WindowPtr window) -> void*
+    {
+    #ifdef RUNE_PLATFORM_WINDOWS
+        return glfwGetWin32Window((GLFWwindow*)window->handle());
+    #endif
+    }
+
     bool get_window_close_requested(WindowPtr window)
     {
         return glfwWindowShouldClose((GLFWwindow*)window->handle());
@@ -154,7 +187,6 @@ namespace rune::platform
         auto& window = platform->windowMap.at(glfwWindow);
         platform->events->post(EVENT_WINDOW_SIZE(&window, w, h));
     }
-
 }
 
 #endif

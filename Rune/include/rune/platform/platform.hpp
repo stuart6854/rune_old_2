@@ -25,6 +25,8 @@ namespace rune::platform
         auto title() const -> std::string_view;
         auto size() const -> glm::ivec2;
         auto fb_size() const -> glm::ivec2;
+        auto native_display_handle() const -> void*;  // Win32=HINSTANCE, Wayland=wl_display
+        auto native_surface_handle() const -> void*;  // Win32=HWND, Wayland=wl_surface
 
         bool close_requested();
 
@@ -40,6 +42,8 @@ namespace rune::platform
     auto get_window_title(WindowPtr window) -> std::string_view;
     auto get_window_size(WindowPtr window) -> glm::ivec2;
     auto get_window_fb_size(WindowPtr window) -> glm::ivec2;
+    auto get_window_native_display_handle(WindowPtr window) -> void*;
+    auto get_window_native_surface_handle(WindowPtr window) -> void*;
 
     bool get_window_close_requested(WindowPtr window);
 }
