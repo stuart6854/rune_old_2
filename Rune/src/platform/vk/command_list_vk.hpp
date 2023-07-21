@@ -21,6 +21,9 @@ namespace rune::rhi
         void begin() override;
         void end() override;
 
+        void begin_render_pass(RenderTarget* renderTarget) override;
+        void end_renderr_pass() override;
+
         void bind_pipeline() override;
 
         void draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance) override;

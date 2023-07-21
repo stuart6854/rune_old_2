@@ -21,6 +21,8 @@ namespace rune::rhi
 
         virtual ~Surface() = default;
 
+        virtual auto size() const -> const glm::ivec2& = 0;
+
         virtual void acquire_next_image() = 0;
         virtual void present() = 0;
 

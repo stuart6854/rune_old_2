@@ -6,6 +6,7 @@
 namespace rune::rhi
 {
     class Device;
+    class RenderTarget;
     class Image;
 
     class CommandList
@@ -17,6 +18,9 @@ namespace rune::rhi
 
         virtual void begin() = 0;
         virtual void end() = 0;
+
+        virtual void begin_render_pass(RenderTarget* renderTarget) = 0;
+        virtual void end_renderr_pass() = 0;
 
         virtual void bind_pipeline() = 0;
 

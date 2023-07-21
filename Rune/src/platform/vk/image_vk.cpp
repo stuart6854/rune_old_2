@@ -28,11 +28,15 @@ namespace rune::rhi
         m_subresourceRange.setBaseMipLevel(0);
         m_subresourceRange.setLayerCount(1);
         m_subresourceRange.setLevelCount(1);
+
+        create_view();
     }
 
-    ImageVulkan::ImageVulkan(Shared<DeviceVulkan> device, vk::Image image, vk::Format format) : m_device(device), m_image(image)
+    ImageVulkan::ImageVulkan(Shared<DeviceVulkan> device, vk::Image image, vk::Format format, const glm::ivec3& size)
+        : m_device(device), m_image(image)
     {
         m_decl.Format = convert(format);
+        m_decl.Size = size;
 
         m_subresourceRange.setAspectMask(is_depth_format(m_decl.Format) ? vk::ImageAspectFlagBits::eDepth
                                                                         : vk::ImageAspectFlagBits::eColor);
@@ -40,16 +44,36 @@ namespace rune::rhi
         m_subresourceRange.setBaseMipLevel(0);
         m_subresourceRange.setLayerCount(1);
         m_subresourceRange.setLevelCount(1);
+
+        create_view();
     }
 
     ImageVulkan::~ImageVulkan()
     {
+        auto vkDevice = m_device->get_vk_device();
         auto vkAllocator = m_device->get_vk_allocator();
+
+        vkDevice.destroy(m_view);
 
         if (m_allocation)
         {
             vkAllocator.destroyImage(m_image, m_allocation);
         }
+    }
+
+    void ImageVulkan::create_view()
+    {
+        auto vkDevice = m_device->get_vk_device();
+
+        vk::ImageViewCreateInfo viewInfo{};
+        viewInfo.setImage(m_image);
+        viewInfo.setFormat(convert(m_decl.Format));
+        viewInfo.setViewType(m_decl.Size.z > 1   ? vk::ImageViewType::e3D
+                             : m_decl.Size.y > 1 ? vk::ImageViewType::e2D
+                                                 : vk::ImageViewType::e1D);
+        viewInfo.setSubresourceRange(get_vk_subresource_range());
+
+        m_view = vkDevice.createImageView(viewInfo);
     }
 
 }

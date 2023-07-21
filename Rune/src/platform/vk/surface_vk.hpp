@@ -19,6 +19,8 @@ namespace rune::rhi
         SurfaceVulkan(Shared<DeviceVulkan> device, const SurfaceDecl& decl);
         ~SurfaceVulkan();
 
+        auto size() const -> const glm::ivec2& { return m_size; }
+
         void resize(const glm::ivec2& size);
 
         void acquire_next_image() override;

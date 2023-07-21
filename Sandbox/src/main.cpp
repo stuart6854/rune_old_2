@@ -17,6 +17,12 @@ public:
             .Size = m_primaryWindow->fb_size(),
         };
         m_renderSurface = rhi::Surface::create(m_renderDevice, surfaceDecl);
+        rhi::RenderTargetDecl rtDecl{
+            .Surface = m_renderSurface.get(),
+            .ClearColorEnable = true,
+            .ClearColor = { 0.8f, 0.1f, 0.1f, 1.0f },
+        };
+        m_renderTarget = rhi::RenderTarget::create(m_renderDevice, rtDecl);
 
         m_cmdList = rhi::CommandList::create(m_renderDevice);
         m_fence = rhi::Fence::create(m_renderDevice);
@@ -41,10 +47,10 @@ public:
 
         m_cmdList->reset();
         m_cmdList->begin();
-
         m_cmdList->transition_state(m_renderSurface->current_image(), rhi::ResourceState::Undefined, rhi::ResourceState::RenderTarget);
+        m_cmdList->begin_render_pass(m_renderTarget.get());
+        m_cmdList->end_renderr_pass();
         m_cmdList->transition_state(m_renderSurface->current_image(), rhi::ResourceState::RenderTarget, rhi::ResourceState::Present);
-
         m_cmdList->end();
 
         m_renderDevice->submit({ m_cmdList.get() }, m_fence.get(), ++m_fenceValue);
@@ -60,6 +66,7 @@ private:
     platform::WindowPtr m_primaryWindow{};
     Shared<rhi::Device> m_renderDevice{};
     Owned<rhi::Surface> m_renderSurface{};
+    Owned<rhi::RenderTarget> m_renderTarget{};
     Owned<rhi::CommandList> m_cmdList{};
     Owned<rhi::Fence> m_fence{};
     u64 m_fenceValue{};

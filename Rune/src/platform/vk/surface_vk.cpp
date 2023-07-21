@@ -76,11 +76,12 @@ namespace rune::rhi
             vkDevice.destroy(oldSwapchain);
         }
 
+        auto imageSize = glm::ivec3(size.x, size.y, 1);
         auto images = vkDevice.getSwapchainImagesKHR(m_swapchain);
         m_images.clear();
         for (auto image : images)
         {
-            m_images.push_back(create_owned<ImageVulkan>(m_device, image, surfaceFormat.format));
+            m_images.push_back(create_owned<ImageVulkan>(m_device, image, surfaceFormat.format, imageSize));
         }
 
         m_size = size;

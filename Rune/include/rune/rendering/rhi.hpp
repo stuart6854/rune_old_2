@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rhi/surface.hpp"
+#include "rhi/render_target.hpp"
 #include "rhi/buffer.hpp"
 #include "rhi/command_list.hpp"
 #include "rhi/fence.hpp"

@@ -1,5 +1,6 @@
 #include "command_list_vk.hpp"
 
+#include "render_target_vk.hpp"
 #include "device_vk.hpp"
 #include "image_vk.hpp"
 #include "type_conversions_vk.hpp"
@@ -46,6 +47,18 @@ namespace rune::rhi
     void CommandListVulkan::end()
     {
         m_cmdBuffer.end();
+    }
+
+    void CommandListVulkan::begin_render_pass(RenderTarget* renderTarget)
+    {
+        auto vkRenderTarget = static_cast<RenderTargetVulkan*>(renderTarget);
+
+        m_cmdBuffer.beginRendering(vkRenderTarget->get_vk_rendering_info());
+    }
+
+    void CommandListVulkan::end_renderr_pass()
+    {
+        m_cmdBuffer.endRendering();
     }
 
     void CommandListVulkan::bind_pipeline()
