@@ -1,6 +1,0 @@
-[submodule "Rune/vendor/spdlog"]
-	path = Rune/vendor/spdlog
-	url = https://github.com/stuart6854/spdlog
-[submodule "Rune/vendor/glm"]
-	path = vendor/glm
-	url = https://github.com/g-truc/glm.git
