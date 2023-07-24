@@ -8,7 +8,6 @@ set(CMAKE_CXX_EXTENSIONS Off)
 
 # Dependencies
 include("Dependencies.cmake")
-add_subdirectory(vendor)
 
 # Libraries
 add_subdirectory(Rune)
