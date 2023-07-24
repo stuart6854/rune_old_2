@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "rune",
+  "dependencies": [
+    "glm",
+    "glfw3",
+    "spdlog",
+    "vulkan-memory-allocator-hpp",
+    "shaderc"
+  ]
+}

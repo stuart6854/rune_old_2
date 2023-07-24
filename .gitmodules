@@ -1,9 +1,0 @@
-[submodule "Rune/vendor/spdlog"]
-	path = Rune/vendor/spdlog
-	url = https://github.com/stuart6854/spdlog
-[submodule "Rune/vendor/glm"]
-	path = vendor/glm
-	url = https://github.com/g-truc/glm.git
-[submodule "Rune/vendor/vma-hpp"]
-	path = Rune/vendor/vma-hpp
-	url = https://github.com/YaaZ/VulkanMemoryAllocator-Hpp.git

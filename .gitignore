@@ -1,10 +1,12 @@
 # Build Artifacts
 bin/
 bin-int/
+out/
 
 # Solution/Project Artifacts
 .vs/
 .vscode/
+.idea/
 *.sln
 *.vcxproj
 *.vcxproj.user
