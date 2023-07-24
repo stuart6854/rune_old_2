@@ -34,12 +34,21 @@ namespace rune::debug
     }
 }
 
-#define RUNE_CLIENT_TRACE(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Trace, __VA_ARGS__)
-#define RUNE_CLIENT_DEBUG(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Debug, __VA_ARGS__)
-#define RUNE_CLIENT_INFO(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Info, __VA_ARGS__)
-#define RUNE_CLIENT_WARN(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Warn, __VA_ARGS__)
-#define RUNE_CLIENT_ERROR(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Error, __VA_ARGS__)
-#define RUNE_CLIENT_CRITICAL(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Critical, __VA_ARGS__)
+#ifndef RUNE_DIST
+    #define RUNE_CLIENT_TRACE(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Trace, __VA_ARGS__)
+    #define RUNE_CLIENT_DEBUG(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Debug, __VA_ARGS__)
+    #define RUNE_CLIENT_INFO(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Info, __VA_ARGS__)
+    #define RUNE_CLIENT_WARN(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Warn, __VA_ARGS__)
+    #define RUNE_CLIENT_ERROR(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Error, __VA_ARGS__)
+    #define RUNE_CLIENT_CRITICAL(...) ::rune::debug::log_client(__FILE__, __LINE__, ::rune::debug::LogLevel::Critical, __VA_ARGS__)
+#else
+    #define RUNE_CLIENT_TRACE(...)
+    #define RUNE_CLIENT_DEBUG(...)
+    #define RUNE_CLIENT_INFO(...)
+    #define RUNE_CLIENT_WARN(...)
+    #define RUNE_CLIENT_ERROR(...)
+    #define RUNE_CLIENT_CRITICAL(...)
+#endif
 
 template <>
 struct std::formatter<glm::vec2> : std::formatter<std::string>
