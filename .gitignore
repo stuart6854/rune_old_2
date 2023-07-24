@@ -1,6 +1,7 @@
 # Build Artifacts
 bin/
 bin-int/
+out/
 
 # Solution/Project Artifacts
 .vs/
