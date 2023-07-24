@@ -3,7 +3,7 @@
 #include "rune/rendering/rhi/device.hpp"
 
 #include <vulkan/vulkan.hpp>
-#include <vk_mem_alloc.hpp>
+#include <vulkan-memory-allocator-hpp/vk_mem_alloc.hpp>
 
 namespace rune::rhi
 {

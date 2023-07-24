@@ -5,6 +5,18 @@ add_library(Rune STATIC
 	src/rune/debug/log.cpp
 	src/rune/events/events.cpp
 	src/rune/platform/glfw/platform_glfw.cpp
+	src/rune/rendering/rhi/shader_compile.cpp
+	src/platform/vk/type_conversion_vk.cpp
+	src/platform/vk/instance_vk.cpp
+	src/platform/vk/device_vk.cpp
+	src/platform/vk/surface_vk.cpp
+	src/platform/vk/command_list_vk.cpp
+	src/platform/vk/fence_vk.cpp
+	src/platform/vk/image_vk.cpp
+	src/platform/vk/render_target_vk.cpp
+	src/platform/vk/shader_program_vk.cpp
+	src/platform/vk/pipeline_state_vk.cpp
+	# src/platform/vk/_vk.cpp
 )
 
 target_include_directories(Rune 

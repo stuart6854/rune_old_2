@@ -6,7 +6,9 @@
 
 namespace rune::rhi
 {
+    class PipelineState;
     class DeviceVulkan;
+    class PipelineStateVulkan;
 
     class CommandListVulkan : public CommandList
     {
@@ -24,7 +26,10 @@ namespace rune::rhi
         void begin_render_pass(RenderTarget* renderTarget) override;
         void end_renderr_pass() override;
 
-        void bind_pipeline() override;
+        void bind_pipeline_state(PipelineState* pipelineState) override;
+
+        void set_viewport(f32 x, f32 y, f32 width, f32 height, f32 minDepth = 0.0f, f32 maxDepth = 1.0f) override;
+        void set_scissor(i32 x, i32 y, u32 width, u32 height) override;
 
         void draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance) override;
         void draw_indexed(u32 indexCount, u32 instanceCount, u32 firstIndex, i32 vertexOffset, u32 firstInstance) override;
@@ -36,5 +41,7 @@ namespace rune::rhi
 
         vk::CommandBuffer m_cmdBuffer{};
         vk::Fence m_fence{};
+
+        PipelineStateVulkan* m_boundPipelineState{ nullptr };
     };
 }

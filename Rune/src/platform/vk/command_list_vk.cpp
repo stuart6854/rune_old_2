@@ -1,7 +1,8 @@
 #include "command_list_vk.hpp"
 
-#include "render_target_vk.hpp"
 #include "device_vk.hpp"
+#include "render_target_vk.hpp"
+#include "pipeline_state_vk.hpp"
 #include "image_vk.hpp"
 #include "type_conversions_vk.hpp"
 
@@ -36,6 +37,7 @@ namespace rune::rhi
     void CommandListVulkan::reset()
     {
         m_cmdBuffer.reset();
+        m_boundPipelineState = nullptr;
     }
 
     void CommandListVulkan::begin()
@@ -61,9 +63,23 @@ namespace rune::rhi
         m_cmdBuffer.endRendering();
     }
 
-    void CommandListVulkan::bind_pipeline()
+    void CommandListVulkan::bind_pipeline_state(PipelineState* pipelineState)
     {
-        m_cmdBuffer.bindPipeline({}, {});
+        auto* vkPipelineState = static_cast<PipelineStateVulkan*>(pipelineState);
+        vkPipelineState->bind(m_cmdBuffer, m_boundPipelineState);
+        m_boundPipelineState = vkPipelineState;
+    }
+
+    void CommandListVulkan::set_viewport(f32 x, f32 y, f32 width, f32 height, f32 minDepth, f32 maxDepth)
+    {
+        vk::Viewport viewport{ x, y, width, height, minDepth, maxDepth };
+        m_cmdBuffer.setViewport(0, viewport);
+    }
+
+    void CommandListVulkan::set_scissor(i32 x, i32 y, u32 width, u32 height)
+    {
+        vk::Rect2D scissor{ { x, y }, { width, height } };
+        m_cmdBuffer.setScissor(0, scissor);
     }
 
     void CommandListVulkan::draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance)
@@ -101,5 +117,4 @@ namespace rune::rhi
         depInfo.setImageMemoryBarriers(barrier);
         m_cmdBuffer.pipelineBarrier2(depInfo);
     }
-
 }

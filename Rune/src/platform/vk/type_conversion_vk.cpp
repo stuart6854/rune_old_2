@@ -84,6 +84,23 @@ namespace rune::rhi
         return {};
     }
 
+    auto convert(ShaderType type) -> vk::ShaderStageFlagBits
+    {
+        switch (type)
+        {
+            case rune::rhi::ShaderType::Vertex: return vk::ShaderStageFlagBits::eVertex;
+            case rune::rhi::ShaderType::Hull: return vk::ShaderStageFlagBits::eTessellationControl;
+            case rune::rhi::ShaderType::Domain: return vk::ShaderStageFlagBits::eTessellationEvaluation;
+            case rune::rhi::ShaderType::Geometry: return vk::ShaderStageFlagBits::eGeometry;
+            case rune::rhi::ShaderType::Pixel: return vk::ShaderStageFlagBits::eFragment;
+            case rune::rhi::ShaderType::Compute: return vk::ShaderStageFlagBits::eCompute;
+        }
+
+        RUNE_ENG_ERROR("Unknown ShaderType.");
+        RUNE_ENG_ASSERT(false);
+        return {};
+    }
+
     auto convert_to_layout(ResourceState state) -> vk::ImageLayout
     {
         switch (state)
@@ -125,6 +142,34 @@ namespace rune::rhi
         }
 
         RUNE_ENG_ERROR("Unknown ResourceState.");
+        RUNE_ENG_ASSERT(false);
+        return {};
+    }
+
+    auto convert(PrimitiveTopology topology) -> vk::PrimitiveTopology
+    {
+        switch (topology)
+        {
+            case rune::rhi::PrimitiveTopology::LineList: return vk::PrimitiveTopology::eLineList;
+            case rune::rhi::PrimitiveTopology::TriangleList: return vk::PrimitiveTopology::eTriangleList;
+        }
+
+        RUNE_ENG_ERROR("Unknown Topology.");
+        RUNE_ENG_ASSERT(false);
+        return {};
+    }
+
+    auto convert(CullMode cullMode) -> vk::CullModeFlags
+    {
+        switch (cullMode)
+        {
+            case rune::rhi::CullMode::None: return vk::CullModeFlagBits::eNone;
+            case rune::rhi::CullMode::Front: return vk::CullModeFlagBits::eFront;
+            case rune::rhi::CullMode::Back: return vk::CullModeFlagBits::eBack;
+            case rune::rhi::CullMode::FrontAndBack: return vk::CullModeFlagBits::eFrontAndBack;
+        }
+
+        RUNE_ENG_ERROR("Unknown CullMode.");
         RUNE_ENG_ASSERT(false);
         return {};
     }
