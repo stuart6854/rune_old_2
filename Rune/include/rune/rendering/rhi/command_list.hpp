@@ -42,5 +42,7 @@ namespace rune::rhi
         virtual void draw_indexed(u32 indexCount, u32 instanceCount, u32 firstIndex, i32 vertexOffset, u32 firstInstance) = 0;
 
         virtual void transition_state(Image* image, ResourceState oldState, ResourceState newState) = 0;
+
+        virtual void copy_buffer_to_buffer(Buffer* dstBuffer, u64 dstOffset, Buffer* srcBuffer, u64 srcOffset, u64 size) = 0;
     };
 }

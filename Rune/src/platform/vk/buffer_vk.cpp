@@ -18,6 +18,8 @@ namespace rune::rhi
 
         vma::AllocationCreateInfo allocationInfo{};
         allocationInfo.setUsage(vma::MemoryUsage::eAuto);
+        if (m_decl.AllowCPUAccess)
+            allocationInfo.setFlags(vma::AllocationCreateFlagBits::eHostAccessSequentialWrite);
 
         auto allocator = m_device->get_vk_allocator();
         std::tie(m_buffer, m_allocation) = allocator.createBuffer(bufferInfo, allocationInfo, nullptr);
@@ -30,6 +32,16 @@ namespace rune::rhi
             auto allocator = m_device->get_vk_allocator();
             allocator.destroyBuffer(m_buffer, m_allocation);
         }
+    }
+
+    void BufferVulkan::write(u64 offset, u64 size, const void* data)
+    {
+        auto vkAllocator = m_device->get_vk_allocator();
+
+        auto* mappedPtr = vkAllocator.mapMemory(m_allocation);
+        u8* offsetMappedPtr = static_cast<u8*>(mappedPtr) + offset;
+        std::memcpy(offsetMappedPtr, data, size);
+        vkAllocator.unmapMemory(m_allocation);
     }
 
 }

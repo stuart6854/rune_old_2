@@ -8,7 +8,7 @@ struct Vertex
     glm::vec3 color;
 };
 static std::vector<Vertex> vertices{
-    { { 1.0, 0.0, 0.0 }, { 1, 0, 0 } },
+    { { 1.0, 1.0, 0.0 }, { 1, 0, 0 } },
     { { -1.0, 1.0, 0.0 }, { 0, 1, 0 } },
     { { 0.0, -1.0, 0.0 }, { 0, 0, 1 } },
 };
@@ -83,6 +83,16 @@ public:
         m_pipelineState = rhi::PipelineState::create(m_renderDevice, psDecl);
 
         m_vertexBuffer = rhi::Buffer::create_vertex(m_renderDevice, sizeof(Vertex) * vertices.size());
+
+        auto tranferBuffer = rhi::Buffer::create_transfer(m_renderDevice, sizeof(Vertex) * vertices.size());
+        tranferBuffer->write(0, sizeof(Vertex) * vertices.size(), vertices.data());
+
+        auto uploadCmd = rhi::CommandList::create(m_renderDevice);
+        uploadCmd->begin();
+        uploadCmd->copy_buffer_to_buffer(m_vertexBuffer.get(), 0, tranferBuffer.get(), 0, sizeof(Vertex) * vertices.size());
+        uploadCmd->end();
+        m_renderDevice->submit({ uploadCmd.get() }, m_fence.get(), 1);
+        m_fence->wait(1);
 
         RUNE_CLIENT_INFO("Sandbox initialised.");
     }

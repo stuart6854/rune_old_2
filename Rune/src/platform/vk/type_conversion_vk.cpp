@@ -45,10 +45,11 @@ namespace rune::rhi
     {
         switch (type)
         {
-            case BufferType::Vertex: return vk::BufferUsageFlagBits::eVertexBuffer;
-            case BufferType::Index: return vk::BufferUsageFlagBits::eIndexBuffer;
+            case BufferType::Vertex: return vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+            case BufferType::Index: return vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
             case BufferType::Uniform: return vk::BufferUsageFlagBits::eUniformBuffer;
             case BufferType::Storage: return vk::BufferUsageFlagBits::eStorageBuffer;
+            case BufferType::Transfer: return vk::BufferUsageFlagBits::eTransferSrc;
         }
 
         RUNE_ENG_ERROR("Unknown BufferType.");

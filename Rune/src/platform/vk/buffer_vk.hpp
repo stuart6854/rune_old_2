@@ -20,6 +20,8 @@ namespace rune::rhi
         auto type() const -> BufferType override { return m_decl.Type; }
         auto size() const -> u64 override { return m_decl.Size; }
 
+        void write(u64 offset, u64 size, const void* data) override;
+
     private:
         Shared<DeviceVulkan> m_device{ nullptr };
 

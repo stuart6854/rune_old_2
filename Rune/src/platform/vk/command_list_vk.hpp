@@ -39,7 +39,9 @@ namespace rune::rhi
 
         void transition_state(Image* image, ResourceState oldState, ResourceState newState) override;
 
- private:
+        void copy_buffer_to_buffer(Buffer* dstBuffer, u64 dstOffset, Buffer* srcBuffer, u64 srcOffset, u64 size) override;
+
+    private:
         Shared<DeviceVulkan> m_device{ nullptr };
 
         vk::CommandBuffer m_cmdBuffer{};

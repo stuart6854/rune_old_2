@@ -137,4 +137,22 @@ namespace rune::rhi
         m_cmdBuffer.pipelineBarrier2(depInfo);
     }
 
+    void CommandListVulkan::copy_buffer_to_buffer(Buffer* dstBuffer, u64 dstOffset, Buffer* srcBuffer, u64 srcOffset, u64 size)
+    {
+        auto* vkDstBuffer = static_cast<BufferVulkan*>(dstBuffer);
+        auto* vkSrcBuffer = static_cast<BufferVulkan*>(srcBuffer);
+
+        vk::BufferCopy2 region{};
+        region.setDstOffset(dstOffset);
+        region.setSrcOffset(srcOffset);
+        region.setSize(size);
+
+        vk::CopyBufferInfo2 copyInfo{};
+        copyInfo.setDstBuffer(vkDstBuffer->get_vk_buffer());
+        copyInfo.setSrcBuffer(vkSrcBuffer->get_vk_buffer());
+        copyInfo.setRegions(region);
+
+        m_cmdBuffer.copyBuffer2(copyInfo);
+    }
+
 }
