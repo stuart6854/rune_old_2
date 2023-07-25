@@ -15,6 +15,7 @@ add_library(Rune STATIC
 	src/platform/vk/image_vk.cpp
 	src/platform/vk/render_target_vk.cpp
 	src/platform/vk/shader_program_vk.cpp
+	src/platform/vk/vertex_input_format_vk.cpp
 	src/platform/vk/pipeline_state_vk.cpp
 	src/platform/vk/buffer_vk.cpp
 	# src/platform/vk/_vk.cpp

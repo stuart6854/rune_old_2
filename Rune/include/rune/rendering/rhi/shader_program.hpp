@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rune/common.hpp"
+#include "vertex_input_format.hpp"
 
 #include <array>
 #include <string>
@@ -56,7 +57,7 @@ namespace rune::rhi
     struct ShaderProgramDecl
     {
         std::array<ShaderDecl, u8(ShaderType::Count)> ShaderStages{};
-        // Vertex Format
+        VertexInputFormat* vertexInputFormat{ nullptr };  // Will be reflected if nullptr
     };
 
     class Device;

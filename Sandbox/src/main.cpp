@@ -2,6 +2,17 @@
 
 using namespace rune;
 
+struct Vertex
+{
+    glm::vec3 pos;
+    glm::vec3 color;
+};
+static std::vector<Vertex> vertices{
+    { { 1.0, 0.0, 0.0 }, { 1, 0, 0 } },
+    { { -1.0, 1.0, 0.0 }, { 0, 1, 0 } },
+    { { 0.0, -1.0, 0.0 }, { 0, 0, 1 } },
+};
+
 class ApplicationSandbox : public IApplication
 {
 public:
@@ -43,9 +54,21 @@ public:
         m_cmdList = rhi::CommandList::create(m_renderDevice);
         m_fence = rhi::Fence::create(m_renderDevice);
 
+        rhi::VertexInputFormatDecl vertexFormatDecl
+        { .Attributes = { 
+            { 0, 0, rhi::Format::RGB32, offsetof(Vertex, pos) }, 
+            { 0, 1, rhi::Format::RGB32, offsetof(Vertex, color) },
+           },
+           .Bindings = {
+            { 0, sizeof(Vertex) },    
+            },
+        };
+        auto vertexFormat = rhi::VertexInputFormat::create(vertexFormatDecl);
+
         rhi::ShaderProgramDecl spDecl{};
         spDecl.ShaderStages[u8(rhi::ShaderType::Vertex)] = { .ByteCode = vertexByteCode };
         spDecl.ShaderStages[u8(rhi::ShaderType::Pixel)] = { .ByteCode = fragmentByteCode };
+        spDecl.vertexInputFormat = vertexFormat.get();
         m_shaderProgram = rhi::ShaderProgram::create(m_renderDevice, spDecl);
 
         rhi::PipelineStateDecl psDecl{
@@ -59,16 +82,6 @@ public:
         };
         m_pipelineState = rhi::PipelineState::create(m_renderDevice, psDecl);
 
-        struct Vertex
-        {
-            glm::vec3 pos;
-            glm::vec3 color;
-        };
-        std::vector<Vertex> vertices{
-            { { 0, 0, 0 }, { 1, 0, 0 } },
-            { { 0, 0, 0 }, { 0, 1, 0 } },
-            { { 0, 0, 0 }, { 0, 0, 1 } },
-        };
         m_vertexBuffer = rhi::Buffer::create_vertex(m_renderDevice, sizeof(Vertex) * vertices.size());
 
         RUNE_CLIENT_INFO("Sandbox initialised.");

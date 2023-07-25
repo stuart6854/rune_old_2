@@ -1,6 +1,7 @@
 #include "shader_program_vk.hpp"
 
 #include "device_vk.hpp"
+#include "vertex_input_format_vk.hpp"
 #include "type_conversions_vk.hpp"
 
 namespace rune::rhi
@@ -20,6 +21,8 @@ namespace rune::rhi
         m_layout = vkDevice.createPipelineLayout(layoutInfo);
 
         vk::PipelineVertexInputStateCreateInfo vertexInputStateInfo{};
+        if (decl.vertexInputFormat)
+            vertexInputStateInfo = static_cast<VertexInputFormatVulkan*>(decl.vertexInputFormat)->get_vk_pipeline_vertex_input_state();
 
         vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateInfo{};
         inputAssemblyStateInfo.setTopology(vk::PrimitiveTopology::eTriangleList);
