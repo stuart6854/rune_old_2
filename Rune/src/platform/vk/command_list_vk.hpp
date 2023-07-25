@@ -31,12 +31,15 @@ namespace rune::rhi
         void set_viewport(f32 x, f32 y, f32 width, f32 height, f32 minDepth = 0.0f, f32 maxDepth = 1.0f) override;
         void set_scissor(i32 x, i32 y, u32 width, u32 height) override;
 
+        void bind_vertex_buffers(u32 first, const std::vector<Buffer*>& buffers, const std::vector<u64>& offsets) override;
+        void bind_index_buffer(Buffer* buffer, u64 offset, IndexType indexType) override;
+
         void draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance) override;
         void draw_indexed(u32 indexCount, u32 instanceCount, u32 firstIndex, i32 vertexOffset, u32 firstInstance) override;
 
         void transition_state(Image* image, ResourceState oldState, ResourceState newState) override;
 
-    private:
+ private:
         Shared<DeviceVulkan> m_device{ nullptr };
 
         vk::CommandBuffer m_cmdBuffer{};

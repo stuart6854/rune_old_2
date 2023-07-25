@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rune/rendering/rhi/common.hpp"
+#include "rune/rendering/rhi/command_list.hpp"
 #include "rune/rendering/rhi/buffer.hpp"
 #include "rune/rendering/rhi/image.hpp"
 #include "rune/rendering/rhi/shader_program.hpp"
@@ -26,5 +27,7 @@ namespace rune::rhi
 
     auto convert(PrimitiveTopology topology) -> vk::PrimitiveTopology;
     auto convert(CullMode cullMode) -> vk::CullModeFlags;
+
+    auto convert(IndexType indexType) -> vk::IndexType;
 
 }

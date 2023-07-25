@@ -59,6 +59,18 @@ public:
         };
         m_pipelineState = rhi::PipelineState::create(m_renderDevice, psDecl);
 
+        struct Vertex
+        {
+            glm::vec3 pos;
+            glm::vec3 color;
+        };
+        std::vector<Vertex> vertices{
+            { { 0, 0, 0 }, { 1, 0, 0 } },
+            { { 0, 0, 0 }, { 0, 1, 0 } },
+            { { 0, 0, 0 }, { 0, 0, 1 } },
+        };
+        m_vertexBuffer = rhi::Buffer::create_vertex(m_renderDevice, sizeof(Vertex) * vertices.size());
+
         RUNE_CLIENT_INFO("Sandbox initialised.");
     }
 
@@ -84,6 +96,7 @@ public:
         m_cmdList->bind_pipeline_state(m_pipelineState.get());
         m_cmdList->set_viewport(0, 0, m_primaryWindow->fb_size().x, m_primaryWindow->fb_size().y);
         m_cmdList->set_scissor(0, 0, m_primaryWindow->fb_size().x, m_primaryWindow->fb_size().y);
+        m_cmdList->bind_vertex_buffers(0, { m_vertexBuffer.get() }, { 0 });
         m_cmdList->draw(3, 1, 0, 0);
         m_cmdList->end_renderr_pass();
         m_cmdList->transition_state(m_renderSurface->current_image(), rhi::ResourceState::RenderTarget, rhi::ResourceState::Present);
@@ -108,6 +121,7 @@ private:
     u64 m_fenceValue{};
     Shared<rhi::ShaderProgram> m_shaderProgram{};
     Owned<rhi::PipelineState> m_pipelineState{};
+    Owned<rhi::Buffer> m_vertexBuffer{};
 };
 
 int main()

@@ -97,6 +97,13 @@ namespace rune::rhi
 
         m_graphicsQueue = m_device.getQueue(0, 0);
 
+        vma::AllocatorCreateInfo allocatorInfo{};
+        allocatorInfo.setInstance(m_instance->get_vk_instance());
+        allocatorInfo.setPhysicalDevice(m_physicalDevice);
+        allocatorInfo.setDevice(m_device);
+        allocatorInfo.setVulkanApiVersion(VK_API_VERSION_1_3);
+        m_allocator = vma::createAllocator(allocatorInfo);
+
         vk::CommandPoolCreateInfo cmdPoolInfo{};
         cmdPoolInfo.setQueueFamilyIndex(0);
         cmdPoolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);

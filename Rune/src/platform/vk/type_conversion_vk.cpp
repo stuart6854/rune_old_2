@@ -174,4 +174,17 @@ namespace rune::rhi
         return {};
     }
 
+    auto convert(IndexType indexType) -> vk::IndexType
+    {
+        switch (indexType)
+        {
+            case rune::rhi::IndexType::U16: return vk::IndexType::eUint16;
+            case rune::rhi::IndexType::U32: return vk::IndexType::eUint32;
+        }
+
+        RUNE_ENG_ERROR("Unknown IndexType.");
+        RUNE_ENG_ASSERT(false);
+        return {};
+    }
+
 }

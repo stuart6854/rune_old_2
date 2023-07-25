@@ -1,8 +1,10 @@
 #include "command_list_vk.hpp"
 
+#include "rune/debug/assert_engine.hpp"
 #include "device_vk.hpp"
 #include "render_target_vk.hpp"
 #include "pipeline_state_vk.hpp"
+#include "buffer_vk.hpp"
 #include "image_vk.hpp"
 #include "type_conversions_vk.hpp"
 
@@ -82,6 +84,23 @@ namespace rune::rhi
         m_cmdBuffer.setScissor(0, scissor);
     }
 
+    void CommandListVulkan::bind_vertex_buffers(u32 first, const std::vector<Buffer*>& buffers, const std::vector<u64>& offsets)
+    {
+        RUNE_ENG_ASSERT(offsets.size() == buffers.size());
+
+        std::vector<vk::Buffer> vkBuffers(buffers.size());
+        for (auto i = 0; i < buffers.size(); ++i)
+            vkBuffers[i] = static_cast<BufferVulkan*>(buffers[i])->get_vk_buffer();
+
+        m_cmdBuffer.bindVertexBuffers(first, vkBuffers, offsets);
+    }
+
+    void CommandListVulkan::bind_index_buffer(Buffer* buffer, u64 offset, IndexType indexType)
+    {
+        auto vkBuffer = static_cast<BufferVulkan*>(buffer)->get_vk_buffer();
+        m_cmdBuffer.bindIndexBuffer(vkBuffer, offset, convert(indexType));
+    }
+
     void CommandListVulkan::draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance)
     {
         m_cmdBuffer.draw(vertexCount, instanceCount, firstVertex, firstInstance);
@@ -117,4 +136,5 @@ namespace rune::rhi
         depInfo.setImageMemoryBarriers(barrier);
         m_cmdBuffer.pipelineBarrier2(depInfo);
     }
+
 }
