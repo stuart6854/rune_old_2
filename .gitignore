@@ -14,3 +14,4 @@ out/
 
 # Other files
 logs/
+*.cap
