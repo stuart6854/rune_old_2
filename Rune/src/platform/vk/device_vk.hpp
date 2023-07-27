@@ -23,9 +23,19 @@ namespace rune::rhi
         auto get_vk_graphics_queue() const -> vk::Queue { return m_graphicsQueue; }
         auto get_vk_cmd_pool() const -> vk::CommandPool { return m_cmdPool; }
 
-        void submit(const std::vector<CommandList*>& cmdLists, Fence* fence, u64 signalValue) override;
+        auto create_cmd_list(bool autoSubmit = true) -> Owned<CommandList> override;
+
+        void submit(Fence* fence, u64 fenceValue) override;
+
+        void submit_single(CommandList& cmdList, Fence* fence, u64 fenceValue) override;
 
         // void mark_for_destruction(Owned<Object>&& object);
+
+    protected:
+        friend class CommandListVulkan;
+
+        void on_cmd_list_reset(CommandList& cmdList) override;
+        void on_cmd_list_begin(CommandList& cmdList) override;
 
     private:
         Shared<InstanceVulkan> m_instance{};
@@ -36,5 +46,7 @@ namespace rune::rhi
         vk::Queue m_graphicsQueue{};
 
         vk::CommandPool m_cmdPool{};
+
+        std::vector<vk::CommandBuffer> m_cmdBufferSubmissionOrder{};
     };
 }

@@ -51,7 +51,7 @@ public:
         };
         m_renderTarget = rhi::RenderTarget::create(m_renderDevice, rtDecl);
 
-        m_cmdList = rhi::CommandList::create(m_renderDevice);
+        m_cmdList = m_renderDevice->create_cmd_list();
         m_fence = rhi::Fence::create(m_renderDevice);
 
         rhi::VertexInputFormatDecl vertexFormatDecl
@@ -87,12 +87,12 @@ public:
         auto tranferBuffer = rhi::Buffer::create_transfer(m_renderDevice, sizeof(Vertex) * vertices.size());
         tranferBuffer->write(0, sizeof(Vertex) * vertices.size(), vertices.data());
 
-        auto uploadCmd = rhi::CommandList::create(m_renderDevice);
+        auto uploadCmd = m_renderDevice->create_cmd_list(false);
         uploadCmd->begin();
         uploadCmd->copy_buffer_to_buffer(m_vertexBuffer.get(), 0, tranferBuffer.get(), 0, sizeof(Vertex) * vertices.size());
         uploadCmd->end();
-        m_renderDevice->submit({ uploadCmd.get() }, m_fence.get(), 1);
-        m_fence->wait(1);
+        m_renderDevice->submit_single(*uploadCmd, m_fence.get(), ++m_fenceValue);
+        m_fence->wait(m_fenceValue);
 
         RUNE_CLIENT_INFO("Sandbox initialised.");
     }
@@ -125,7 +125,7 @@ public:
         m_cmdList->transition_state(m_renderSurface->current_image(), rhi::ResourceState::RenderTarget, rhi::ResourceState::Present);
         m_cmdList->end();
 
-        m_renderDevice->submit({ m_cmdList.get() }, m_fence.get(), ++m_fenceValue);
+        m_renderDevice->submit(m_fence.get(), ++m_fenceValue);
         m_fence->wait(m_fenceValue);
 
         m_renderSurface->present();

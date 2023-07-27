@@ -12,6 +12,7 @@
 #include <vulkan-memory-allocator-hpp/vk_mem_alloc.hpp>
 
 #include <vector>
+#include <ranges>
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
@@ -145,21 +146,22 @@ namespace rune::rhi
         return m_instance->get_vk_instance();
     }
 
-    void DeviceVulkan::submit(const std::vector<CommandList*>& cmdLists, Fence* fence, u64 signalValue)
+    auto DeviceVulkan::create_cmd_list(bool autoSubmit) -> Owned<CommandList>
+    {
+        return create_owned<CommandListVulkan>(*this, autoSubmit);
+    }
+
+    void DeviceVulkan::submit(Fence* fence, u64 fenceValue)
     {
         vk::Semaphore signalSemaphore{};
         if (fence)
             signalSemaphore = static_cast<FenceVulkan*>(fence)->get_vk_semaphore();
 
-        std::vector<vk::CommandBuffer> cmdBuffers{};
-        for (auto& cmdList : cmdLists)
-            cmdBuffers.push_back(static_cast<CommandListVulkan*>(cmdList)->get_vk_cmd_buffer());
-
         vk::TimelineSemaphoreSubmitInfo timelineInfo{};
-        timelineInfo.setSignalSemaphoreValues(signalValue);
+        timelineInfo.setSignalSemaphoreValues(fenceValue);
 
         vk::SubmitInfo submitInfo{};
-        submitInfo.setCommandBuffers(cmdBuffers);
+        submitInfo.setCommandBuffers(m_cmdBufferSubmissionOrder);
         if (signalSemaphore)
         {
             submitInfo.setSignalSemaphores(signalSemaphore);
@@ -167,6 +169,49 @@ namespace rune::rhi
         }
 
         m_graphicsQueue.submit(submitInfo);
+        m_cmdBufferSubmissionOrder.clear();
+    }
+
+    void DeviceVulkan::submit_single(CommandList& cmdList, Fence* fence, u64 fenceValue)
+    {
+        vk::Semaphore signalSemaphore{};
+        if (fence)
+            signalSemaphore = static_cast<FenceVulkan*>(fence)->get_vk_semaphore();
+
+        vk::TimelineSemaphoreSubmitInfo timelineInfo{};
+        timelineInfo.setSignalSemaphoreValues(fenceValue);
+
+        auto vkCmdBuffer = static_cast<CommandListVulkan&>(cmdList).get_vk_cmd_buffer();
+
+        vk::SubmitInfo submitInfo{};
+        submitInfo.setCommandBuffers(vkCmdBuffer);
+        if (signalSemaphore)
+        {
+            submitInfo.setSignalSemaphores(signalSemaphore);
+            submitInfo.setPNext(&timelineInfo);
+        }
+
+        m_graphicsQueue.submit(submitInfo);
+    }
+
+    void DeviceVulkan::on_cmd_list_reset(CommandList& cmdList)
+    {
+        // #TODO: Make thread-safe
+        auto& vkCmdList = static_cast<CommandListVulkan&>(cmdList);
+        auto vkCmdBuffer = vkCmdList.get_vk_cmd_buffer();
+
+        auto it = std::remove(m_cmdBufferSubmissionOrder.begin(), m_cmdBufferSubmissionOrder.end(), vkCmdBuffer);
+        if (it != m_cmdBufferSubmissionOrder.end())
+            m_cmdBufferSubmissionOrder.erase(it);
+    }
+
+    void DeviceVulkan::on_cmd_list_begin(CommandList& cmdList)
+    {
+        // #TODO: Make thread-safe
+        auto& vkCmdList = static_cast<CommandListVulkan&>(cmdList);
+        auto vkCmdBuffer = vkCmdList.get_vk_cmd_buffer();
+
+        m_cmdBufferSubmissionOrder.push_back(vkCmdBuffer);
     }
 
 }

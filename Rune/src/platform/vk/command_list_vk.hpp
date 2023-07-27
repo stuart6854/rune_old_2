@@ -13,7 +13,7 @@ namespace rune::rhi
     class CommandListVulkan : public CommandList
     {
     public:
-        CommandListVulkan(Shared<DeviceVulkan> device);
+        CommandListVulkan(DeviceVulkan& device, bool autoSubmit);
         ~CommandListVulkan();
 
         auto get_vk_cmd_buffer() const -> vk::CommandBuffer { return m_cmdBuffer; }
@@ -41,11 +41,14 @@ namespace rune::rhi
 
         void copy_buffer_to_buffer(Buffer* dstBuffer, u64 dstOffset, Buffer* srcBuffer, u64 srcOffset, u64 size) override;
 
+        bool operator==(const CommandListVulkan& rhs) const { return m_cmdBuffer == rhs.m_cmdBuffer; }
+        bool operator!=(const CommandListVulkan& rhs) const { return !(*this == rhs); }
+
     private:
-        Shared<DeviceVulkan> m_device{ nullptr };
+        DeviceVulkan& m_device;
+        bool m_autoSubmit;
 
         vk::CommandBuffer m_cmdBuffer{};
-        vk::Fence m_fence{};
 
         PipelineStateVulkan* m_boundPipelineState{ nullptr };
     };

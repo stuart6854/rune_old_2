@@ -10,15 +10,11 @@
 
 namespace rune::rhi
 {
-    auto CommandList::create(Shared<Device> device) -> Owned<CommandList>
+    CommandListVulkan::CommandListVulkan(DeviceVulkan& device, bool autoSubmit)
+        : CommandList(device), m_device(device), m_autoSubmit(autoSubmit)
     {
-        return create_owned<CommandListVulkan>(static_pointer_cast<DeviceVulkan>(device));
-    }
-
-    CommandListVulkan::CommandListVulkan(Shared<DeviceVulkan> device) : m_device(device)
-    {
-        auto vkDevice = m_device->get_vk_device();
-        auto vkCmdPool = m_device->get_vk_cmd_pool();
+        auto vkDevice = m_device.get_vk_device();
+        auto vkCmdPool = m_device.get_vk_cmd_pool();
 
         vk::CommandBufferAllocateInfo allocInfo{};
         allocInfo.setCommandPool(vkCmdPool);
@@ -29,10 +25,9 @@ namespace rune::rhi
 
     CommandListVulkan::~CommandListVulkan()
     {
-        auto vkDevice = m_device->get_vk_device();
-        auto vkCmdPool = m_device->get_vk_cmd_pool();
+        auto vkDevice = m_device.get_vk_device();
+        auto vkCmdPool = m_device.get_vk_cmd_pool();
 
-        RUNE_UNUSED(vkDevice.waitForFences(m_fence, true, u64(-1)));
         vkDevice.freeCommandBuffers(vkCmdPool, m_cmdBuffer);
     }
 
@@ -40,12 +35,18 @@ namespace rune::rhi
     {
         m_cmdBuffer.reset();
         m_boundPipelineState = nullptr;
+
+        if (m_autoSubmit)
+            m_device.on_cmd_list_reset(*this);
     }
 
     void CommandListVulkan::begin()
     {
         vk::CommandBufferBeginInfo beginInfo{};
         m_cmdBuffer.begin(beginInfo);
+
+        if (m_autoSubmit)
+            m_device.on_cmd_list_begin(*this);
     }
 
     void CommandListVulkan::end()

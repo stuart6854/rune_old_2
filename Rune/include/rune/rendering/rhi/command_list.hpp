@@ -20,7 +20,8 @@ namespace rune::rhi
     class CommandList
     {
     public:
-        static auto create(Shared<Device> device) -> Owned<CommandList>;
+        CommandList(Device& device) {}
+        virtual ~CommandList() = default;
 
         virtual void reset() = 0;
 
