@@ -39,6 +39,16 @@ namespace rune
     {
         return std::make_shared<T>(std::forward<Args>(args)...);
     }
+
+    using hasht = u64;
+
+    template <typename T>
+    constexpr auto combine_hash(hasht& seed, const T& v)
+    {
+        std::hash<T> hasher;
+        seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+
 }
 
 #define RUNE_UNUSED(_x) (void)(_x)
