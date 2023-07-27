@@ -7,6 +7,8 @@
 #include "command_list_vk.hpp"
 #include "fence_vk.hpp"
 
+#include <vulkan/vulkan_hash.hpp>
+
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 #include <vulkan-memory-allocator-hpp/vk_mem_alloc.hpp>
@@ -144,6 +146,30 @@ namespace rune::rhi
     auto DeviceVulkan::get_vk_instance() const -> vk::Instance
     {
         return m_instance->get_vk_instance();
+    }
+
+    auto DeviceVulkan::get_or_create_set_layout(vk::DescriptorSetLayoutCreateInfo& createInfo) -> vk::DescriptorSetLayout
+    {
+        auto hash = std::hash<vk::DescriptorSetLayoutCreateInfo>{}(createInfo);
+        auto it = m_setLayoutMap.find(hash);
+        if (it != m_setLayoutMap.end())
+            return it->second;
+
+        auto layout = m_device.createDescriptorSetLayout(createInfo);
+        m_setLayoutMap[hash] = layout;
+        return layout;
+    }
+
+    auto DeviceVulkan::get_or_create_pipeline_layout(vk::PipelineLayoutCreateInfo& createInfo) -> vk::PipelineLayout
+    {
+        auto hash = std::hash<vk::PipelineLayoutCreateInfo>{}(createInfo);
+        auto it = m_pipelineLayoutMap.find(hash);
+        if (it != m_pipelineLayoutMap.end())
+            return it->second;
+
+        auto layout = m_device.createPipelineLayout(createInfo);
+        m_pipelineLayoutMap[hash] = layout;
+        return layout;
     }
 
     auto DeviceVulkan::create_cmd_list(bool autoSubmit) -> Owned<CommandList>

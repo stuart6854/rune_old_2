@@ -23,6 +23,9 @@ namespace rune::rhi
         auto get_vk_graphics_queue() const -> vk::Queue { return m_graphicsQueue; }
         auto get_vk_cmd_pool() const -> vk::CommandPool { return m_cmdPool; }
 
+        auto get_or_create_set_layout(vk::DescriptorSetLayoutCreateInfo& createInfo) -> vk::DescriptorSetLayout;
+        auto get_or_create_pipeline_layout(vk::PipelineLayoutCreateInfo& createInfo) -> vk::PipelineLayout;
+
         auto create_cmd_list(bool autoSubmit = true) -> Owned<CommandList> override;
 
         void submit(Fence* fence, u64 fenceValue) override;
@@ -48,5 +51,8 @@ namespace rune::rhi
         vk::CommandPool m_cmdPool{};
 
         std::vector<vk::CommandBuffer> m_cmdBufferSubmissionOrder{};
+
+        std::unordered_map<hasht, vk::DescriptorSetLayout> m_setLayoutMap{};
+        std::unordered_map<hasht, vk::PipelineLayout> m_pipelineLayoutMap{};
     };
 }
