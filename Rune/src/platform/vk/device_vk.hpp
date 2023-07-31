@@ -8,6 +8,7 @@
 namespace rune::rhi
 {
     class InstanceVulkan;
+    class SurfaceVulkan;
     class Fence;
 
     class DeviceVulkan : public Device
@@ -26,13 +27,12 @@ namespace rune::rhi
         auto get_or_create_set_layout(vk::DescriptorSetLayoutCreateInfo& createInfo) -> vk::DescriptorSetLayout;
         auto get_or_create_pipeline_layout(vk::PipelineLayoutCreateInfo& createInfo) -> vk::PipelineLayout;
 
+        auto create_surface(const SurfaceDecl& decl) -> Owned<Surface> override;
         auto create_cmd_list(bool autoSubmit = true) -> Owned<CommandList> override;
 
         void submit(Fence* fence, u64 fenceValue) override;
 
         void submit_single(CommandList& cmdList, Fence* fence, u64 fenceValue) override;
-
-        // void mark_for_destruction(Owned<Object>&& object);
 
     protected:
         friend class CommandListVulkan;
@@ -49,6 +49,8 @@ namespace rune::rhi
         vk::Queue m_graphicsQueue{};
 
         vk::CommandPool m_cmdPool{};
+
+        std::vector<SurfaceVulkan*> m_surfaces{};
 
         std::vector<vk::CommandBuffer> m_cmdBufferSubmissionOrder{};
 

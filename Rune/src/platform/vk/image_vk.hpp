@@ -12,8 +12,8 @@ namespace rune::rhi
     class ImageVulkan : public Image
     {
     public:
-        ImageVulkan(Shared<DeviceVulkan> device, const ImageDecl& decl);
-        ImageVulkan(Shared<DeviceVulkan> device, vk::Image image, vk::Format format, const glm::ivec3& size);
+        ImageVulkan(DeviceVulkan& device, const ImageDecl& decl);
+        ImageVulkan(DeviceVulkan& device, vk::Image image, vk::Format format, const glm::ivec3& size);
         ~ImageVulkan();
 
         auto get_vk_image() const -> vk::Image { return m_image; }
@@ -28,7 +28,7 @@ namespace rune::rhi
         void create_view();
 
     private:
-        Shared<DeviceVulkan> m_device{ nullptr };
+        DeviceVulkan& m_device;
 
         vk::Image m_image{};
         vma::Allocation m_allocation{};

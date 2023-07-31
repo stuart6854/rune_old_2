@@ -5,15 +5,10 @@
 
 namespace rune::rhi
 {
-    auto Surface::create(Shared<Device> device, const SurfaceDecl& decl) -> Owned<Surface>
+    SurfaceVulkan::SurfaceVulkan(DeviceVulkan& device, const SurfaceDecl& decl) : m_device(device)
     {
-        return create_owned<SurfaceVulkan>(static_pointer_cast<DeviceVulkan>(device), decl);
-    }
-
-    SurfaceVulkan::SurfaceVulkan(Shared<DeviceVulkan> device, const SurfaceDecl& decl) : m_device(device)
-    {
-        auto vkInstance = m_device->get_vk_instance();
-        auto vkDevice = m_device->get_vk_device();
+        auto vkInstance = m_device.get_vk_instance();
+        auto vkDevice = m_device.get_vk_device();
 
 #ifdef RUNE_PLATFORM_WINDOWS
         vk::Win32SurfaceCreateInfoKHR surfaceInfo{};
@@ -29,8 +24,8 @@ namespace rune::rhi
 
     SurfaceVulkan::~SurfaceVulkan()
     {
-        auto vkInstance = m_device->get_vk_instance();
-        auto vkDevice = m_device->get_vk_device();
+        auto vkInstance = m_device.get_vk_instance();
+        auto vkDevice = m_device.get_vk_device();
 
         vkDevice.destroy(m_swapchain);
         vkInstance.destroy(m_surface);
@@ -41,11 +36,11 @@ namespace rune::rhi
         if (size == m_size)
             return;
 
-        auto vkDevice = m_device->get_vk_device();
+        auto vkDevice = m_device.get_vk_device();
 
         auto oldSwapchain = m_swapchain;
 
-        auto surfaceCaps = m_device->get_vk_physical_device().getSurfaceCapabilitiesKHR(m_surface);
+        auto surfaceCaps = m_device.get_vk_physical_device().getSurfaceCapabilitiesKHR(m_surface);
         u32 imageCount = surfaceCaps.minImageCount + 1;
         if (surfaceCaps.maxImageCount > 0 && imageCount > surfaceCaps.maxImageCount)
         {
@@ -89,7 +84,7 @@ namespace rune::rhi
 
     void SurfaceVulkan::acquire_next_image()
     {
-        auto vkDevice = m_device->get_vk_device();
+        auto vkDevice = m_device.get_vk_device();
 
         m_imageIndex = vkDevice.acquireNextImageKHR(m_swapchain, u64(-1), {}, m_imageFence).value;
         RUNE_UNUSED(vkDevice.waitForFences(m_imageFence, true, u64(-1)));
@@ -98,7 +93,7 @@ namespace rune::rhi
 
     void SurfaceVulkan::present()
     {
-        auto queue = m_device->get_vk_graphics_queue();
+        auto queue = m_device.get_vk_graphics_queue();
 
         vk::PresentInfoKHR presentInfo{};
         presentInfo.setImageIndices(m_imageIndex);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rune/common.hpp"
+#include "resource.hpp"
 #include "vertex_input_format.hpp"
 
 #include <array>
@@ -63,7 +64,7 @@ namespace rune::rhi
     class Device;
 
     /* A ShaderProgram is defined by shader stages that make a pipeline. */
-    class ShaderProgram
+    class ShaderProgram : public Resource
     {
     public:
         static auto create(Shared<Device> device, const ShaderProgramDecl& decl) -> Owned<ShaderProgram>;

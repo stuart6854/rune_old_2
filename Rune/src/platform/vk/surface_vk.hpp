@@ -16,8 +16,11 @@ namespace rune::rhi
     class SurfaceVulkan : public Surface
     {
     public:
-        SurfaceVulkan(Shared<DeviceVulkan> device, const SurfaceDecl& decl);
+        SurfaceVulkan(DeviceVulkan& device, const SurfaceDecl& decl);
         ~SurfaceVulkan();
+
+        auto get_vk_swapchain() const -> auto { return m_swapchain; }
+        auto get_vk_image_index() const -> auto { return m_imageIndex; }
 
         auto size() const -> const glm::ivec2& { return m_size; }
 
@@ -29,7 +32,7 @@ namespace rune::rhi
         auto current_image() -> Image* override;
 
     private:
-        Shared<DeviceVulkan> m_device{ nullptr };
+        DeviceVulkan& m_device;
 
         vk::SurfaceKHR m_surface{};
         vk::SwapchainKHR m_swapchain{};

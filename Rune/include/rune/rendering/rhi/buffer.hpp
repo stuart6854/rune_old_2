@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rune/common.hpp"
+#include "resource.hpp"
 
 namespace rune::rhi
 {
@@ -22,7 +23,7 @@ namespace rune::rhi
 
     class Device;
 
-    class Buffer
+    class Buffer : public Resource
     {
     public:
         static auto create(Shared<Device> device, const BufferDecl& decl) -> Owned<Buffer>;

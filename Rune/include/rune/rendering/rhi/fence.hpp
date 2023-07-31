@@ -2,12 +2,13 @@
 
 #include "rune/common.hpp"
 #include "common.hpp"
+#include "resource.hpp"
 
 namespace rune::rhi
 {
     class Device;
 
-    class Fence
+    class Fence : public Resource
     {
     public:
         static auto create(Shared<Device> device, u64 initialValue = 0) -> Owned<Fence>;

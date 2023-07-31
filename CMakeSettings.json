@@ -1,42 +1,40 @@
 ﻿{
   "configurations": [
     {
-      "name": "x64-Debug",
+      "name": "Vulkan-Debug",
       "generator": "Ninja",
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "cmakeToolchain": "D:/Dev/__vcpkg/scripts/buildsystems/vcpkg.cmake",
-      "inheritEnvironments": [ "msvc_x64_x64" ]
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "cmakeCommandArgs": "-DRUNE_GRAPHICS_API=Vulkan"
     },
     {
-      "name": "x64-Release",
+      "name": "Vulkan-Release",
       "generator": "Ninja",
       "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "cmakeToolchain": "D:/Dev/__vcpkg/scripts/buildsystems/vcpkg.cmake",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": []
+      "cmakeCommandArgs": "-DRUNE_GRAPHICS_API=Vulkan"
     },
     {
-      "name": "x64-Dist",
+      "name": "Vulkan-Dist",
       "generator": "Ninja",
       "configurationType": "Release",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "cmakeToolchain": "D:/Dev/__vcpkg/scripts/buildsystems/vcpkg.cmake",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": []
+      "cmakeCommandArgs": "-DRUNE_GRAPHICS_API=Vulkan"
     }
   ]
 }

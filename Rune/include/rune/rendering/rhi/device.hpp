@@ -2,8 +2,16 @@
 
 #include "buffer.hpp"
 
+#ifdef RUNE_GRAPHICS_VULKAN
+    #include <vulkan/vulkan.hpp>
+#else
+    #error NO GRAPHICS API IN USE.
+#endif
+
 namespace rune::rhi
 {
+    class SurfaceDecl;
+    class Surface;
     class CommandList;
     class Fence;
 
@@ -16,6 +24,7 @@ namespace rune::rhi
     public:
         static auto create() -> Owned<Device>;
 
+        virtual auto create_surface(const SurfaceDecl& decl) -> Owned<Surface> = 0;
         virtual auto create_cmd_list(bool autoSubmit = true) -> Owned<CommandList> = 0;
 
         /**
@@ -29,6 +38,8 @@ namespace rune::rhi
          * @param cmdList
          */
         virtual void submit_single(CommandList& cmdList, Fence* fence, u64 fenceValue) = 0;
+
+        // void mark_for_destruction(const Shared<Resource>& resource);
 
     protected:
         virtual void on_cmd_list_reset(CommandList& cmdList) = 0;

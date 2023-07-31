@@ -2,6 +2,7 @@
 
 #include "rune/common.hpp"
 #include "common.hpp"
+#include "resource.hpp"
 
 #include <glm/ext/vector_int3.hpp>
 
@@ -23,7 +24,7 @@ namespace rune::rhi
 
     class Device;
 
-    class Image
+    class Image : public Resource
     {
     public:
         static auto create(Shared<Device> device, const ImageDecl& decl) -> Owned<Image>;

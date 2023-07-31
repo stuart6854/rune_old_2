@@ -2,6 +2,7 @@
 
 #include "rune/common.hpp"
 #include "common.hpp"
+#include "resource.hpp"
 
 namespace rune::rhi
 {
@@ -17,7 +18,7 @@ namespace rune::rhi
     class Buffer;
     class Image;
 
-    class CommandList
+    class CommandList : public Resource
     {
     public:
         CommandList(Device& device) {}

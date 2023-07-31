@@ -7,6 +7,10 @@
 #include "core/engine.hpp"
 
 #include "platform/platform.hpp"
-#include "rendering/rhi.hpp"
+
+#include "rune/rhi/enums.hpp"
+#include "rune/rhi/structs.hpp"
+#include "rune/rhi/resources.hpp"
+#include "rune/rhi/device.hpp"
 
 #include "events/events.hpp"

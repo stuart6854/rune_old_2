@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rune/common.hpp"
+#include "resource.hpp"
 
 #include <glm/ext/vector_int2.hpp>
 #include <glm/ext/vector_float4.hpp>
@@ -25,7 +26,7 @@ namespace rune::rhi
     class Device;
     class Surface;
 
-    class RenderTarget
+    class RenderTarget : public Resource
     {
     public:
         static auto create(Shared<Device> device, const RenderTargetDecl& decl) -> Owned<RenderTarget>;

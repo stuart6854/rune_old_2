@@ -20,7 +20,8 @@ public:
     {
         m_primaryWindow = platform::create_window("Sandbox", 800, 600);
 
-        // Compile Shader
+#if 0
+		// Compile Shader
         rhi::ShaderCompileDecl shaderCompileDecl{
             .SourceLanguage = rhi::ShaderSourceLanguage::GLSL,
             .SourceFilename = "shader.vert",
@@ -43,7 +44,7 @@ public:
             .SurfaceHandle = m_primaryWindow->native_surface_handle(),
             .Size = m_primaryWindow->fb_size(),
         };
-        m_renderSurface = rhi::Surface::create(m_renderDevice, surfaceDecl);
+        m_renderSurface = m_renderDevice->create_surface(surfaceDecl);
         rhi::RenderTargetDecl rtDecl{
             .Surface = m_renderSurface.get(),
             .ClearColorEnable = true,
@@ -93,14 +94,38 @@ public:
         uploadCmd->end();
         m_renderDevice->submit_single(*uploadCmd, m_fence.get(), ++m_fenceValue);
         m_fence->wait(m_fenceValue);
+#endif  // 0
+
+        m_renderDevice = create_owned<rhi::Device>(false);
+
+        rhi::SwapChainDesc swapChainDesc{
+            .width = u32(m_primaryWindow->fb_size().x),
+            .height = u32(m_primaryWindow->fb_size().y),
+        };
+        m_renderDevice->create_swapchain(swapChainDesc, m_primaryWindow->native_surface_handle(), m_swapchain);
+
+        rhi::ShaderProgramDesc programDesc{};
+        programDesc.stages.vertex = {
+            .enabled = true,
+            .sourceFilePath = "triangle.vert",
+            .sourceEntryPoint = "main",
+        };
+        programDesc.stages.fragment = {
+            .enabled = true,
+            .sourceFilePath = "triangle.frag",
+            .sourceEntryPoint = "main",
+        };
+        m_renderDevice->create_shader_program(programDesc, m_shaderProgram);
+
+        m_pipelineState.program = &m_shaderProgram;
 
         RUNE_CLIENT_INFO("Sandbox initialised.");
     }
 
     void shutdown(Engine& /*engine*/) override
     {
-        m_cmdList = nullptr;
-        m_renderDevice = nullptr;
+        // m_cmdList = nullptr;
+        // m_renderDevice = nullptr;
 
         platform::destroy_window(m_primaryWindow);
         m_primaryWindow = nullptr;
@@ -110,6 +135,7 @@ public:
 
     void update(Engine& engine) override
     {
+#if 0
         m_renderSurface->acquire_next_image();
 
         m_cmdList->reset();
@@ -129,6 +155,12 @@ public:
         m_fence->wait(m_fenceValue);
 
         m_renderSurface->present();
+#endif
+
+        auto cmd = m_renderDevice->begin_command_list();
+        m_renderDevice->begin_render_pass(m_swapchain, cmd);
+        m_renderDevice->end_render_pass(cmd);
+        m_renderDevice->submit_command_lists();
 
         if (m_primaryWindow->close_requested())
             engine.request_shutdown();
@@ -136,6 +168,11 @@ public:
 
 private:
     platform::WindowPtr m_primaryWindow{};
+    Owned<rhi::Device> m_renderDevice;
+    rhi::Swapchain m_swapchain;
+    rhi::ShaderProgram m_shaderProgram;
+    rhi::PipelineState m_pipelineState;
+#if 0
     Shared<rhi::Device> m_renderDevice{};
     Owned<rhi::Surface> m_renderSurface{};
     Owned<rhi::RenderTarget> m_renderTarget{};
@@ -145,6 +182,7 @@ private:
     Shared<rhi::ShaderProgram> m_shaderProgram{};
     Owned<rhi::PipelineState> m_pipelineState{};
     Owned<rhi::Buffer> m_vertexBuffer{};
+#endif
 };
 
 int main()

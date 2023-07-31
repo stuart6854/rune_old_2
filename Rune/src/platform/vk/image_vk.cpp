@@ -5,9 +5,9 @@
 
 namespace rune::rhi
 {
-    ImageVulkan::ImageVulkan(Shared<DeviceVulkan> device, const ImageDecl& decl) : m_device(device), m_decl(decl)
+    ImageVulkan::ImageVulkan(DeviceVulkan& device, const ImageDecl& decl) : m_device(device), m_decl(decl)
     {
-        auto vkAllocator = m_device->get_vk_allocator();
+        auto vkAllocator = m_device.get_vk_allocator();
 
         vk::ImageCreateInfo imageInfo{};
         imageInfo.setImageType(decl.Size.z > 1 ? vk::ImageType::e3D : decl.Size.y > 1 ? vk::ImageType::e2D : vk::ImageType::e1D);
@@ -32,7 +32,7 @@ namespace rune::rhi
         create_view();
     }
 
-    ImageVulkan::ImageVulkan(Shared<DeviceVulkan> device, vk::Image image, vk::Format format, const glm::ivec3& size)
+    ImageVulkan::ImageVulkan(DeviceVulkan& device, vk::Image image, vk::Format format, const glm::ivec3& size)
         : m_device(device), m_image(image)
     {
         m_decl.Format = convert(format);
@@ -50,8 +50,8 @@ namespace rune::rhi
 
     ImageVulkan::~ImageVulkan()
     {
-        auto vkDevice = m_device->get_vk_device();
-        auto vkAllocator = m_device->get_vk_allocator();
+        auto vkDevice = m_device.get_vk_device();
+        auto vkAllocator = m_device.get_vk_allocator();
 
         vkDevice.destroy(m_view);
 
@@ -63,7 +63,7 @@ namespace rune::rhi
 
     void ImageVulkan::create_view()
     {
-        auto vkDevice = m_device->get_vk_device();
+        auto vkDevice = m_device.get_vk_device();
 
         vk::ImageViewCreateInfo viewInfo{};
         viewInfo.setImage(m_image);

@@ -3,6 +3,7 @@
 #include "rune/debug/log_engine.hpp"
 #include "rune/debug/assert_engine.hpp"
 #include "instance_vk.hpp"
+#include "surface_vk.hpp"
 #include "buffer_vk.hpp"
 #include "command_list_vk.hpp"
 #include "fence_vk.hpp"
@@ -172,6 +173,13 @@ namespace rune::rhi
         return layout;
     }
 
+    auto DeviceVulkan::create_surface(const SurfaceDecl& decl) -> Owned<Surface>
+    {
+        auto surface = create_owned<SurfaceVulkan>(*this, decl);
+        m_surfaces.push_back(surface.get());
+        return std::move(surface);
+    }
+
     auto DeviceVulkan::create_cmd_list(bool autoSubmit) -> Owned<CommandList>
     {
         return create_owned<CommandListVulkan>(*this, autoSubmit);
@@ -196,6 +204,22 @@ namespace rune::rhi
 
         m_graphicsQueue.submit(submitInfo);
         m_cmdBufferSubmissionOrder.clear();
+
+        // #TODO: Present all surfaces
+
+        std::vector<vk::SwapchainKHR> swapchains(m_surfaces.size());
+        std::vector<u32> imageIndices(m_surfaces.size());
+        for (auto i = 0; i < m_surfaces.size(); ++i)
+        {
+            swapchains[i] = m_surfaces[i]->get_vk_swapchain();
+            imageIndices[i] = m_surfaces[i]->get_vk_image_index();
+        }
+
+        vk::PresentInfoKHR presentInfo{};
+        presentInfo.setSwapchains(swapchains);
+        presentInfo.setImageIndices(imageIndices);
+        presentInfo.setWaitSemaphores({});
+        RUNE_UNUSED(m_graphicsQueue.presentKHR(presentInfo));
     }
 
     void DeviceVulkan::submit_single(CommandList& cmdList, Fence* fence, u64 fenceValue)

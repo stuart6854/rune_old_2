@@ -1,5 +1,7 @@
 #pragma once
 
+#include "resource.hpp"
+
 #include <glm/ext/vector_int2.hpp>
 
 namespace rune::rhi
@@ -14,11 +16,9 @@ namespace rune::rhi
         glm::ivec2 Size{};
     };
 
-    class Surface
+    class Surface : public Resource
     {
     public:
-        static auto create(Shared<Device> device, const SurfaceDecl& decl) -> Owned<Surface>;
-
         virtual ~Surface() = default;
 
         virtual auto size() const -> const glm::ivec2& = 0;
