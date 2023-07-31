@@ -7,58 +7,48 @@
 
 namespace rune::rhi
 {
-    class Resource
+    template <typename T>
+    struct Resource
     {
-    public:
+        std::shared_ptr<T> internal;
+
         virtual ~Resource() = default;
-
-        bool is_valid() const { return m_internalState != nullptr; }
-
-        template <typename T>
-        auto get_internal_state() -> std::shared_ptr<T>
-        {
-            return std::static_pointer_cast<T>(m_internalState);
-        }
-
-        template <typename T>
-        void set_internal_state(std::shared_ptr<T>& internalState)
-        {
-            m_internalState = internalState;
-        }
-
-        void set_internal_state(std::nullptr_t) { m_internalState = nullptr; }
-
-    private:
-        std::shared_ptr<void> m_internalState;
+        bool is_valid() const { return internal != nullptr; }
     };
 
-    struct CommandList : public Resource
+    struct CommandListInternal;
+    struct CommandList : public Resource<CommandListInternal>
     {
         QueueType queueType;
     };
 
-    struct Swapchain : public Resource
+    struct SwapchainInternal;
+    struct Swapchain : public Resource<SwapchainInternal>
     {
         SwapChainDesc desc;  // Visible to App/Engine. Stored here for convenience. (Not necessarily what GPU used for resource)
     };
 
-    struct ShaderProgram : Resource
+    struct ShaderProgramInternal;
+    struct ShaderProgram : Resource<ShaderProgramInternal>
     {
         ShaderProgramDesc desc;
     };
 
-    struct GPUResource : public Resource
+    template <typename T>
+    struct GPUResource : public Resource<T>
     {
         void* mappedData{ nullptr };
         std::size_t mappedSize{ 0 };
     };
 
-    struct Buffer : public GPUResource
+    struct BufferInternal;
+    struct Buffer : public GPUResource<BufferInternal>
     {
         BufferDesc desc;  // Visible to App/Engine. Stored here for convenience. (Not necessarily what GPU used for resource)
     };
 
-    struct Texture : public GPUResource
+    struct TextureInternal;
+    struct Texture : public GPUResource<TextureInternal>
     {
         TextureDesc desc;  // Visible to App/Engine. Stored here for convenience. (Not necessarily what GPU used for resource)
     };

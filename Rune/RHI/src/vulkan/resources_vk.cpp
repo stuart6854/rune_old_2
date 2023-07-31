@@ -4,24 +4,11 @@
 
 namespace rune::rhi
 {
-    SwapChainVulkan::~SwapChainVulkan()
-    {
-        device.destroy(acquireSemaphore);
-        device.destroy(releaseSemaphore);
-
-        for (auto& view : imageViews)
-            device.destroy(view);
-        imageViews.clear();
-
-        device.destroy(swapchain);
-        instance.destroy(surface);
-    }
-
-    void SwapChainVulkan::resize(const SwapChainDesc& desc, vk::PhysicalDevice physicalDevice, vk::Device device)
+    void SwapchainInternal::resize(const SwapChainDesc& desc)
     {
         auto oldSwapchain = swapchain;
 
-        auto surfaceCaps = physicalDevice.getSurfaceCapabilitiesKHR(surface);
+        auto surfaceCaps = device->physicalDevice.getSurfaceCapabilitiesKHR(surface);
         std::uint32_t imageCount = desc.bufferCount;
         if (surfaceCaps.maxImageCount > 0 && imageCount > surfaceCaps.maxImageCount)
         {
@@ -45,14 +32,14 @@ namespace rune::rhi
         swapchainInfo.setPresentMode(presentMode);
         swapchainInfo.setClipped(true);
         swapchainInfo.setOldSwapchain(oldSwapchain);
-        swapchain = device.createSwapchainKHR(swapchainInfo);
+        swapchain = device->device.createSwapchainKHR(swapchainInfo);
 
         if (oldSwapchain)
         {
-            device.destroy(oldSwapchain);
+            device->device.destroy(oldSwapchain);
         }
 
-        images = device.getSwapchainImagesKHR(swapchain);
+        images = device->device.getSwapchainImagesKHR(swapchain);
         imageViews.resize(images.size());
         for (auto i = 0; i < images.size(); ++i)
         {
@@ -66,13 +53,13 @@ namespace rune::rhi
             viewInfo.subresourceRange.setLevelCount(1);
             viewInfo.subresourceRange.setBaseMipLevel(0);
 
-            imageViews[i] = device.createImageView(viewInfo);
+            imageViews[i] = device->device.createImageView(viewInfo);
         }
 
         if (!acquireSemaphore)
-            acquireSemaphore = device.createSemaphore({});
+            acquireSemaphore = device->device.createSemaphore({});
         if (!releaseSemaphore)
-            releaseSemaphore = device.createSemaphore({});
+            releaseSemaphore = device->device.createSemaphore({});
     }
 
 }

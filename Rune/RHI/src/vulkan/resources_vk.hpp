@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rune/rhi/structs.hpp"
+#include "device_vk.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan-memory-allocator-hpp/vk_mem_alloc.hpp>
@@ -9,18 +10,33 @@
 
 namespace rune::rhi
 {
-    struct CommandListVulkan
+    class DeviceInternal;
+
+    struct CommandListInternal
     {
-        vk::CommandBuffer cmd;
-        std::vector<vk::ImageMemoryBarrier2> preRenderPassBarriers;
-        std::vector<vk::ImageMemoryBarrier2> postRenderPassBarriers;
+        std::shared_ptr<DeviceInternal> device = nullptr;
+        vk::CommandBuffer cmd = nullptr;
+        vk::Fence fence = nullptr;
+        std::vector<vk::ImageMemoryBarrier2> preRenderPassBarriers = {};
+        std::vector<vk::ImageMemoryBarrier2> postRenderPassBarriers = {};
+
+        std::vector<std::shared_ptr<void>> usedResources = {};
+
+        CommandListInternal(std::shared_ptr<DeviceInternal> device) : device(device)
+        {
+            vk::CommandBufferAllocateInfo allocInfo{};
+            allocInfo.setCommandBufferCount(1);
+            allocInfo.setCommandPool(device->commandPool);
+            allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
+            cmd = device->device.allocateCommandBuffers(allocInfo)[0];
+        }
+
+        ~CommandListInternal() { device->device.freeCommandBuffers(device->commandPool, cmd); }
     };
 
-    struct SwapChainVulkan
+    struct SwapchainInternal
     {
-        vk::Instance instance;
-        vk::PhysicalDevice physicalDevice;
-        vk::Device device;
+        std::shared_ptr<DeviceInternal> device = nullptr;
         vk::SurfaceKHR surface;
         vk::SwapchainKHR swapchain;
         std::uint32_t imageIndex;
@@ -29,27 +45,53 @@ namespace rune::rhi
         vk::Semaphore acquireSemaphore;  // Signalled on acquire complete
         vk::Semaphore releaseSemaphore;  // Signalled on render complete
 
-        ~SwapChainVulkan();
+        SwapchainInternal(std::shared_ptr<DeviceInternal> device, void* window) : device(device)
+        {
+            if (!surface)
+            {
+#ifdef _WIN32
+                vk::Win32SurfaceCreateInfoKHR surfaceInfo{};
+                surfaceInfo.setHinstance(GetModuleHandle(nullptr));
+                surfaceInfo.setHwnd(HWND(window));
+                surface = device->instanceState->instance.createWin32SurfaceKHR(surfaceInfo);
+#else
+    #error RUNE RHI Device Error: Platform not supported.
+#endif
+            }
+        }
 
-        void resize(const SwapChainDesc& desc, vk::PhysicalDevice physicalDevice, vk::Device device);
+        ~SwapchainInternal()
+        {
+            device->device.destroy(acquireSemaphore);
+            device->device.destroy(releaseSemaphore);
+
+            for (auto& view : imageViews)
+                device->device.destroy(view);
+            imageViews.clear();
+
+            device->device.destroy(swapchain);
+            device->instanceState->instance.destroy(surface);
+        }
+
+        void resize(const SwapChainDesc& desc);
     };
 
-    struct ShaderProgramVulkan
+    struct ShaderProgramInternal
     {
         std::vector<vk::PipelineShaderStageCreateInfo> stages;
         vk::PipelineBindPoint bindPoint;
     };
 
-    struct BufferVulkan
+    struct BufferInternal
     {
-        vma::Allocator allocator;
+        std::shared_ptr<DeviceInternal> device = nullptr;
         vk::Buffer buffer;
         vma::Allocation allocation;
 
-        ~BufferVulkan()
+        ~BufferInternal()
         {
             if (allocation)
-                allocator.destroyBuffer(buffer, allocation);
+                device->allocator.destroyBuffer(buffer, allocation);
         }
     };
 }

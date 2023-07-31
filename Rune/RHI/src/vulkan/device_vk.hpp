@@ -7,32 +7,32 @@
 
 namespace rune::rhi
 {
-    struct VulkanInstanceState
+    struct VulkanInstance
     {
         vk::DynamicLoader loader;
         vk::Instance instance;
         vk::DebugUtilsMessengerEXT messenger;
 
-        VulkanInstanceState();
-        ~VulkanInstanceState();
+        VulkanInstance();
+        ~VulkanInstance();
     };
 
-    class CommandListVulkan;
-    class SwapChainVulkan;
+    struct CommandListInternal;
+    struct SwapchainInternal;
 
-    struct DeviceVulkanInternalState
+    struct DeviceInternal
     {
-        std::shared_ptr<VulkanInstanceState> instanceState;
+        std::shared_ptr<VulkanInstance> instanceState;
         vk::PhysicalDevice physicalDevice;
         vk::Device device;
         vk::Queue graphicsQueue;
         vma::Allocator allocator;
         vk::CommandPool commandPool;
-        std::vector<std::shared_ptr<CommandListVulkan>> activeCmdLists;
-        std::vector<std::shared_ptr<SwapChainVulkan>> activeSwapChains;
+        std::vector<std::shared_ptr<CommandListInternal>> activeCmdLists;
+        std::vector<std::shared_ptr<SwapchainInternal>> activeSwapChains;
         std::vector<vk::Semaphore> submitWaitSemaphores;
         std::vector<vk::Semaphore> submitSignalSemaphores;
 
-        ~DeviceVulkanInternalState();
+        ~DeviceInternal();
     };
 }

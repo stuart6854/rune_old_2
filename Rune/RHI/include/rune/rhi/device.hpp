@@ -8,9 +8,11 @@
 
 namespace rune::rhi
 {
-    class Device
+    struct DeviceInternal;
+    struct Device
     {
-    public:
+        std::shared_ptr<DeviceInternal> internal;
+
         Device(bool useDebugLayer);
         ~Device();
 
@@ -41,17 +43,12 @@ namespace rune::rhi
          * @brief Hand resource over to device to handle deletion of resource safely.
          * @param resource
          */
-        void defer_deletion(Buffer& resource);
+        void destroy_resource(Buffer& resource);
 
         void begin_render_pass(Swapchain& swapchain, CommandList& cmdList);
         void begin_render_pass(const std::vector<RenderPassImage>& images, CommandList& cmdList);
         void end_render_pass(CommandList& cmdList);
         void set_pipeline_state(PipelineState& state, CommandList& cmdList);
-
-        auto get_internal_state() -> std::any& { return m_internalState; }
-
-    private:
-        std::any m_internalState;
     };
 
 }

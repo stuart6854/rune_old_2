@@ -19,7 +19,7 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 namespace rune::rhi
 {
-    std::shared_ptr<VulkanInstanceState> s_vulkanInstanceState{ nullptr };
+    std::shared_ptr<VulkanInstance> s_vulkanInstanceState{ nullptr };
 
     VKAPI_ATTR VkBool32 VKAPI_CALL debug_utils_messenger_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
                                                                   VkDebugUtilsMessageTypeFlagsEXT /*message_type*/,
@@ -40,7 +40,7 @@ namespace rune::rhi
         return VK_FALSE;
     }
 
-    VulkanInstanceState::VulkanInstanceState()
+    VulkanInstance::VulkanInstance()
     {
         PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = loader.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
         VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
@@ -89,15 +89,13 @@ namespace rune::rhi
         }
     }
 
-    VulkanInstanceState::~VulkanInstanceState()
+    VulkanInstance::~VulkanInstance()
     {
         instance.destroy(messenger);
         instance.destroy();
     }
 
-#define GET_VK_DEVICE_STATE() std::any_cast<DeviceVulkanInternalState>(&m_internalState)
-
-    DeviceVulkanInternalState::~DeviceVulkanInternalState()
+    DeviceInternal::~DeviceInternal()
     {
         device.destroy(commandPool);
         allocator.destroy();
@@ -108,22 +106,20 @@ namespace rune::rhi
             s_vulkanInstanceState = nullptr;
     }
 
-    Device::Device(bool useDebugLayer) : m_internalState(std::make_any<DeviceVulkanInternalState>())
+    Device::Device(bool useDebugLayer) : internal(std::make_shared<DeviceInternal>())
     {
-        auto* vkDeviceInternalState = GET_VK_DEVICE_STATE();
-
         if (!s_vulkanInstanceState)
         {
-            s_vulkanInstanceState = std::make_shared<VulkanInstanceState>();
+            s_vulkanInstanceState = std::make_shared<VulkanInstance>();
         }
 
-        vkDeviceInternalState->instanceState = s_vulkanInstanceState;
+        internal->instanceState = s_vulkanInstanceState;
 
         // #TODO: Pick best GPU
-        vkDeviceInternalState->physicalDevice = vkDeviceInternalState->instanceState->instance.enumeratePhysicalDevices()[0];
-        if (!vkDeviceInternalState->physicalDevice)
+        internal->physicalDevice = internal->instanceState->instance.enumeratePhysicalDevices()[0];
+        if (!internal->physicalDevice)
         {
-            m_internalState = nullptr;
+            internal = nullptr;
             return;
         }
 
@@ -161,27 +157,27 @@ namespace rune::rhi
         deviceInfo.setPEnabledExtensionNames(deviceExtensions);
         deviceInfo.setPEnabledFeatures(&features);
         deviceInfo.setPNext(&sync2Features);
-        vkDeviceInternalState->device = vkDeviceInternalState->physicalDevice.createDevice(deviceInfo);
-        if (!vkDeviceInternalState->device)
+        internal->device = internal->physicalDevice.createDevice(deviceInfo);
+        if (!internal->device)
         {
-            m_internalState = nullptr;
+            internal = nullptr;
             return;
         }
-        VULKAN_HPP_DEFAULT_DISPATCHER.init(vkDeviceInternalState->device);
+        VULKAN_HPP_DEFAULT_DISPATCHER.init(internal->device);
 
-        vkDeviceInternalState->graphicsQueue = vkDeviceInternalState->device.getQueue(0, 0);
+        internal->graphicsQueue = internal->device.getQueue(0, 0);
 
         vma::AllocatorCreateInfo allocatorInfo{};
-        allocatorInfo.setInstance(vkDeviceInternalState->instanceState->instance);
-        allocatorInfo.setPhysicalDevice(vkDeviceInternalState->physicalDevice);
-        allocatorInfo.setDevice(vkDeviceInternalState->device);
+        allocatorInfo.setInstance(internal->instanceState->instance);
+        allocatorInfo.setPhysicalDevice(internal->physicalDevice);
+        allocatorInfo.setDevice(internal->device);
         allocatorInfo.setVulkanApiVersion(VK_API_VERSION_1_3);
-        vkDeviceInternalState->allocator = vma::createAllocator(allocatorInfo);
+        internal->allocator = vma::createAllocator(allocatorInfo);
 
         vk::CommandPoolCreateInfo cmdPoolInfo{};
         cmdPoolInfo.setQueueFamilyIndex(0);
         cmdPoolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-        vkDeviceInternalState->commandPool = vkDeviceInternalState->device.createCommandPool(cmdPoolInfo);
+        internal->commandPool = internal->device.createCommandPool(cmdPoolInfo);
     }
 
     Device::~Device()
@@ -191,43 +187,19 @@ namespace rune::rhi
 
     bool Device::create_swapchain(const SwapChainDesc& desc, void* window, Swapchain& swapchain)
     {
-        auto* vkDeviceInternalState = GET_VK_DEVICE_STATE();
-
         if (!swapchain.is_valid())
         {
-            auto newSwapChainState = std::make_shared<SwapChainVulkan>();
-            newSwapChainState->instance = vkDeviceInternalState->instanceState->instance;
-            newSwapChainState->physicalDevice = vkDeviceInternalState->physicalDevice;
-            newSwapChainState->device = vkDeviceInternalState->device;
-
-            swapchain.set_internal_state(newSwapChainState);
-            vkDeviceInternalState->activeSwapChains.push_back(newSwapChainState);
+            auto vkSwapchainState = std::make_shared<SwapchainInternal>(internal, window);
+            swapchain.internal = vkSwapchainState;
         }
-        auto vkSwapChainInternalState = swapchain.get_internal_state<SwapChainVulkan>();
-
-        swapchain.desc = desc;
-        if (!vkSwapChainInternalState->surface)
-        {
-#ifdef _WIN32
-            vk::Win32SurfaceCreateInfoKHR surfaceInfo{};
-            surfaceInfo.setHinstance(GetModuleHandle(nullptr));
-            surfaceInfo.setHwnd(HWND(window));
-            vkSwapChainInternalState->surface = vkDeviceInternalState->instanceState->instance.createWin32SurfaceKHR(surfaceInfo);
-#else
-    #error RUNE RHI Device Error: Platform not supported.
-#endif
-        }
-        vkSwapChainInternalState->resize(desc, vkDeviceInternalState->physicalDevice, vkDeviceInternalState->device);
+        swapchain.internal->resize(desc);
 
         return true;
     }
 
     bool Device::create_shader_program(const ShaderProgramDesc& desc, ShaderProgram& program)
     {
-        auto* vkDeviceInternalState = GET_VK_DEVICE_STATE();
-
-        auto vkShaderProgramInternalState = std::make_shared<ShaderProgramVulkan>();
-        program.set_internal_state(vkShaderProgramInternalState);
+        program.internal = std::make_shared<ShaderProgramInternal>();
         program.desc = desc;
 
 #define CREATE_SHADER_MODULE(_stageDesc, _vkStage)                                             \
@@ -236,25 +208,25 @@ namespace rune::rhi
         vk::ShaderModuleCreateInfo moduleInfo{};                                               \
         moduleInfo.pCode = reinterpret_cast<const std::uint32_t*>(_stageDesc.byteCode.data()); \
         moduleInfo.codeSize = _stageDesc.byteCode.size();                                      \
-        auto module = vkDeviceInternalState->device.createShaderModule(moduleInfo);            \
+        auto module = internal->device.createShaderModule(moduleInfo);                         \
                                                                                                \
         vk::PipelineShaderStageCreateInfo stageInfo{};                                         \
         stageInfo.setModule(module);                                                           \
         stageInfo.setPName("main");                                                            \
         stageInfo.setStage(vk::ShaderStageFlagBits::_vkStage);                                 \
-        vkShaderProgramInternalState->stages.push_back(stageInfo);                             \
+        program.internal->stages.push_back(stageInfo);                                         \
     }
 
         if (desc.stages.compute.enabled)
         {
             CREATE_SHADER_MODULE(desc.stages.compute, eCompute);
-            vkShaderProgramInternalState->bindPoint = vk::PipelineBindPoint::eCompute;
+            program.internal->bindPoint = vk::PipelineBindPoint::eCompute;
         }
         else
         {
             CREATE_SHADER_MODULE(desc.stages.vertex, eVertex);
             CREATE_SHADER_MODULE(desc.stages.fragment, eFragment);
-            vkShaderProgramInternalState->bindPoint = vk::PipelineBindPoint::eGraphics;
+            program.internal->bindPoint = vk::PipelineBindPoint::eGraphics;
         }
 
         return true;
@@ -262,59 +234,48 @@ namespace rune::rhi
 
     bool Device::create_buffer(const BufferDesc& desc, Buffer& buffer)
     {
-        auto vkBufferInternalState = std::make_shared<BufferVulkan>();
-        buffer.set_internal_state(vkBufferInternalState);
+        buffer.internal = std::make_shared<BufferInternal>();
 
         return true;
     }
 
     auto Device::begin_command_list(QueueType queueType) -> CommandList
     {
-        auto* vkDeviceInternalState = GET_VK_DEVICE_STATE();
-
-        auto vkCmdListInternalState = std::make_shared<CommandListVulkan>();
-
-        vk::CommandBufferAllocateInfo allocInfo{};
-        allocInfo.setCommandBufferCount(1);
-        allocInfo.setCommandPool(vkDeviceInternalState->commandPool);
-        allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
-        vkCmdListInternalState->cmd = vkDeviceInternalState->device.allocateCommandBuffers(allocInfo)[0];
+        auto vkCmdListInternalState = std::make_shared<CommandListInternal>(internal);
 
         CommandList cmdList{};
         cmdList.queueType = queueType;
-        cmdList.set_internal_state(vkCmdListInternalState);
+        cmdList.internal = vkCmdListInternalState;
 
         vk::CommandBufferBeginInfo beginInfo{};
         beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
         vkCmdListInternalState->cmd.begin(beginInfo);
 
-        vkDeviceInternalState->activeCmdLists.push_back(vkCmdListInternalState);
+        internal->activeCmdLists.push_back(vkCmdListInternalState);
 
         return cmdList;
     }
 
     void Device::submit_command_lists()
     {
-        auto* vkDeviceInternalState = GET_VK_DEVICE_STATE();
-
         std::vector<vk::Semaphore> submitSignalSemaphores{};
-        if (!vkDeviceInternalState->activeCmdLists.empty())
+        if (!internal->activeCmdLists.empty())
         {
             // Command Buffers
             std::vector<vk::CommandBufferSubmitInfo> cmdBufferInfos{};
-            for (auto i = 0; i < vkDeviceInternalState->activeCmdLists.size(); ++i)
+            for (auto i = 0; i < internal->activeCmdLists.size(); ++i)
             {
-                vkDeviceInternalState->activeCmdLists[i]->cmd.end();
+                internal->activeCmdLists[i]->cmd.end();
 
                 auto& cmdInfo = cmdBufferInfos.emplace_back();
-                cmdInfo.setCommandBuffer(vkDeviceInternalState->activeCmdLists[i]->cmd);
+                cmdInfo.setCommandBuffer(internal->activeCmdLists[i]->cmd);
             }
 
             // Wait Semaphores
             std::vector<vk::SemaphoreSubmitInfo> waitSemaphoreInfos{};
-            for (auto i = 0; i < vkDeviceInternalState->activeSwapChains.size(); ++i)
+            for (auto i = 0; i < internal->activeSwapChains.size(); ++i)
             {
-                auto& swapchain = vkDeviceInternalState->activeSwapChains[i];
+                auto& swapchain = internal->activeSwapChains[i];
 
                 auto& semaphoreInfo = waitSemaphoreInfos.emplace_back();
                 semaphoreInfo.setSemaphore(swapchain->acquireSemaphore);
@@ -323,9 +284,9 @@ namespace rune::rhi
 
             // Signal Semaphores
             std::vector<vk::SemaphoreSubmitInfo> signalSemaphoreInfos{};
-            for (auto i = 0; i < vkDeviceInternalState->activeSwapChains.size(); ++i)
+            for (auto i = 0; i < internal->activeSwapChains.size(); ++i)
             {
-                auto& swapchain = vkDeviceInternalState->activeSwapChains[i];
+                auto& swapchain = internal->activeSwapChains[i];
 
                 submitSignalSemaphores.push_back(swapchain->releaseSemaphore);
                 auto& semaphoreInfo = signalSemaphoreInfos.emplace_back();
@@ -337,54 +298,46 @@ namespace rune::rhi
             submitInfo.setWaitSemaphoreInfos(waitSemaphoreInfos);
             submitInfo.setSignalSemaphoreInfos(signalSemaphoreInfos);
 
-            vkDeviceInternalState->graphicsQueue.submit2(submitInfo);
-            vkDeviceInternalState->activeCmdLists.clear();
+            internal->graphicsQueue.submit2(submitInfo);
+            internal->activeCmdLists.clear();
         }
 
         // Present Swapchains
-        if (!vkDeviceInternalState->activeSwapChains.empty())
+        if (!internal->activeSwapChains.empty())
         {
-            std::vector<vk::SwapchainKHR> swapchains(vkDeviceInternalState->activeSwapChains.size());
-            std::vector<std::uint32_t> imageIndices(vkDeviceInternalState->activeSwapChains.size());
+            std::vector<vk::SwapchainKHR> swapchains(internal->activeSwapChains.size());
+            std::vector<std::uint32_t> imageIndices(internal->activeSwapChains.size());
             for (auto i = 0; i < swapchains.size(); ++i)
             {
-                swapchains[i] = vkDeviceInternalState->activeSwapChains[i]->swapchain;
-                imageIndices[i] = vkDeviceInternalState->activeSwapChains[i]->imageIndex;
+                swapchains[i] = internal->activeSwapChains[i]->swapchain;
+                imageIndices[i] = internal->activeSwapChains[i]->imageIndex;
             }
 
             vk::PresentInfoKHR presentInfo{};
             presentInfo.setSwapchains(swapchains);
             presentInfo.setImageIndices(imageIndices);
             presentInfo.setWaitSemaphores(submitSignalSemaphores);
-            void(vkDeviceInternalState->graphicsQueue.presentKHR(presentInfo));
+            void(internal->graphicsQueue.presentKHR(presentInfo));
         }
     }
 
     void Device::wait_for_gpu()
     {
-        auto* vkDeviceInternalState = GET_VK_DEVICE_STATE();
-        vkDeviceInternalState->device.waitIdle();
+        internal->device.waitIdle();
     }
 
-    void Device::defer_deletion(Buffer& resource)
+    void Device::destroy_resource(Buffer& resource)
     {
-        auto internalState = resource.get_internal_state<BufferVulkan>();
-
-        resource.set_internal_state(nullptr);
-
-        // #TODO: Handle deferred deletion
+        resource.internal = nullptr;
     }
 
     void Device::begin_render_pass(Swapchain& swapchain, CommandList& cmdList)
     {
-        auto vkDeviceInternalState = GET_VK_DEVICE_STATE();
-        auto vkCmdListInternalState = cmdList.get_internal_state<CommandListVulkan>();
-        auto cmd = vkCmdListInternalState->cmd;
-        auto vkSwapchainInternalState = swapchain.get_internal_state<SwapChainVulkan>();
+        auto cmd = cmdList.internal->cmd;
 
-        auto result = vkDeviceInternalState->device.acquireNextImageKHR(
-            vkSwapchainInternalState->swapchain, std::uint64_t(-1), vkSwapchainInternalState->acquireSemaphore, {});
-        vkSwapchainInternalState->imageIndex = result.value;
+        auto result = internal->device.acquireNextImageKHR(
+            swapchain.internal->swapchain, std::uint64_t(-1), swapchain.internal->acquireSemaphore, {});
+        swapchain.internal->imageIndex = result.value;
 
         if (result.result != vk::Result::eSuccess)
         {
@@ -392,7 +345,7 @@ namespace rune::rhi
         }
 
         vk::ImageMemoryBarrier2 barrier{};
-        barrier.setImage(vkSwapchainInternalState->images[vkSwapchainInternalState->imageIndex]);
+        barrier.setImage(swapchain.internal->images[swapchain.internal->imageIndex]);
         barrier.setOldLayout(vk::ImageLayout::eUndefined);
         barrier.setNewLayout(vk::ImageLayout::eColorAttachmentOptimal);
         barrier.setSrcStageMask(vk::PipelineStageFlagBits2::eTopOfPipe);
@@ -404,7 +357,7 @@ namespace rune::rhi
         barrier.subresourceRange.setBaseArrayLayer(0);
         barrier.subresourceRange.setLevelCount(1);
         barrier.subresourceRange.setBaseMipLevel(0);
-        vkCmdListInternalState->preRenderPassBarriers.push_back(barrier);
+        cmdList.internal->preRenderPassBarriers.push_back(barrier);
 
         barrier.setOldLayout(vk::ImageLayout::eColorAttachmentOptimal);
         barrier.setNewLayout(vk::ImageLayout::ePresentSrcKHR);
@@ -412,15 +365,15 @@ namespace rune::rhi
         barrier.setDstStageMask(vk::PipelineStageFlagBits2::eBottomOfPipe);
         barrier.setSrcAccessMask(vk::AccessFlagBits2::eColorAttachmentWrite);
         barrier.setDstAccessMask(vk::AccessFlagBits2::eNone);
-        vkCmdListInternalState->postRenderPassBarriers.push_back(barrier);
+        cmdList.internal->postRenderPassBarriers.push_back(barrier);
 
         vk::DependencyInfo depInfo{};
-        depInfo.setImageMemoryBarriers(vkCmdListInternalState->preRenderPassBarriers);
+        depInfo.setImageMemoryBarriers(cmdList.internal->preRenderPassBarriers);
         cmd.pipelineBarrier2(depInfo);
-        vkCmdListInternalState->preRenderPassBarriers.clear();
+        cmdList.internal->preRenderPassBarriers.clear();
 
         vk::RenderingAttachmentInfo attachment{};
-        attachment.setImageView(vkSwapchainInternalState->imageViews[vkSwapchainInternalState->imageIndex]);
+        attachment.setImageView(swapchain.internal->imageViews[swapchain.internal->imageIndex]);
         attachment.setImageLayout(vk::ImageLayout::eColorAttachmentOptimal);
         attachment.setLoadOp(vk::AttachmentLoadOp::eClear);
         attachment.setStoreOp(vk::AttachmentStoreOp::eStore);
@@ -436,28 +389,28 @@ namespace rune::rhi
 
         cmd.beginRendering(renderingInfo);
 
-        vkDeviceInternalState->submitWaitSemaphores.push_back(vkSwapchainInternalState->acquireSemaphore);
-        vkDeviceInternalState->submitSignalSemaphores.push_back(vkSwapchainInternalState->releaseSemaphore);
+        internal->submitWaitSemaphores.push_back(swapchain.internal->acquireSemaphore);
+        internal->submitSignalSemaphores.push_back(swapchain.internal->releaseSemaphore);
+
+        cmdList.internal->usedResources.push_back(swapchain.internal);
     }
 
     void Device::end_render_pass(CommandList& cmdList)
     {
-        auto vkCmdListInternalState = cmdList.get_internal_state<CommandListVulkan>();
-        auto cmd = vkCmdListInternalState->cmd;
+        auto cmd = cmdList.internal->cmd;
 
-        vkCmdListInternalState->cmd.endRendering();
+        cmdList.internal->cmd.endRendering();
 
         vk::DependencyInfo depInfo{};
-        depInfo.setImageMemoryBarriers(vkCmdListInternalState->postRenderPassBarriers);
+        depInfo.setImageMemoryBarriers(cmdList.internal->postRenderPassBarriers);
         cmd.pipelineBarrier2(depInfo);
-        vkCmdListInternalState->postRenderPassBarriers.clear();
+
+        cmdList.internal->postRenderPassBarriers.clear();
     }
 
     void Device::set_pipeline_state(PipelineState& state, CommandList& cmdList)
     {
-        auto vkDeviceInternalState = GET_VK_DEVICE_STATE();
-        auto vkCmdListInternalState = cmdList.get_internal_state<CommandListVulkan>();
-        auto cmd = vkCmdListInternalState->cmd;
+        auto cmd = cmdList.internal->cmd;
 
         assert(state.program);
         if (state.program == nullptr)
@@ -465,13 +418,15 @@ namespace rune::rhi
             // #TODO: Error
             return;
         }
-        auto vkProgramInternalState = state.program->get_internal_state<ShaderProgramVulkan>();
+        auto& program = state.program;
 
         // #TODO: Hash/Get/Create pipeline (base on current render pass)
 
-        cmd.bindPipeline(vkProgramInternalState->bindPoint, {});
+        cmd.bindPipeline(program->internal->bindPoint, {});
 
         // cmd.setPrimitiveTopology();
+
+        cmdList.internal->usedResources.push_back(program->internal);
     }
 
 }
