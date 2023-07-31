@@ -7,12 +7,29 @@
 
 namespace rune::rhi
 {
-    struct Resource
+    class Resource
     {
-        std::shared_ptr<void> internalState;
-
+    public:
         virtual ~Resource() = default;
-        bool is_valid() const { return internalState != nullptr; }
+
+        bool is_valid() const { return m_internalState != nullptr; }
+
+        template <typename T>
+        auto get_internal_state() -> std::shared_ptr<T>
+        {
+            return std::static_pointer_cast<T>(m_internalState);
+        }
+
+        template <typename T>
+        void set_internal_state(std::shared_ptr<T>& internalState)
+        {
+            m_internalState = internalState;
+        }
+
+        void set_internal_state(std::nullptr_t) { m_internalState = nullptr; }
+
+    private:
+        std::shared_ptr<void> m_internalState;
     };
 
     struct CommandList : public Resource

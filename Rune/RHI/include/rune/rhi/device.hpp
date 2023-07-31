@@ -43,7 +43,7 @@ namespace rune::rhi
          */
         void defer_deletion(Buffer& resource);
 
-        void begin_render_pass(const Swapchain& swapchain, CommandList& cmdList);
+        void begin_render_pass(Swapchain& swapchain, CommandList& cmdList);
         void begin_render_pass(const std::vector<RenderPassImage>& images, CommandList& cmdList);
         void end_render_pass(CommandList& cmdList);
         void set_pipeline_state(PipelineState& state, CommandList& cmdList);

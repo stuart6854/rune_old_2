@@ -193,17 +193,17 @@ namespace rune::rhi
     {
         auto* vkDeviceInternalState = GET_VK_DEVICE_STATE();
 
-        if (swapchain.internalState == nullptr)
+        if (!swapchain.is_valid())
         {
             auto newSwapChainState = std::make_shared<SwapChainVulkan>();
             newSwapChainState->instance = vkDeviceInternalState->instanceState->instance;
             newSwapChainState->physicalDevice = vkDeviceInternalState->physicalDevice;
             newSwapChainState->device = vkDeviceInternalState->device;
 
-            swapchain.internalState = newSwapChainState;
+            swapchain.set_internal_state(newSwapChainState);
             vkDeviceInternalState->activeSwapChains.push_back(newSwapChainState);
         }
-        auto vkSwapChainInternalState = static_pointer_cast<SwapChainVulkan>(swapchain.internalState);
+        auto vkSwapChainInternalState = swapchain.get_internal_state<SwapChainVulkan>();
 
         swapchain.desc = desc;
         if (!vkSwapChainInternalState->surface)
@@ -227,7 +227,7 @@ namespace rune::rhi
         auto* vkDeviceInternalState = GET_VK_DEVICE_STATE();
 
         auto vkShaderProgramInternalState = std::make_shared<ShaderProgramVulkan>();
-        program.internalState = vkShaderProgramInternalState;
+        program.set_internal_state(vkShaderProgramInternalState);
         program.desc = desc;
 
 #define CREATE_SHADER_MODULE(_stageDesc, _vkStage)                                             \
@@ -262,8 +262,8 @@ namespace rune::rhi
 
     bool Device::create_buffer(const BufferDesc& desc, Buffer& buffer)
     {
-        auto internalState = std::make_shared<BufferVulkan>();
-        buffer.internalState = internalState;
+        auto vkBufferInternalState = std::make_shared<BufferVulkan>();
+        buffer.set_internal_state(vkBufferInternalState);
 
         return true;
     }
@@ -282,7 +282,7 @@ namespace rune::rhi
 
         CommandList cmdList{};
         cmdList.queueType = queueType;
-        cmdList.internalState = vkCmdListInternalState;
+        cmdList.set_internal_state(vkCmdListInternalState);
 
         vk::CommandBufferBeginInfo beginInfo{};
         beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
@@ -368,19 +368,19 @@ namespace rune::rhi
 
     void Device::defer_deletion(Buffer& resource)
     {
-        auto internalState = std::static_pointer_cast<BufferVulkan>(resource.internalState);
+        auto internalState = resource.get_internal_state<BufferVulkan>();
 
-        resource.internalState = nullptr;
+        resource.set_internal_state(nullptr);
 
         // #TODO: Handle deferred deletion
     }
 
-    void Device::begin_render_pass(const Swapchain& swapchain, CommandList& cmdList)
+    void Device::begin_render_pass(Swapchain& swapchain, CommandList& cmdList)
     {
         auto vkDeviceInternalState = GET_VK_DEVICE_STATE();
-        auto vkCmdListInternalState = std::static_pointer_cast<CommandListVulkan>(cmdList.internalState);
+        auto vkCmdListInternalState = cmdList.get_internal_state<CommandListVulkan>();
         auto cmd = vkCmdListInternalState->cmd;
-        auto vkSwapchainInternalState = std::static_pointer_cast<SwapChainVulkan>(swapchain.internalState);
+        auto vkSwapchainInternalState = swapchain.get_internal_state<SwapChainVulkan>();
 
         auto result = vkDeviceInternalState->device.acquireNextImageKHR(
             vkSwapchainInternalState->swapchain, std::uint64_t(-1), vkSwapchainInternalState->acquireSemaphore, {});
@@ -442,7 +442,7 @@ namespace rune::rhi
 
     void Device::end_render_pass(CommandList& cmdList)
     {
-        auto vkCmdListInternalState = std::static_pointer_cast<CommandListVulkan>(cmdList.internalState);
+        auto vkCmdListInternalState = cmdList.get_internal_state<CommandListVulkan>();
         auto cmd = vkCmdListInternalState->cmd;
 
         vkCmdListInternalState->cmd.endRendering();
@@ -456,7 +456,7 @@ namespace rune::rhi
     void Device::set_pipeline_state(PipelineState& state, CommandList& cmdList)
     {
         auto vkDeviceInternalState = GET_VK_DEVICE_STATE();
-        auto vkCmdListInternalState = std::static_pointer_cast<CommandListVulkan>(cmdList.internalState);
+        auto vkCmdListInternalState = cmdList.get_internal_state<CommandListVulkan>();
         auto cmd = vkCmdListInternalState->cmd;
 
         assert(state.program);
@@ -465,7 +465,7 @@ namespace rune::rhi
             // #TODO: Error
             return;
         }
-        auto vkProgramInternalState = std::static_pointer_cast<ShaderProgramVulkan>(state.program->internalState);
+        auto vkProgramInternalState = state.program->get_internal_state<ShaderProgramVulkan>();
 
         // #TODO: Hash/Get/Create pipeline (base on current render pass)
 
