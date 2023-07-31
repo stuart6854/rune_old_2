@@ -252,17 +252,15 @@ namespace rune::rhi
 
     auto Device::begin_command_list(QueueType queueType) -> CommandList
     {
-        auto vkCmdListInternalState = std::make_shared<CommandListInternal>(internal);
-
         CommandList cmdList{};
         cmdList.queueType = queueType;
-        cmdList.internal = vkCmdListInternalState;
+        cmdList.internal = std::make_shared<CommandListInternal>(internal);
 
         vk::CommandBufferBeginInfo beginInfo{};
         beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-        vkCmdListInternalState->cmd.begin(beginInfo);
+        cmdList.internal->cmd.begin(beginInfo);
 
-        internal->activeCmdLists.push_back(vkCmdListInternalState);
+        internal->activeCmdLists.push_back(cmdList.internal);
 
         return cmdList;
     }
@@ -304,12 +302,19 @@ namespace rune::rhi
                 semaphoreInfo.setSemaphore(swapchain->releaseSemaphore);
             }
 
+            vk::Fence submittedFence = internal->device.createFence({});
+
             vk::SubmitInfo2 submitInfo{};
             submitInfo.setCommandBufferInfos(cmdBufferInfos);
             submitInfo.setWaitSemaphoreInfos(waitSemaphoreInfos);
             submitInfo.setSignalSemaphoreInfos(signalSemaphoreInfos);
 
-            internal->graphicsQueue.submit2(submitInfo);
+            internal->graphicsQueue.submit2(submitInfo, submittedFence);
+
+            auto& submittedCmdListsData = internal->submittedCmdLists.emplace_back();
+            submittedCmdListsData.cmdLists = internal->activeCmdLists;
+            submittedCmdListsData.fence = submittedFence;
+
             internal->activeCmdLists.clear();
         }
 

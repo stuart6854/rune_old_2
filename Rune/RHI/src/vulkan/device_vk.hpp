@@ -33,6 +33,13 @@ namespace rune::rhi
         std::vector<vk::Semaphore> submitWaitSemaphores;
         std::vector<vk::Semaphore> submitSignalSemaphores;
 
+        struct SubmittedCmdLists
+        {
+            vk::Fence fence = nullptr;
+            std::vector<std::shared_ptr<CommandListInternal>> cmdLists = {};
+        };
+        std::vector<SubmittedCmdLists> submittedCmdLists;
+
         ~DeviceInternal();
     };
 }
