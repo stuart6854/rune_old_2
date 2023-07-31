@@ -3,6 +3,7 @@
 #include "device_vk.hpp"
 #include "resources_vk.hpp"
 #include "type_conversions_vk.hpp"
+#include "shader_compilation_vk.hpp"
 
 #include <vulkan/vulkan.hpp>
 #define VMA_IMPLEMENTATION
@@ -197,35 +198,45 @@ namespace rune::rhi
         return true;
     }
 
-    bool Device::create_shader_program(const ShaderProgramDesc& desc, ShaderProgram& program)
+    bool Device::create_shader_program(ShaderProgramDesc& desc, ShaderProgram& program)
     {
         program.internal = std::make_shared<ShaderProgramInternal>();
         program.desc = desc;
 
-#define CREATE_SHADER_MODULE(_stageDesc, _vkStage)                                             \
-    if (_stageDesc.enabled)                                                                    \
-    {                                                                                          \
-        vk::ShaderModuleCreateInfo moduleInfo{};                                               \
-        moduleInfo.pCode = reinterpret_cast<const std::uint32_t*>(_stageDesc.byteCode.data()); \
-        moduleInfo.codeSize = _stageDesc.byteCode.size();                                      \
-        auto module = internal->device.createShaderModule(moduleInfo);                         \
-                                                                                               \
-        vk::PipelineShaderStageCreateInfo stageInfo{};                                         \
-        stageInfo.setModule(module);                                                           \
-        stageInfo.setPName("main");                                                            \
-        stageInfo.setStage(vk::ShaderStageFlagBits::_vkStage);                                 \
-        program.internal->stages.push_back(stageInfo);                                         \
+#define CREATE_SHADER_MODULE(_stageDesc, _vkStage)                                                                                    \
+    if (_stageDesc.enabled)                                                                                                           \
+    {                                                                                                                                 \
+        if (_stageDesc.byteCode.empty())                                                                                              \
+        {                                                                                                                             \
+            if (_stageDesc.sourceCode.empty())                                                                                        \
+            {                                                                                                                         \
+                _stageDesc.sourceCode = read_shader_source(_stageDesc.sourceFilename);                                                \
+            }                                                                                                                         \
+                                                                                                                                      \
+            _stageDesc.byteCode = compile_shader(_stageDesc.sourceCode, _vkStage, true, true, {}, _stageDesc.sourceFilename.c_str()); \
+        }                                                                                                                             \
+                                                                                                                                      \
+        vk::ShaderModuleCreateInfo moduleInfo{};                                                                                      \
+        moduleInfo.pCode = reinterpret_cast<const std::uint32_t*>(_stageDesc.byteCode.data());                                        \
+        moduleInfo.codeSize = _stageDesc.byteCode.size();                                                                             \
+        auto module = internal->device.createShaderModule(moduleInfo);                                                                \
+                                                                                                                                      \
+        vk::PipelineShaderStageCreateInfo stageInfo{};                                                                                \
+        stageInfo.setModule(module);                                                                                                  \
+        stageInfo.setPName("main");                                                                                                   \
+        stageInfo.setStage(_vkStage);                                                                                                 \
+        program.internal->stages.push_back(stageInfo);                                                                                \
     }
 
         if (desc.stages.compute.enabled)
         {
-            CREATE_SHADER_MODULE(desc.stages.compute, eCompute);
+            CREATE_SHADER_MODULE(desc.stages.compute, vk::ShaderStageFlagBits::eCompute);
             program.internal->bindPoint = vk::PipelineBindPoint::eCompute;
         }
         else
         {
-            CREATE_SHADER_MODULE(desc.stages.vertex, eVertex);
-            CREATE_SHADER_MODULE(desc.stages.fragment, eFragment);
+            CREATE_SHADER_MODULE(desc.stages.vertex, vk::ShaderStageFlagBits::eVertex);
+            CREATE_SHADER_MODULE(desc.stages.fragment, vk::ShaderStageFlagBits::eFragment);
             program.internal->bindPoint = vk::PipelineBindPoint::eGraphics;
         }
 

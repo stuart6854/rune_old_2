@@ -20,7 +20,7 @@ namespace rune::rhi
         bool create_swapchain(const SwapChainDesc& desc, void* window, Swapchain& swapchain);
         bool create_buffer(const BufferDesc& desc, Buffer& buffer);
 
-        bool create_shader_program(const ShaderProgramDesc& desc, ShaderProgram& program);
+        bool create_shader_program(ShaderProgramDesc& desc, ShaderProgram& program);
         bool create_shader_resource_binding(/* Shader, ShaderResourceBinding& shaderResourceBinding */);
 
         /**

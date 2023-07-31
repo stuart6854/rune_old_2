@@ -107,12 +107,12 @@ public:
         rhi::ShaderProgramDesc programDesc{};
         programDesc.stages.vertex = {
             .enabled = true,
-            .sourceFilePath = "triangle.vert",
+            .sourceFilename = "triangle.vert",
             .sourceEntryPoint = "main",
         };
         programDesc.stages.fragment = {
             .enabled = true,
-            .sourceFilePath = "triangle.frag",
+            .sourceFilename = "triangle.frag",
             .sourceEntryPoint = "main",
         };
         m_renderDevice->create_shader_program(programDesc, m_shaderProgram);

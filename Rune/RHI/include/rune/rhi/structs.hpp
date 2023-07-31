@@ -25,8 +25,8 @@ namespace rune::rhi
     struct ShaderStageDesc
     {
         bool enabled = false;
-        std::string sourceFilePath;
-        std::string sourceCode{};
+        std::string sourceFilename;
+        std::string sourceCode;
         std::string sourceEntryPoint;
 
         std::vector<std::uint8_t> byteCode{};
