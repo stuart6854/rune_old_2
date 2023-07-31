@@ -267,7 +267,6 @@ namespace rune::rhi
 
     void Device::submit_command_lists()
     {
-        std::vector<vk::Semaphore> submitSignalSemaphores{};
         if (!internal->activeCmdLists.empty())
         {
             // Command Buffers
@@ -280,34 +279,31 @@ namespace rune::rhi
                 cmdInfo.setCommandBuffer(internal->activeCmdLists[i]->cmd);
             }
 
-            // Wait Semaphores
+#if 0
+            // Swapchain Wait & Signal Semaphores
             std::vector<vk::SemaphoreSubmitInfo> waitSemaphoreInfos{};
-            for (auto i = 0; i < internal->activeSwapChains.size(); ++i)
-            {
-                auto& swapchain = internal->activeSwapChains[i];
-
-                auto& semaphoreInfo = waitSemaphoreInfos.emplace_back();
-                semaphoreInfo.setSemaphore(swapchain->acquireSemaphore);
-                semaphoreInfo.setStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput);
-            }
-
-            // Signal Semaphores
             std::vector<vk::SemaphoreSubmitInfo> signalSemaphoreInfos{};
             for (auto i = 0; i < internal->activeSwapChains.size(); ++i)
             {
                 auto& swapchain = internal->activeSwapChains[i];
 
-                submitSignalSemaphores.push_back(swapchain->releaseSemaphore);
-                auto& semaphoreInfo = signalSemaphoreInfos.emplace_back();
-                semaphoreInfo.setSemaphore(swapchain->releaseSemaphore);
+                auto& waitSemaphoreInfo = waitSemaphoreInfos.emplace_back();
+                waitSemaphoreInfo.setSemaphore(swapchain->acquireSemaphore);
+                waitSemaphoreInfo.setStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput);
+
+                auto& signalSemaphoreInfo = signalSemaphoreInfos.emplace_back();
+                signalSemaphoreInfo.setSemaphore(swapchain->releaseSemaphore);
+
+                presentWaitSemaphores.push_back(swapchain->releaseSemaphore);
             }
+#endif
 
             vk::Fence submittedFence = internal->device.createFence({});
 
             vk::SubmitInfo2 submitInfo{};
             submitInfo.setCommandBufferInfos(cmdBufferInfos);
-            submitInfo.setWaitSemaphoreInfos(waitSemaphoreInfos);
-            submitInfo.setSignalSemaphoreInfos(signalSemaphoreInfos);
+            submitInfo.setWaitSemaphoreInfos(internal->submitWaitSemaphores);
+            submitInfo.setSignalSemaphoreInfos(internal->submitSignalSemaphores);
 
             internal->graphicsQueue.submit2(submitInfo, submittedFence);
 
@@ -332,9 +328,13 @@ namespace rune::rhi
             vk::PresentInfoKHR presentInfo{};
             presentInfo.setSwapchains(swapchains);
             presentInfo.setImageIndices(imageIndices);
-            presentInfo.setWaitSemaphores(submitSignalSemaphores);
+            presentInfo.setWaitSemaphores(internal->presentWaitSemaphores);
             void(internal->graphicsQueue.presentKHR(presentInfo));
         }
+
+        internal->submitWaitSemaphores.clear();
+        internal->submitSignalSemaphores.clear();
+        internal->presentWaitSemaphores.clear();
     }
 
     void Device::wait_for_gpu()
@@ -405,8 +405,13 @@ namespace rune::rhi
 
         cmd.beginRendering(renderingInfo);
 
-        internal->submitWaitSemaphores.push_back(swapchain.internal->acquireSemaphore);
-        internal->submitSignalSemaphores.push_back(swapchain.internal->releaseSemaphore);
+        internal->activeSwapChains.push_back(swapchain.internal);
+
+        internal->submitWaitSemaphores.emplace_back(
+            swapchain.internal->acquireSemaphore, 0, vk::PipelineStageFlagBits2::eColorAttachmentOutput);
+        internal->submitSignalSemaphores.emplace_back(swapchain.internal->releaseSemaphore, 0);
+
+        internal->presentWaitSemaphores.push_back(swapchain.internal->releaseSemaphore);
 
         cmdList.internal->usedResources.push_back(swapchain.internal);
     }

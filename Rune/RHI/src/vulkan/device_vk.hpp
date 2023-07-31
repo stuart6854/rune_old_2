@@ -30,8 +30,9 @@ namespace rune::rhi
         vk::CommandPool commandPool;
         std::vector<std::shared_ptr<CommandListInternal>> activeCmdLists;
         std::vector<std::shared_ptr<SwapchainInternal>> activeSwapChains;
-        std::vector<vk::Semaphore> submitWaitSemaphores;
-        std::vector<vk::Semaphore> submitSignalSemaphores;
+        std::vector<vk::SemaphoreSubmitInfo> submitWaitSemaphores;
+        std::vector<vk::SemaphoreSubmitInfo> submitSignalSemaphores;
+        std::vector<vk::Semaphore> presentWaitSemaphores;
 
         struct SubmittedCmdLists
         {
