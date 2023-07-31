@@ -47,36 +47,6 @@ namespace rune::rhi
         ShaderProgramDesc desc;
     };
 
-    struct PipelineState
-    {
-        ShaderProgram* program = nullptr;
-
-        Topology topology = Topology::TriangleList;
-        struct Rasterization
-        {
-            FillMode fillMode = FillMode::Fill;
-            float lineWidth = 1.0f;
-            CullMode cullMode = CullMode::None;
-            bool reverseFrontFace = false;
-
-            float depthBias = 0.0f;
-            float depthBiasClamp = 0.0f;
-            float depthBiasSlopeFactor = 0.0f;
-            bool depthClipEnabled = false;
-            bool scissorTestEnable = false;
-        } rasterization;
-
-        struct DepthStencil
-        {
-            bool depthTestEnable = false;
-            bool depthWriteEnable = false;
-            // Depth func
-            bool stencilTestEnable = false;
-            // FrontFace (StencilFailOp, DepthFailOp, PassOp, etc.)
-            // BackFace (StencilFailOp, DepthFailOp, PassOp, etc.)
-        } depthStencil;
-    };
-
     struct GPUResource : public Resource
     {
         void* mappedData{ nullptr };
@@ -159,5 +129,35 @@ namespace rune::rhi
         std::uint32_t rtCount;
         Format dsFormat = Format::Undefined;
         std::uint32_t sampleCount;
+    };
+
+    struct PipelineState
+    {
+        ShaderProgram* program = nullptr;
+
+        Topology topology = Topology::TriangleList;
+        struct Rasterization
+        {
+            FillMode fillMode = FillMode::Fill;
+            float lineWidth = 1.0f;
+            CullMode cullMode = CullMode::None;
+            bool reverseFrontFace = false;
+
+            float depthBias = 0.0f;
+            float depthBiasClamp = 0.0f;
+            float depthBiasSlopeFactor = 0.0f;
+            bool depthClipEnabled = false;
+            bool scissorTestEnable = false;
+        } rasterization;
+
+        struct DepthStencil
+        {
+            bool depthTestEnable = false;
+            bool depthWriteEnable = false;
+            // Depth func
+            bool stencilTestEnable = false;
+            // FrontFace (StencilFailOp, DepthFailOp, PassOp, etc.)
+            // BackFace (StencilFailOp, DepthFailOp, PassOp, etc.)
+        } depthStencil;
     };
 }
