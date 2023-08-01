@@ -429,4 +429,18 @@ namespace rune::rhi
         cmdList.internal->usedResources.push_back(program->internal);
     }
 
+    void Device::draw(std::uint32_t vertexCount, std::uint32_t firstVertex, CommandList& cmdList)
+    {
+        auto cmd = cmdList.internal->cmd;
+
+        cmd.draw(vertexCount, 1, firstVertex, 0);
+    }
+
+    void Device::draw_indexed(std::uint32_t indexCount, std::uint32_t firstIndex, std::uint32_t vertexOffset, CommandList& cmdList)
+    {
+        auto cmd = cmdList.internal->cmd;
+
+        cmd.drawIndexed(indexCount, 1, firstIndex, vertexOffset, 0);
+    }
+
 }

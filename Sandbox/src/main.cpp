@@ -187,6 +187,7 @@ public:
         m_renderDevice->create_command_list(rhi::QueueType::Graphics, cmdList);
         m_renderDevice->begin(cmdList);
         m_renderDevice->begin_render_pass(m_swapchain, cmdList);
+        m_renderDevice->draw(3, 0, cmdList);
         m_renderDevice->end_render_pass(cmdList);
         m_renderDevice->end(cmdList);
         m_renderDevice->submit_command_lists({ cmdList }, frame.fence);
