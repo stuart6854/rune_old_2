@@ -194,6 +194,7 @@ public:
         m_renderDevice->set_pipeline_state(m_pipelineState, cmdList);
         m_renderDevice->set_viewport(0, 0, m_primaryWindow->fb_size().x, m_primaryWindow->fb_size().y, 0.0f, 1.0f, cmdList);
         m_renderDevice->set_scissor(0, 0, m_primaryWindow->fb_size().x, m_primaryWindow->fb_size().y, cmdList);
+        m_renderDevice->set_vertex_buffers(0, { m_vertexBuffer }, { 0 }, cmdList);
         m_renderDevice->draw(3, 0, cmdList);
         m_renderDevice->end_render_pass(cmdList);
         m_renderDevice->end(cmdList);
@@ -220,6 +221,7 @@ private:
     rhi::Swapchain m_swapchain;
     rhi::ShaderProgram m_shaderProgram;
     rhi::PipelineState m_pipelineState;
+    rhi::Buffer m_vertexBuffer;
 
 #if 0
     Shared<rhi::Device> m_renderDevice{};

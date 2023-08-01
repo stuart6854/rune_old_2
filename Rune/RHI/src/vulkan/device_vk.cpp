@@ -447,6 +447,27 @@ namespace rune::rhi
         cmd.setScissor(0, scissor);
     }
 
+    void Device::set_vertex_buffers(std::uint32_t first,
+                                    const std::vector<Buffer>& buffers,
+                                    const std::vector<std::uint64_t>& offset,
+                                    CommandList& cmdList)
+    {
+        auto cmd = cmdList.internal->cmd;
+
+        std::vector<vk::Buffer> vkBuffers(buffers.size());
+        for (auto i = 0; i < buffers.size(); ++i)
+            vkBuffers[i] = buffers[i].internal->buffer;
+
+        cmd.bindVertexBuffers(first, vkBuffers, offset);
+    }
+
+    void Device::set_index_buffer(const Buffer& buffer, std::uint64_t offset, CommandList& cmdList)
+    {
+        auto cmd = cmdList.internal->cmd;
+
+        cmd.bindIndexBuffer(buffer.internal->buffer, offset, vk::IndexType::eUint16);
+    }
+
     void Device::draw(std::uint32_t vertexCount, std::uint32_t firstVertex, CommandList& cmdList)
     {
         auto cmd = cmdList.internal->cmd;
