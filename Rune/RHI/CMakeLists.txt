@@ -6,6 +6,7 @@ add_library(Rune_RHI STATIC
 	src/vulkan/type_conversions_vk.cpp
 	src/vulkan/pipeline_library_vk.cpp
 	src/rune/rhi/shader_compilation.cpp
+	src/vulkan/reflection_vk.cpp
 )
 
 target_include_directories(Rune_RHI 

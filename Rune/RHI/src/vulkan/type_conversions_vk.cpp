@@ -12,6 +12,8 @@ namespace rune::rhi
             case rune::rhi::Format::R8G8B8Unorm: return vk::Format::eR8G8B8Unorm;
             case rune::rhi::Format::R8G8B8Srgb: return vk::Format::eR8G8B8Srgb;
             case rune::rhi::Format::R8G8B8A8Unorm: return vk::Format::eR8G8B8A8Unorm;
+            case rune::rhi::Format::RGB32Sfloat: return vk::Format::eR32G32B32Sfloat;
+            case rune::rhi::Format::RGBA32Sfloat: return vk::Format::eR32G32B32A32Sfloat;
             case rune::rhi::Format::R8G8B8A8Srgb: return vk::Format::eR8G8B8A8Srgb;
             case rune::rhi::Format::B8G8R8A8Srgb: return vk::Format::eB8G8R8A8Srgb;
             case rune::rhi::Format::Depth24Stencil8: return vk::Format::eD24UnormS8Uint;

@@ -21,6 +21,9 @@ namespace rune::rhi
 
     private:
         void create_shader_stages(const ShaderProgramDesc& desc, std::vector<vk::PipelineShaderStageCreateInfo>& outModules);
+        void create_vertex_input(const VertexInputFormat& vertexInputFormat,
+                                 std::vector<vk::VertexInputAttributeDescription>& outAttributes,
+                                 std::vector<vk::VertexInputBindingDescription>& outBindings);
 
     private:
         std::shared_ptr<DeviceInternal> m_device = nullptr;

@@ -27,6 +27,9 @@ namespace rune::rhi
         R8G8B8A8Unorm,
         R8G8B8A8Srgb,
 
+        RGB32Sfloat,
+        RGBA32Sfloat,
+
         B8G8R8A8Srgb,
 
         Depth24Stencil8,

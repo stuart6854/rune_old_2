@@ -1,6 +1,7 @@
 #include "pipeline_library_vk.hpp"
 
 #include "device_vk.hpp"
+#include "type_conversions_vk.hpp"
 
 #include <vulkan/vulkan_hash.hpp>
 
@@ -30,7 +31,14 @@ namespace rune::rhi
         std::vector<vk::PipelineShaderStageCreateInfo> shaderStages{};
         create_shader_stages(desc, shaderStages);
 
+        std::vector<vk::VertexInputAttributeDescription> vertexAttributes{};
+        std::vector<vk::VertexInputBindingDescription> vertexBindings{};
+        create_vertex_input(desc.vertexInputFormat, vertexAttributes, vertexBindings);
+
         vk::PipelineVertexInputStateCreateInfo vertexInputState{};
+        vertexInputState.setVertexAttributeDescriptions(vertexAttributes);
+        vertexInputState.setVertexBindingDescriptions(vertexBindings);
+
         vk::PipelineInputAssemblyStateCreateInfo inputAssemblyState{};
         inputAssemblyState.setTopology(vk::PrimitiveTopology::eTriangleList);
 
@@ -111,4 +119,26 @@ namespace rune::rhi
         CREATE_SHADER_MODULE(vk::ShaderStageFlagBits::eVertex, desc.stages.vertex.byteCode);
         CREATE_SHADER_MODULE(vk::ShaderStageFlagBits::eFragment, desc.stages.fragment.byteCode);
     }
+
+    void PipelineLibraryVulkan::create_vertex_input(const VertexInputFormat& vertexInputFormat,
+                                                    std::vector<vk::VertexInputAttributeDescription>& outAttributes,
+                                                    std::vector<vk::VertexInputBindingDescription>& outBindings)
+    {
+        for (const auto& attribute : vertexInputFormat.Attributes)
+        {
+            auto& outAttribute = outAttributes.emplace_back();
+            outAttribute.setBinding(attribute.binding);
+            outAttribute.setLocation(attribute.location);
+            outAttribute.setFormat(convert(attribute.format));
+            outAttribute.setOffset(attribute.offset);
+        }
+
+        for (const auto& binding : vertexInputFormat.Bindings)
+        {
+            auto& outBinding = outBindings.emplace_back();
+            outBinding.setBinding(binding.binding);
+            outBinding.setStride(binding.stride);
+        }
+    }
+
 }

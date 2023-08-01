@@ -22,6 +22,36 @@ namespace rune::rhi
         // bool allowHDR = true;
     };
 
+    struct VertexAttribute
+    {
+        std::uint32_t binding;
+        std::uint32_t location;
+        Format format;
+        std::uint32_t offset;
+
+        VertexAttribute() = default;
+        VertexAttribute(std::uint32_t binding, std::uint32_t location, Format format, std::uint32_t offset)
+            : binding(binding), location(location), format(format), offset(offset)
+        {
+        }
+    };
+
+    struct VertexBinding
+    {
+        std::uint32_t binding;
+        std::uint32_t stride;
+        // InputRate - https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkVertexInputRate.html
+
+        VertexBinding() = default;
+        VertexBinding(std::uint32_t binding, std::uint32_t stride) : binding(binding), stride(stride) {}
+    };
+
+    struct VertexInputFormat
+    {
+        std::vector<VertexAttribute> Attributes{};
+        std::vector<VertexBinding> Bindings{};
+    };
+
     struct ShaderStageDesc
     {
         std::vector<std::uint8_t> byteCode{};
@@ -36,10 +66,8 @@ namespace rune::rhi
             ShaderStageDesc fragment;
         } stages;
 
-        // Vertex Input should be reflected (or, optionally, defined)?
+        VertexInputFormat vertexInputFormat;  // Vertex Input should be reflected (or, optionally, defined)?
         // Attachment Targets will be determined during binding (based on current render pass).
-
-        // Could also allow (optional) default settings (for early PSO compilation), such as render targets, etc.
     };
 
     struct BufferDesc
@@ -47,7 +75,7 @@ namespace rune::rhi
         std::uint64_t size = 0;
         ReadWriteUsage usage = ReadWriteUsage::Default;
         UsageFlags bindFlags = UsageFlags::None;
-        // u32 stride = 0; ??  // For structured buffer types
+        // std::uint32_t stride = 0; ??  // For structured buffer types
         // Format format; ??   // For typed buffer
     };
 

@@ -129,6 +129,13 @@ public:
         programDesc.stages.fragment = {
             .byteCode = fragByteCode,
         };
+        programDesc.vertexInputFormat.Attributes = {
+            rhi::VertexAttribute(0, 0, rhi::Format::RGB32Sfloat, offsetof(Vertex, pos)),
+            rhi::VertexAttribute(0, 1, rhi::Format::RGB32Sfloat, offsetof(Vertex, color)),
+        };
+        programDesc.vertexInputFormat.Bindings = {
+            rhi::VertexBinding(0, sizeof(Vertex)),
+        };
         m_renderDevice->create_shader_program(programDesc, m_shaderProgram);
 
         m_pipelineState.program = &m_shaderProgram;
