@@ -4,7 +4,7 @@ add_library(Rune_RHI STATIC
 	src/vulkan/device_vk.cpp
 	src/vulkan/resources_vk.cpp
 	src/vulkan/type_conversions_vk.cpp
-	src/vulkan/shader_compilation_vk.cpp
+	src/rune/rhi/shader_compilation.cpp
 )
 
 target_include_directories(Rune_RHI 

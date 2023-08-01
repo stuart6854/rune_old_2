@@ -55,6 +55,9 @@ namespace rune::rhi
     enum class ShaderStages : std::uint8_t
     {
         Vertex,
+        TessellationControl,
+        TessellationEvaluation,
+        Geometry,
         Fragment,
         Compute,
         Count,

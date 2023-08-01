@@ -111,6 +111,16 @@ public:
         };
         m_renderDevice->create_swapchain(swapChainDesc, m_primaryWindow->native_surface_handle(), m_swapchain);
 
+        rhi::ShaderCompileDesc compileDesc{
+            .sourceLanguage = rhi::ShaderSourceLanguage::GLSL,
+            .sourceFilename = "triangle.vert",
+            .stage = rhi::ShaderStages::Vertex,
+            .debug = true,
+        };
+        auto vertByteCode = compile_shader_from_source(compileDesc);
+        compileDesc.sourceFilename = "triangle.frag";
+        compileDesc.stage = rhi::ShaderStages::Fragment;
+        auto fragByteCode = compile_shader_from_source(compileDesc);
         rhi::ShaderProgramDesc programDesc{};
         programDesc.stages.vertex = {
             .enabled = true,
