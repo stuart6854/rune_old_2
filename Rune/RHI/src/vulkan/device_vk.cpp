@@ -430,6 +430,33 @@ namespace rune::rhi
         cmdList.internal->usedResources.push_back(program->internal);
     }
 
+    void Device::set_viewport(
+        float topLeftX, float topLeftY, float width, float height, float minDepth, float maxDepth, CommandList& cmdList)
+    {
+        auto cmd = cmdList.internal->cmd;
+
+        vk::Viewport viewport{};
+        viewport.x = topLeftX;
+        viewport.y = topLeftY + height;
+        viewport.width = width;
+        viewport.height = -height;
+        viewport.minDepth = minDepth;
+        viewport.maxDepth = maxDepth;
+        cmd.setViewport(0, viewport);
+    }
+
+    void Device::set_scissor(std::int32_t left, std::int32_t top, std::int32_t right, std::int32_t bottom, CommandList& cmdList)
+    {
+        auto cmd = cmdList.internal->cmd;
+
+        vk::Rect2D scissor{};
+        scissor.extent.width = std::abs(right - left);
+        scissor.extent.height = std::abs(top - bottom);
+        scissor.offset.x = std::max(0, left);
+        scissor.offset.y = std::max(0, top);
+        cmd.setScissor(0, scissor);
+    }
+
     void Device::draw(std::uint32_t vertexCount, std::uint32_t firstVertex, CommandList& cmdList)
     {
         auto cmd = cmdList.internal->cmd;

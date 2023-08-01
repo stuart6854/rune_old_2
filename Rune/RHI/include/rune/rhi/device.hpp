@@ -57,6 +57,8 @@ namespace rune::rhi
         void begin_render_pass(const std::vector<RenderPassImage>& images, CommandList& cmdList);
         void end_render_pass(CommandList& cmdList);
         void set_pipeline_state(PipelineState& state, CommandList& cmdList);
+        void set_viewport(float topLeftX, float topLeftY, float width, float height, float minDepth, float maxDepth, CommandList& cmdList);
+        void set_scissor(std::int32_t left, std::int32_t top, std::int32_t right, std::int32_t bottom, CommandList& cmdList);
         void draw(std::uint32_t vertexCount, std::uint32_t vertexOffset, CommandList& cmdList);
         void draw_indexed(std::uint32_t indexCount, std::uint32_t indexOffset, std::uint32_t vertexOffset, CommandList& cmdList);
     };

@@ -187,6 +187,8 @@ public:
         m_renderDevice->create_command_list(rhi::QueueType::Graphics, cmdList);
         m_renderDevice->begin(cmdList);
         m_renderDevice->begin_render_pass(m_swapchain, cmdList);
+        m_renderDevice->set_viewport(0, 0, m_primaryWindow->fb_size().x, m_primaryWindow->fb_size().y, 0.0f, 1.0f, cmdList);
+        m_renderDevice->set_scissor(0, 0, m_primaryWindow->fb_size().x, m_primaryWindow->fb_size().y, cmdList);
         m_renderDevice->draw(3, 0, cmdList);
         m_renderDevice->end_render_pass(cmdList);
         m_renderDevice->end(cmdList);

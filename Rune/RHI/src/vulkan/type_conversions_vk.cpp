@@ -33,4 +33,28 @@ namespace rune::rhi
         return {};
     }
 
+    auto convert(Topology topology) -> vk::PrimitiveTopology
+    {
+        switch (topology)
+        {
+            case rune::rhi::Topology::PointList: return vk::PrimitiveTopology::ePointList;
+            case rune::rhi::Topology::LineList: return vk::PrimitiveTopology::eLineList;
+            case rune::rhi::Topology::TriangleList: return vk::PrimitiveTopology::eTriangleList;
+        }
+        assert(false);
+        return {};
+    }
+
+    auto convert(CullMode cullMode) -> vk::CullModeFlags
+    {
+        switch (cullMode)
+        {
+            case rune::rhi::CullMode::None: return vk::CullModeFlagBits::eNone;
+            case rune::rhi::CullMode::Front: return vk::CullModeFlagBits::eFront;
+            case rune::rhi::CullMode::Back: return vk::CullModeFlagBits::eBack;
+        }
+        assert(false);
+        return {};
+    }
+
 }
