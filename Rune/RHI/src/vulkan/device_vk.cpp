@@ -228,6 +228,8 @@ namespace rune::rhi
     {
         buffer.internal = std::make_shared<BufferInternal>(internal, desc);
         buffer.desc = desc;
+        buffer.mappedData = buffer.internal->map();
+        buffer.mappedSize = buffer.internal->size();
 
         return true;
     }

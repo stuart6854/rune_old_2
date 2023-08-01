@@ -110,6 +110,7 @@ namespace rune::rhi
         std::shared_ptr<DeviceInternal> device = nullptr;
         vk::Buffer buffer;
         vma::Allocation allocation;
+        vma::AllocationInfo allocationInfo;
 
         BufferInternal(std::shared_ptr<DeviceInternal>& device, const BufferDesc& desc) : device(device)
         {
@@ -120,15 +121,33 @@ namespace rune::rhi
             vma::AllocationCreateInfo allocInfo{};
             allocInfo.setUsage(convert(desc.readWriteUsage));
             if (desc.readWriteUsage == ReadWriteUsage::Upload || desc.readWriteUsage == ReadWriteUsage::ReadBack)
-                allocInfo.setFlags(vma::AllocationCreateFlagBits::eHostAccessSequentialWrite);
+                allocInfo.setFlags(vma::AllocationCreateFlagBits::eHostAccessSequentialWrite | vma::AllocationCreateFlagBits::eMapped);
 
-            std::tie(buffer, allocation) = device->allocator.createBuffer(bufferInfo, allocInfo);
+            std::tie(buffer, allocation) = device->allocator.createBuffer(bufferInfo, allocInfo, allocationInfo);
         }
 
-        ~BufferInternal()
+        ~BufferInternal() { device->allocator.destroyBuffer(buffer, allocation); }
+
+        auto size() const -> auto { return allocationInfo.size; }
+
+        auto map() -> void*
         {
-            if (allocation)
-                device->allocator.destroyBuffer(buffer, allocation);
+            if (allocationInfo.pMappedData)
+                return allocationInfo.pMappedData;
+
+            auto memoryTypeProps = device->allocator.getMemoryTypeProperties(allocationInfo.memoryType);
+            if (memoryTypeProps & vk::MemoryPropertyFlagBits::eHostVisible)
+                return device->allocator.mapMemory(allocation);
+        }
+
+        void unmap()
+        {
+            if (allocationInfo.pMappedData)
+                return;
+
+            auto memoryTypeProps = device->allocator.getMemoryTypeProperties(allocationInfo.memoryType);
+            if (memoryTypeProps & vk::MemoryPropertyFlagBits::eHostVisible)
+                device->allocator.unmapMemory(allocation);
         }
     };
 }

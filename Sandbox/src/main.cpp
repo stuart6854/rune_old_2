@@ -146,6 +146,7 @@ public:
             .usageFlags = rhi::UsageFlags::VertexBuffer,
         };
         m_renderDevice->create_buffer(bufferDesc, m_vertexBuffer);
+        m_vertexBuffer.write(0, bufferDesc.size, vertices.data());
 
         RUNE_CLIENT_INFO("Sandbox initialised.");
     }

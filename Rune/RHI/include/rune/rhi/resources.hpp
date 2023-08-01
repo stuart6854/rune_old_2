@@ -50,6 +50,15 @@ namespace rune::rhi
     struct Buffer : public GPUResource<BufferInternal>
     {
         BufferDesc desc;  // Visible to App/Engine. Stored here for convenience. (Not necessarily what GPU used for resource)
+
+        void write(std::uint64_t offset, std::uint64_t size, const void* data)
+        {
+            if (!mappedData)
+                return;
+
+            std::uint8_t* offsetPtr = static_cast<std::uint8_t*>(mappedData) + offset;
+            std::memcpy(offsetPtr, data, size);
+        }
     };
 
     struct TextureInternal;
