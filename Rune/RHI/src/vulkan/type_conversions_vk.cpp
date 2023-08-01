@@ -59,4 +59,29 @@ namespace rune::rhi
         return {};
     }
 
+    auto convert_buffer(UsageFlags usage) -> vk::BufferUsageFlagBits
+    {
+        switch (usage)
+        {
+            case rune::rhi::UsageFlags::VertexBuffer: return vk::BufferUsageFlagBits::eVertexBuffer;
+            case rune::rhi::UsageFlags::IndexBuffer: return vk::BufferUsageFlagBits::eIndexBuffer;
+            case rune::rhi::UsageFlags::UniformBuffer: return vk::BufferUsageFlagBits::eUniformBuffer;
+            case rune::rhi::UsageFlags::StorageBuffer: return vk::BufferUsageFlagBits::eStorageBuffer;
+        }
+        assert(false);
+        return {};
+    }
+
+    auto convert(ReadWriteUsage usage) -> vma::MemoryUsage
+    {
+        switch (usage)
+        {
+            case rune::rhi::ReadWriteUsage::Default: return vma::MemoryUsage::eAutoPreferDevice;
+            case rune::rhi::ReadWriteUsage::Upload: return vma::MemoryUsage::eAutoPreferDevice;
+            case rune::rhi::ReadWriteUsage::ReadBack: return vma::MemoryUsage::eAutoPreferDevice;
+        }
+        assert(false);
+        return {};
+    }
+
 }

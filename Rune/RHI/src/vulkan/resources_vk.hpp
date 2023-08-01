@@ -2,6 +2,7 @@
 
 #include "rune/rhi/structs.hpp"
 #include "device_vk.hpp"
+#include "type_conversions_vk.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan-memory-allocator-hpp/vk_mem_alloc.hpp>
@@ -109,6 +110,20 @@ namespace rune::rhi
         std::shared_ptr<DeviceInternal> device = nullptr;
         vk::Buffer buffer;
         vma::Allocation allocation;
+
+        BufferInternal(std::shared_ptr<DeviceInternal>& device, const BufferDesc& desc) : device(device)
+        {
+            vk::BufferCreateInfo bufferInfo{};
+            bufferInfo.setSize(desc.size);
+            bufferInfo.setUsage(convert_buffer(desc.usageFlags));
+
+            vma::AllocationCreateInfo allocInfo{};
+            allocInfo.setUsage(convert(desc.readWriteUsage));
+            if (desc.readWriteUsage == ReadWriteUsage::Upload || desc.readWriteUsage == ReadWriteUsage::ReadBack)
+                allocInfo.setFlags(vma::AllocationCreateFlagBits::eHostAccessSequentialWrite);
+
+            std::tie(buffer, allocation) = device->allocator.createBuffer(bufferInfo, allocInfo);
+        }
 
         ~BufferInternal()
         {

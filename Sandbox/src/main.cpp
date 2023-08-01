@@ -140,6 +140,13 @@ public:
 
         m_pipelineState.program = &m_shaderProgram;
 
+        rhi::BufferDesc bufferDesc{
+            .size = vertices.size() * sizeof(Vertex),
+            .readWriteUsage = rhi::ReadWriteUsage::Upload,
+            .usageFlags = rhi::UsageFlags::VertexBuffer,
+        };
+        m_renderDevice->create_buffer(bufferDesc, m_vertexBuffer);
+
         RUNE_CLIENT_INFO("Sandbox initialised.");
     }
 

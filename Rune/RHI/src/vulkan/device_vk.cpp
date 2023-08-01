@@ -226,7 +226,8 @@ namespace rune::rhi
 
     bool Device::create_buffer(const BufferDesc& desc, Buffer& buffer)
     {
-        buffer.internal = std::make_shared<BufferInternal>();
+        buffer.internal = std::make_shared<BufferInternal>(internal, desc);
+        buffer.desc = desc;
 
         return true;
     }

@@ -3,6 +3,7 @@
 #include "rune/rhi/enums.hpp"
 
 #include <vulkan/vulkan.hpp>
+#include <vulkan-memory-allocator-hpp/vk_mem_alloc.hpp>
 
 namespace rune::rhi
 {
@@ -12,4 +13,7 @@ namespace rune::rhi
 
     auto convert(Topology topology) -> vk::PrimitiveTopology;
     auto convert(CullMode cullMode) -> vk::CullModeFlags;
+
+    auto convert_buffer(UsageFlags usage) -> vk::BufferUsageFlagBits;
+    auto convert(ReadWriteUsage usage) -> vma::MemoryUsage;
 }

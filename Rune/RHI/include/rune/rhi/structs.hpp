@@ -73,8 +73,8 @@ namespace rune::rhi
     struct BufferDesc
     {
         std::uint64_t size = 0;
-        ReadWriteUsage usage = ReadWriteUsage::Default;
-        UsageFlags bindFlags = UsageFlags::None;
+        ReadWriteUsage readWriteUsage = ReadWriteUsage::Default;
+        UsageFlags usageFlags = UsageFlags::None;
         // std::uint32_t stride = 0; ??  // For structured buffer types
         // Format format; ??   // For typed buffer
     };
