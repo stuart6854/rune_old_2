@@ -188,6 +188,13 @@ namespace rune::rhi
         wait_for_gpu();
     }
 
+    bool Device::create_command_list(QueueType queueType, CommandList& cmdList)
+    {
+        cmdList.queueType = queueType;
+        cmdList.internal = std::make_shared<CommandListInternal>(internal);
+        return true;
+    }
+
     bool Device::create_fence(bool signaled, Fence& fence)
     {
         fence.internal = std::make_shared<FenceInternal>(internal, signaled);
@@ -221,13 +228,6 @@ namespace rune::rhi
     {
         buffer.internal = std::make_shared<BufferInternal>();
 
-        return true;
-    }
-
-    bool Device::create_command_list(QueueType queueType, CommandList& cmdList)
-    {
-        cmdList.queueType = queueType;
-        cmdList.internal = std::make_shared<CommandListInternal>(internal);
         return true;
     }
 

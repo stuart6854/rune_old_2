@@ -16,6 +16,7 @@ namespace rune::rhi
         Device(bool useDebugLayer);
         ~Device();
 
+        bool create_command_list(QueueType queueType, CommandList& cmdList);
         bool create_fence(bool signaled, Fence& fence);
         /* Create a swapchain. If recreating a swapchain, window can be nullptr. */
         bool create_swapchain(const SwapChainDesc& desc, void* window, Swapchain& swapchain);
@@ -25,17 +26,8 @@ namespace rune::rhi
         bool create_shader_resource_binding(/* Shader, ShaderResourceBinding& shaderResourceBinding */);
 
         /**
-         * @brief Begins a new command list for GPU recording.
-         * The command list remains valid until submit_command_lists() is called.
+         * @brief Submits command lists. Also presents all used Swapchains.
          */
-        // auto begin_command_list(QueueType queueType = QueueType::Graphics) -> CommandList;
-
-        bool create_command_list(QueueType queueType, CommandList& cmdList);
-
-        /**
-         * @brief Submits all begun command lists. Also presents all SwapChains.
-         */
-        // auto submit_command_lists(Fence& fence) -> std::uint64_t;
         void submit_command_lists(const std::vector<CommandList>& cmdList, Fence& fence);
 
         void wait_for_fence(Fence& fence);
