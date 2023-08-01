@@ -98,9 +98,16 @@ public:
 
         m_renderDevice = create_owned<rhi::Device>(false);
 
+        for (auto& frame : m_frames)
+        {
+            m_renderDevice->create_command_list(rhi::QueueType::Graphics, frame.cmdList);
+            m_renderDevice->create_fence(true, frame.fence);
+        }
+
         rhi::SwapChainDesc swapChainDesc{
             .width = u32(m_primaryWindow->fb_size().x),
             .height = u32(m_primaryWindow->fb_size().y),
+            .bufferCount = 3,
         };
         m_renderDevice->create_swapchain(swapChainDesc, m_primaryWindow->native_surface_handle(), m_swapchain);
 
@@ -124,8 +131,13 @@ public:
 
     void shutdown(Engine& /*engine*/) override
     {
-        // m_cmdList = nullptr;
-        // m_renderDevice = nullptr;
+        m_renderDevice->wait_for_gpu();
+
+        m_pipelineState = {};
+        m_shaderProgram = {};
+        m_swapchain = {};
+        m_frames = {};
+        m_renderDevice = {};
 
         platform::destroy_window(m_primaryWindow);
         m_primaryWindow = nullptr;
@@ -157,21 +169,40 @@ public:
         m_renderSurface->present();
 #endif
 
-        auto cmd = m_renderDevice->begin_command_list();
-        m_renderDevice->begin_render_pass(m_swapchain, cmd);
-        m_renderDevice->end_render_pass(cmd);
-        m_renderDevice->submit_command_lists();
+        auto& frame = m_frames[m_frameIndex];
+
+        m_renderDevice->wait_for_fence(frame.fence);
+
+        rhi::CommandList& cmdList = frame.cmdList;
+        m_renderDevice->create_command_list(rhi::QueueType::Graphics, cmdList);
+        m_renderDevice->begin(cmdList);
+        m_renderDevice->begin_render_pass(m_swapchain, cmdList);
+        m_renderDevice->end_render_pass(cmdList);
+        m_renderDevice->end(cmdList);
+        m_renderDevice->submit_command_lists({ cmdList }, frame.fence);
 
         if (m_primaryWindow->close_requested())
             engine.request_shutdown();
+
+        m_frameIndex = (m_frameIndex + 1) % m_frames.size();
     }
 
 private:
     platform::WindowPtr m_primaryWindow{};
     Owned<rhi::Device> m_renderDevice;
+
+    struct FrameBuffer
+    {
+        rhi::CommandList cmdList;
+        rhi::Fence fence;
+    };
+    std::array<FrameBuffer, 2> m_frames;
+    std::uint32_t m_frameIndex = 0;
+
     rhi::Swapchain m_swapchain;
     rhi::ShaderProgram m_shaderProgram;
     rhi::PipelineState m_pipelineState;
+
 #if 0
     Shared<rhi::Device> m_renderDevice{};
     Owned<rhi::Surface> m_renderSurface{};

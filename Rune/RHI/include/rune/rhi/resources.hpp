@@ -22,6 +22,11 @@ namespace rune::rhi
         QueueType queueType;
     };
 
+    struct FenceInternal;
+    struct Fence : public Resource<FenceInternal>
+    {
+    };
+
     struct SwapchainInternal;
     struct Swapchain : public Resource<SwapchainInternal>
     {

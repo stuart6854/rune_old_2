@@ -28,11 +28,6 @@ namespace rune::rhi
         vk::Queue graphicsQueue;
         vma::Allocator allocator;
         vk::CommandPool commandPool;
-        std::vector<std::shared_ptr<CommandListInternal>> activeCmdLists;
-        std::vector<std::shared_ptr<SwapchainInternal>> activeSwapChains;
-        std::vector<vk::SemaphoreSubmitInfo> submitWaitSemaphores;
-        std::vector<vk::SemaphoreSubmitInfo> submitSignalSemaphores;
-        std::vector<vk::Semaphore> presentWaitSemaphores;
 
         struct SubmittedCmdLists
         {

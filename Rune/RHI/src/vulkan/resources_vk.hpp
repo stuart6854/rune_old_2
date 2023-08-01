@@ -16,10 +16,10 @@ namespace rune::rhi
     {
         std::shared_ptr<DeviceInternal> device = nullptr;
         vk::CommandBuffer cmd = nullptr;
-        vk::Fence fence = nullptr;
         std::vector<vk::ImageMemoryBarrier2> preRenderPassBarriers = {};
         std::vector<vk::ImageMemoryBarrier2> postRenderPassBarriers = {};
 
+        std::vector<std::shared_ptr<SwapchainInternal>> usedSwapchains = {};
         std::vector<std::shared_ptr<void>> usedResources = {};
 
         CommandListInternal(std::shared_ptr<DeviceInternal> device) : device(device)
@@ -32,6 +32,25 @@ namespace rune::rhi
         }
 
         ~CommandListInternal() { device->device.freeCommandBuffers(device->commandPool, cmd); }
+    };
+
+    struct FenceInternal
+    {
+        std::shared_ptr<DeviceInternal> device = nullptr;
+        vk::Fence fence = nullptr;
+
+        FenceInternal(std::shared_ptr<DeviceInternal> device, bool signaled) : device(device)
+        {
+            fence = device->device.createFence({ signaled ? vk::FenceCreateFlagBits::eSignaled : vk::FenceCreateFlagBits() });
+        }
+
+        ~FenceInternal() { device->device.destroy(fence); }
+
+        void wait() const
+        {
+            device->device.waitForFences(fence, true, std::uint64_t(-1));
+            device->device.resetFences(fence);
+        }
     };
 
     struct SwapchainInternal

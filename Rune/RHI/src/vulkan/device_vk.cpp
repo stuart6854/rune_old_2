@@ -186,6 +186,12 @@ namespace rune::rhi
         wait_for_gpu();
     }
 
+    bool Device::create_fence(bool signaled, Fence& fence)
+    {
+        fence.internal = std::make_shared<FenceInternal>(internal, signaled);
+        return true;
+    }
+
     bool Device::create_swapchain(const SwapChainDesc& desc, void* window, Swapchain& swapchain)
     {
         if (!swapchain.is_valid())
@@ -250,91 +256,58 @@ namespace rune::rhi
         return true;
     }
 
-    auto Device::begin_command_list(QueueType queueType) -> CommandList
+    bool Device::create_command_list(QueueType queueType, CommandList& cmdList)
     {
-        CommandList cmdList{};
         cmdList.queueType = queueType;
         cmdList.internal = std::make_shared<CommandListInternal>(internal);
-
-        vk::CommandBufferBeginInfo beginInfo{};
-        beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-        cmdList.internal->cmd.begin(beginInfo);
-
-        internal->activeCmdLists.push_back(cmdList.internal);
-
-        return cmdList;
+        return true;
     }
 
-    void Device::submit_command_lists()
+    void Device::submit_command_lists(const std::vector<CommandList>& cmdList, Fence& fence)
     {
-        if (!internal->activeCmdLists.empty())
+        std::vector<vk::CommandBuffer> cmdBuffersToSubmit(cmdList.size());
+        std::vector<vk::PipelineStageFlags> submitWaitDstStageMasks;
+        std::vector<vk::Semaphore> submitWaitSemaphores;
+        std::vector<vk::Semaphore> submitSignalSemaphores;
+        std::vector<vk::SwapchainKHR> swapchainsToPresent;
+        std::vector<std::uint32_t> swapchainsToPresentImageIndices;
+        for (auto i = 0; i < cmdList.size(); ++i)
         {
-            // Command Buffers
-            std::vector<vk::CommandBufferSubmitInfo> cmdBufferInfos{};
-            for (auto i = 0; i < internal->activeCmdLists.size(); ++i)
+            cmdBuffersToSubmit[i] = { cmdList[i].internal->cmd };
+
+            for (auto& usedSwapchain : cmdList[i].internal->usedSwapchains)
             {
-                internal->activeCmdLists[i]->cmd.end();
-
-                auto& cmdInfo = cmdBufferInfos.emplace_back();
-                cmdInfo.setCommandBuffer(internal->activeCmdLists[i]->cmd);
+                submitWaitDstStageMasks.push_back(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+                submitWaitSemaphores.push_back(usedSwapchain->acquireSemaphore);
+                submitSignalSemaphores.push_back(usedSwapchain->releaseSemaphore);
+                swapchainsToPresent.push_back(usedSwapchain->swapchain);
+                swapchainsToPresentImageIndices.push_back(usedSwapchain->imageIndex);
             }
-
-#if 0
-            // Swapchain Wait & Signal Semaphores
-            std::vector<vk::SemaphoreSubmitInfo> waitSemaphoreInfos{};
-            std::vector<vk::SemaphoreSubmitInfo> signalSemaphoreInfos{};
-            for (auto i = 0; i < internal->activeSwapChains.size(); ++i)
-            {
-                auto& swapchain = internal->activeSwapChains[i];
-
-                auto& waitSemaphoreInfo = waitSemaphoreInfos.emplace_back();
-                waitSemaphoreInfo.setSemaphore(swapchain->acquireSemaphore);
-                waitSemaphoreInfo.setStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput);
-
-                auto& signalSemaphoreInfo = signalSemaphoreInfos.emplace_back();
-                signalSemaphoreInfo.setSemaphore(swapchain->releaseSemaphore);
-
-                presentWaitSemaphores.push_back(swapchain->releaseSemaphore);
-            }
-#endif
-
-            vk::Fence submittedFence = internal->device.createFence({});
-
-            vk::SubmitInfo2 submitInfo{};
-            submitInfo.setCommandBufferInfos(cmdBufferInfos);
-            submitInfo.setWaitSemaphoreInfos(internal->submitWaitSemaphores);
-            submitInfo.setSignalSemaphoreInfos(internal->submitSignalSemaphores);
-
-            internal->graphicsQueue.submit2(submitInfo, submittedFence);
-
-            auto& submittedCmdListsData = internal->submittedCmdLists.emplace_back();
-            submittedCmdListsData.cmdLists = internal->activeCmdLists;
-            submittedCmdListsData.fence = submittedFence;
-
-            internal->activeCmdLists.clear();
         }
+
+        vk::SubmitInfo submitInfo{};
+        submitInfo.setCommandBuffers(cmdBuffersToSubmit);
+        submitInfo.setWaitDstStageMask(submitWaitDstStageMasks);
+        submitInfo.setWaitSemaphores(submitWaitSemaphores);
+        submitInfo.setSignalSemaphores(submitSignalSemaphores);
+
+        internal->graphicsQueue.submit(submitInfo, fence.internal->fence);
 
         // Present Swapchains
-        if (!internal->activeSwapChains.empty())
+        if (!swapchainsToPresent.empty())
         {
-            std::vector<vk::SwapchainKHR> swapchains(internal->activeSwapChains.size());
-            std::vector<std::uint32_t> imageIndices(internal->activeSwapChains.size());
-            for (auto i = 0; i < swapchains.size(); ++i)
-            {
-                swapchains[i] = internal->activeSwapChains[i]->swapchain;
-                imageIndices[i] = internal->activeSwapChains[i]->imageIndex;
-            }
-
             vk::PresentInfoKHR presentInfo{};
-            presentInfo.setSwapchains(swapchains);
-            presentInfo.setImageIndices(imageIndices);
-            presentInfo.setWaitSemaphores(internal->presentWaitSemaphores);
-            void(internal->graphicsQueue.presentKHR(presentInfo));
+            presentInfo.setSwapchains(swapchainsToPresent);
+            presentInfo.setImageIndices(swapchainsToPresentImageIndices);
+            presentInfo.setWaitSemaphores(submitSignalSemaphores);
+            auto result = internal->graphicsQueue.presentKHR(presentInfo);
+            assert(result == vk::Result::eSuccess);
         }
+    }
 
-        internal->submitWaitSemaphores.clear();
-        internal->submitSignalSemaphores.clear();
-        internal->presentWaitSemaphores.clear();
+    void Device::wait_for_fence(Fence& fence)
+    {
+        fence.internal->wait();
     }
 
     void Device::wait_for_gpu()
@@ -345,6 +318,17 @@ namespace rune::rhi
     void Device::destroy_resource(Buffer& resource)
     {
         resource.internal = nullptr;
+    }
+
+    void Device::begin(CommandList& cmdList)
+    {
+        vk::CommandBufferBeginInfo beginInfo{};
+        cmdList.internal->cmd.begin(beginInfo);
+    }
+
+    void Device::end(CommandList& cmdList)
+    {
+        cmdList.internal->cmd.end();
     }
 
     void Device::begin_render_pass(Swapchain& swapchain, CommandList& cmdList)
@@ -358,6 +342,8 @@ namespace rune::rhi
         if (result.result != vk::Result::eSuccess)
         {
             // #TODO: Handle out-of-date swapchain
+            // assert(result.result == vk::Result::eSuccess);
+            // return;
         }
 
         vk::ImageMemoryBarrier2 barrier{};
@@ -405,14 +391,7 @@ namespace rune::rhi
 
         cmd.beginRendering(renderingInfo);
 
-        internal->activeSwapChains.push_back(swapchain.internal);
-
-        internal->submitWaitSemaphores.emplace_back(
-            swapchain.internal->acquireSemaphore, 0, vk::PipelineStageFlagBits2::eColorAttachmentOutput);
-        internal->submitSignalSemaphores.emplace_back(swapchain.internal->releaseSemaphore, 0);
-
-        internal->presentWaitSemaphores.push_back(swapchain.internal->releaseSemaphore);
-
+        cmdList.internal->usedSwapchains.push_back(swapchain.internal);
         cmdList.internal->usedResources.push_back(swapchain.internal);
     }
 
