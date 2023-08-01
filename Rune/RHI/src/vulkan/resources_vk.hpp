@@ -11,6 +11,7 @@
 namespace rune::rhi
 {
     class DeviceInternal;
+    struct PipelineState;
 
     struct CommandListInternal
     {
@@ -18,6 +19,8 @@ namespace rune::rhi
         vk::CommandBuffer cmd = nullptr;
         std::vector<vk::ImageMemoryBarrier2> preRenderPassBarriers = {};
         std::vector<vk::ImageMemoryBarrier2> postRenderPassBarriers = {};
+
+        PipelineState* activePipelineState = nullptr;
 
         std::vector<std::shared_ptr<SwapchainInternal>> usedSwapchains = {};
         std::vector<std::shared_ptr<void>> usedResources = {};
@@ -97,7 +100,7 @@ namespace rune::rhi
 
     struct ShaderProgramInternal
     {
-        std::vector<vk::PipelineShaderStageCreateInfo> stages;
+        vk::Pipeline pipeline;
         vk::PipelineBindPoint bindPoint;
     };
 

@@ -1,9 +1,12 @@
 #pragma once
 
+#include "pipeline_library_vk.hpp"
+
 #include <vulkan/vulkan.hpp>
 #include <vulkan-memory-allocator-hpp/vk_mem_alloc.hpp>
 
 #include <vector>
+#include <memory>
 
 namespace rune::rhi
 {
@@ -28,6 +31,7 @@ namespace rune::rhi
         vk::Queue graphicsQueue;
         vma::Allocator allocator;
         vk::CommandPool commandPool;
+        std::unique_ptr<PipelineLibraryVulkan> pipelineLibrary = nullptr;
 
         struct SubmittedCmdLists
         {

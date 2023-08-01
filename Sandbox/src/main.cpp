@@ -121,16 +121,13 @@ public:
         compileDesc.sourceFilename = "triangle.frag";
         compileDesc.stage = rhi::ShaderStages::Fragment;
         auto fragByteCode = compile_shader_from_source(compileDesc);
+
         rhi::ShaderProgramDesc programDesc{};
         programDesc.stages.vertex = {
-            .enabled = true,
-            .sourceFilename = "triangle.vert",
-            .sourceEntryPoint = "main",
+            .byteCode = vertByteCode,
         };
         programDesc.stages.fragment = {
-            .enabled = true,
-            .sourceFilename = "triangle.frag",
-            .sourceEntryPoint = "main",
+            .byteCode = fragByteCode,
         };
         m_renderDevice->create_shader_program(programDesc, m_shaderProgram);
 
@@ -187,6 +184,7 @@ public:
         m_renderDevice->create_command_list(rhi::QueueType::Graphics, cmdList);
         m_renderDevice->begin(cmdList);
         m_renderDevice->begin_render_pass(m_swapchain, cmdList);
+        m_renderDevice->set_pipeline_state(m_pipelineState, cmdList);
         m_renderDevice->set_viewport(0, 0, m_primaryWindow->fb_size().x, m_primaryWindow->fb_size().y, 0.0f, 1.0f, cmdList);
         m_renderDevice->set_scissor(0, 0, m_primaryWindow->fb_size().x, m_primaryWindow->fb_size().y, cmdList);
         m_renderDevice->draw(3, 0, cmdList);

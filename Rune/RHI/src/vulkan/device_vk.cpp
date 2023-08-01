@@ -2,8 +2,8 @@
 
 #include "device_vk.hpp"
 #include "resources_vk.hpp"
+#include "pipeline_library_vk.hpp"
 #include "type_conversions_vk.hpp"
-#include "shader_compilation_vk.hpp"
 
 #include <vulkan/vulkan.hpp>
 #define VMA_IMPLEMENTATION
@@ -179,6 +179,8 @@ namespace rune::rhi
         cmdPoolInfo.setQueueFamilyIndex(0);
         cmdPoolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
         internal->commandPool = internal->device.createCommandPool(cmdPoolInfo);
+
+        internal->pipelineLibrary = std::make_unique<PipelineLibraryVulkan>(internal);
     }
 
     Device::~Device()
@@ -210,42 +212,7 @@ namespace rune::rhi
         program.internal = std::make_shared<ShaderProgramInternal>();
         program.desc = desc;
 
-#define CREATE_SHADER_MODULE(_stageDesc, _vkStage)                                                                                    \
-    if (_stageDesc.enabled)                                                                                                           \
-    {                                                                                                                                 \
-        if (_stageDesc.byteCode.empty())                                                                                              \
-        {                                                                                                                             \
-            if (_stageDesc.sourceCode.empty())                                                                                        \
-            {                                                                                                                         \
-                _stageDesc.sourceCode = read_shader_source(_stageDesc.sourceFilename);                                                \
-            }                                                                                                                         \
-                                                                                                                                      \
-            _stageDesc.byteCode = compile_shader(_stageDesc.sourceCode, _vkStage, true, true, {}, _stageDesc.sourceFilename.c_str()); \
-        }                                                                                                                             \
-                                                                                                                                      \
-        vk::ShaderModuleCreateInfo moduleInfo{};                                                                                      \
-        moduleInfo.pCode = reinterpret_cast<const std::uint32_t*>(_stageDesc.byteCode.data());                                        \
-        moduleInfo.codeSize = _stageDesc.byteCode.size();                                                                             \
-        auto module = internal->device.createShaderModule(moduleInfo);                                                                \
-                                                                                                                                      \
-        vk::PipelineShaderStageCreateInfo stageInfo{};                                                                                \
-        stageInfo.setModule(module);                                                                                                  \
-        stageInfo.setPName("main");                                                                                                   \
-        stageInfo.setStage(_vkStage);                                                                                                 \
-        program.internal->stages.push_back(stageInfo);                                                                                \
-    }
-
-        if (desc.stages.compute.enabled)
-        {
-            CREATE_SHADER_MODULE(desc.stages.compute, vk::ShaderStageFlagBits::eCompute);
-            program.internal->bindPoint = vk::PipelineBindPoint::eCompute;
-        }
-        else
-        {
-            CREATE_SHADER_MODULE(desc.stages.vertex, vk::ShaderStageFlagBits::eVertex);
-            CREATE_SHADER_MODULE(desc.stages.fragment, vk::ShaderStageFlagBits::eFragment);
-            program.internal->bindPoint = vk::PipelineBindPoint::eGraphics;
-        }
+        program.internal->pipeline = internal->pipelineLibrary->get_or_build(desc);
 
         return true;
     }
@@ -323,6 +290,12 @@ namespace rune::rhi
 
     void Device::begin(CommandList& cmdList)
     {
+        cmdList.internal->activePipelineState = nullptr;
+        cmdList.internal->preRenderPassBarriers.clear();
+        cmdList.internal->postRenderPassBarriers.clear();
+        cmdList.internal->usedSwapchains.clear();
+        cmdList.internal->usedResources.clear();
+
         vk::CommandBufferBeginInfo beginInfo{};
         cmdList.internal->cmd.begin(beginInfo);
     }
@@ -420,13 +393,30 @@ namespace rune::rhi
             return;
         }
         auto& program = state.program;
+        auto* oldPipelineState = cmdList.internal->activePipelineState;
 
-        // #TODO: Hash/Get/Create pipeline (base on current render pass)
+        if (oldPipelineState == nullptr || oldPipelineState->program != program)
+            cmd.bindPipeline(program->internal->bindPoint, program->internal->pipeline);
 
-        cmd.bindPipeline(program->internal->bindPoint, {});
+        if (oldPipelineState == nullptr || oldPipelineState->topology != state.topology)
+            cmd.setPrimitiveTopology(convert(state.topology));
 
-        // cmd.setPrimitiveTopology();
+        if (oldPipelineState == nullptr || oldPipelineState->rasterization.cullMode != state.rasterization.cullMode)
+            cmd.setCullMode(convert(state.rasterization.cullMode));
 
+        if (oldPipelineState == nullptr || oldPipelineState->rasterization.reverseFrontFace != state.rasterization.reverseFrontFace)
+            cmd.setFrontFace(state.rasterization.reverseFrontFace ? vk::FrontFace::eCounterClockwise : vk::FrontFace::eClockwise);
+
+        if (oldPipelineState == nullptr || oldPipelineState->depthStencil.depthTestEnable != state.depthStencil.depthTestEnable)
+            cmd.setDepthTestEnable(state.depthStencil.depthTestEnable);
+
+        if (oldPipelineState == nullptr || oldPipelineState->depthStencil.depthWriteEnable != state.depthStencil.depthWriteEnable)
+            cmd.setDepthWriteEnable(state.depthStencil.depthWriteEnable);
+
+        if (oldPipelineState == nullptr || oldPipelineState->depthStencil.stencilTestEnable != state.depthStencil.stencilTestEnable)
+            cmd.setStencilTestEnable(state.depthStencil.stencilTestEnable);
+
+        cmdList.internal->activePipelineState = &state;
         cmdList.internal->usedResources.push_back(program->internal);
     }
 

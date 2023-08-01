@@ -4,6 +4,7 @@ add_library(Rune_RHI STATIC
 	src/vulkan/device_vk.cpp
 	src/vulkan/resources_vk.cpp
 	src/vulkan/type_conversions_vk.cpp
+	src/vulkan/pipeline_library_vk.cpp
 	src/rune/rhi/shader_compilation.cpp
 )
 
@@ -24,6 +25,8 @@ target_compile_definitions(Rune_RHI
 
 if(WIN32)
 	target_compile_definitions(Rune_RHI 
-		PRIVATE VK_USE_PLATFORM_WIN32_KHR
+		PRIVATE 
+			VK_USE_PLATFORM_WIN32_KHR 
+			NOMINMAX
 	)
 endif()
