@@ -199,6 +199,7 @@ namespace rune::rhi
             auto vkSwapchainState = std::make_shared<SwapchainInternal>(internal, window);
             swapchain.internal = vkSwapchainState;
         }
+        swapchain.desc = desc;
         swapchain.internal->resize(desc);
 
         return true;
